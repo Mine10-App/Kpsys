@@ -674,6 +674,33 @@
 <script src="Co.js"></script> <!-- Your company info -->
 
 <script>
+
+  // Load login user
+  const loginUserField = document.getElementById("loginUser");
+  const loginUser = localStorage.getItem("loginUser") || "Guest";
+  loginUserField.textContent = loginUser;
+
+  // ---------- LIVE SHIFT LOAD ----------
+  const shiftField = document.getElementById("shift");
+  async function loadCurrentShift() {
+    try {
+      const shiftQuery = await db.collection("shift")
+        .where("status", "==", "open")
+        .limit(1)
+        .get();
+      if (!shiftQuery.empty) {
+        const shiftData = shiftQuery.docs[0].data();
+        shiftField.textContent = shiftData.name || "Unknown";
+      } else {
+        shiftField.textContent = "No Shift Open";
+      }
+    } catch (err) {
+      console.error("Error fetching shift:", err);
+      shiftField.textContent = "Error";
+    }
+  }
+  document.addEventListener("DOMContentLoaded", loadCurrentShift);
+
   // Set current date
   const dateField = document.getElementById("date");
   dateField.value = new Date().toISOString().split('T')[0];
@@ -960,39 +987,7 @@
         timestamp: now
       };
 
-      // --- Set current date ---
-const dateField = document.getElementById("date");
-dateField.value = new Date().toISOString().split('T')[0];
-
-      // --- Capture login user from localStorage ---
-      const loginUserField = document.getElementById("loginUser");
-      const loginUser = localStorage.getItem("loginUser") || "Guest";
-      loginUserField.textContent = loginUser;
-      
-      // --- Capture currently open shift from Firebase ---
-      const shiftField = document.getElementById("shift");
-      
-      async function loadCurrentShift() {
-        try {
-          const shiftQuery = await db.collection("shift")
-            .where("status", "==", "open")
-            .limit(1)
-            .get();
-          
-          if (!shiftQuery.empty) {
-            const shiftData = shiftQuery.docs[0].data();
-            shiftField.textContent = shiftData.name || "Unknown";
-          } else {
-            shiftField.textContent = "No Shift Open";
-          }
-        } catch (err) {
-          console.error("Error fetching shift:", err);
-          shiftField.textContent = "Error";
-        }
-      }
-      
-      // Call the function
-      loadCurrentShift();
+    
 
       // Add cash payment details if payment type is cash
       if (paymentTypeSelect.value === "Cash") {
@@ -1045,5 +1040,6 @@ dateField.value = new Date().toISOString().split('T')[0];
 
 </body>
 </html>
+
 
 
