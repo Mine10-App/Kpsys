@@ -18,12 +18,7 @@
     --transition: all 0.3s ease;
   }
 
-  * {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-  }
-
+  * { box-sizing: border-box; margin: 0; padding: 0; }
   body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     background: linear-gradient(135deg, #f5f7fa 0%, #e4e8f0 100%);
@@ -33,10 +28,7 @@
     min-height: 100vh;
   }
 
-  .container {
-    max-width: 1200px;
-    margin: 0 auto;
-  }
+  .container { max-width: 1200px; margin: 0 auto; }
 
   .header {
     text-align: center;
@@ -47,293 +39,91 @@
     box-shadow: var(--shadow);
   }
 
-  .header h1 {
-    color: var(--primary);
-    font-weight: 700;
-    margin-bottom: 8px;
-    font-size: 32px;
-  }
-
-  .header p {
-    color: #7f8c8d;
-    font-size: 16px;
-  }
+  .header h1 { color: var(--primary); font-weight: 700; margin-bottom: 8px; font-size: 32px; }
+  .header p { color: #7f8c8d; font-size: 16px; }
 
   .controls {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 15px;
-    margin-bottom: 20px;
-    padding: 20px;
-    background: white;
-    border-radius: var(--radius);
-    box-shadow: var(--shadow);
-    flex-wrap: wrap;
+    display: flex; justify-content: center; align-items: center; gap: 15px;
+    margin-bottom: 20px; padding: 20px; background: white;
+    border-radius: var(--radius); box-shadow: var(--shadow); flex-wrap: wrap;
   }
 
-  .date-control {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-
-  .date-control label {
-    font-weight: 600;
-    color: var(--dark);
-  }
-
+  .date-control { display: flex; align-items: center; gap: 10px; }
+  .date-control label { font-weight: 600; color: var(--dark); }
   .date-control input {
-    padding: 10px 15px;
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    font-size: 16px;
-    transition: var(--transition);
+    padding: 10px 15px; border: 1px solid var(--border);
+    border-radius: var(--radius); font-size: 16px; transition: var(--transition);
   }
-
   .date-control input:focus {
-    outline: none;
-    border-color: var(--accent);
+    outline: none; border-color: var(--accent);
     box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
   }
 
   .btn {
-    padding: 12px 24px;
-    background: var(--accent);
-    color: white;
-    border: none;
-    border-radius: var(--radius);
-    font-size: 16px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: var(--transition);
-    display: flex;
-    align-items: center;
-    gap: 8px;
+    padding: 12px 24px; background: var(--accent); color: white;
+    border: none; border-radius: var(--radius); font-size: 16px;
+    font-weight: 600; cursor: pointer; transition: var(--transition);
+    display: flex; align-items: center; gap: 8px;
   }
-
-  .btn:hover {
-    background: #2980b9;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
-  }
-
-  .btn-print {
-    background: #27ae60;
-  }
-
-  .btn-print:hover {
-    background: #219653;
-  }
+  .btn:hover { background: #2980b9; transform: translateY(-2px); box-shadow: 0 4px 8px rgba(0,0,0,0.15); }
+  .btn-print { background: #27ae60; }
+  .btn-print:hover { background: #219653; }
 
   .report-container {
-    background: white;
-    border-radius: var(--radius);
-    box-shadow: var(--shadow);
-    overflow: hidden;
-    margin-bottom: 30px;
-    display: none;
+    background: white; border-radius: var(--radius); box-shadow: var(--shadow);
+    overflow: hidden; margin-bottom: 30px; display: none;
   }
-
-  .report-header {
-    background: var(--primary);
-    color: white;
-    padding: 25px;
-    text-align: center;
-  }
-
-  .report-header h2 {
-    margin-bottom: 10px;
-    font-weight: 700;
-    font-size: 28px;
-  }
-
-  .report-header p {
-    font-size: 16px;
-    opacity: 0.9;
-  }
-
-  .report-body {
-    padding: 30px;
-  }
-
-  .report-section {
-    margin-bottom: 30px;
-  }
-
+  .report-header { background: var(--primary); color: white; padding: 25px; text-align: center; }
+  .report-header h2 { margin-bottom: 10px; font-weight: 700; font-size: 28px; }
+  .report-header p { font-size: 16px; opacity: 0.9; }
+  .report-body { padding: 30px; }
+  .report-section { margin-bottom: 30px; }
   .report-section h3 {
-    color: var(--primary);
-    margin-bottom: 20px;
-    padding-bottom: 10px;
-    border-bottom: 2px solid var(--border);
-    display: flex;
-    align-items: center;
-    gap: 10px;
+    color: var(--primary); margin-bottom: 20px; padding-bottom: 10px;
+    border-bottom: 2px solid var(--border); display: flex; align-items: center; gap: 10px;
     font-size: 22px;
   }
-
-  .report-section h3 i {
-    font-size: 24px;
-    color: var(--accent);
-  }
+  .report-section h3 i { font-size: 24px; color: var(--accent); }
 
   table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 15px;
-    font-size: 14px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 14px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
   }
+  th, td { padding: 14px 16px; text-align: left; border-bottom: 1px solid var(--border); }
+  th { background: #f8f9fa; font-weight: 600; color: var(--dark); position: sticky; top: 0; }
+  tr:hover { background: #f8f9fa; }
 
-  th, td {
-    padding: 14px 16px;
-    text-align: left;
-    border-bottom: 1px solid var(--border);
-  }
+  .summary { margin-top: 30px; padding: 20px; background: #f8f9fa; border-radius: var(--radius); border-left: 4px solid var(--accent); }
+  .summary h3 { color: var(--primary); margin-bottom: 15px; font-size: 20px; }
+  .summary div { margin-bottom: 10px; font-weight: 600; font-size: 16px; padding: 8px 0; border-bottom: 1px dashed var(--border); }
+  .summary div:last-child { border-bottom: none; }
+  .voided { color: #e74c3c; font-weight: bold; }
+  .status-active { color: #27ae60; font-weight: 600; }
 
-  th {
-    background: #f8f9fa;
-    font-weight: 600;
-    color: var(--dark);
-    position: sticky;
-    top: 0;
-  }
-
-  tr:hover {
-    background: #f8f9fa;
-  }
-
-  .summary {
-    margin-top: 30px;
-    padding: 20px;
-    background: #f8f9fa;
-    border-radius: var(--radius);
-    border-left: 4px solid var(--accent);
-  }
-
-  .summary h3 {
-    color: var(--primary);
-    margin-bottom: 15px;
-    font-size: 20px;
-  }
-
-  .summary div {
-    margin-bottom: 10px;
-    font-weight: 600;
-    font-size: 16px;
-    padding: 8px 0;
-    border-bottom: 1px dashed var(--border);
-  }
-
-  .summary div:last-child {
-    border-bottom: none;
-  }
-
-  .voided {
-    color: #e74c3c;
-    font-weight: bold;
-  }
-
-  .status-active {
-    color: #27ae60;
-    font-weight: 600;
-  }
-
-  .loading {
-    text-align: center;
-    padding: 40px;
-    color: #7f8c8d;
-  }
-
-  .loading i {
-    font-size: 36px;
-    margin-bottom: 15px;
-    color: var(--accent);
-  }
-
-  .empty-state {
-    text-align: center;
-    padding: 50px;
-    color: #7f8c8d;
-  }
-
-  .empty-state i {
-    font-size: 48px;
-    margin-bottom: 15px;
-    color: #dfe6e9;
-  }
-
-  .empty-state p {
-    font-size: 18px;
-  }
+  .loading { text-align: center; padding: 40px; color: #7f8c8d; }
+  .loading i { font-size: 36px; margin-bottom: 15px; color: var(--accent); }
+  .empty-state { text-align: center; padding: 50px; color: #7f8c8d; }
+  .empty-state i { font-size: 48px; margin-bottom: 15px; color: #dfe6e9; }
+  .empty-state p { font-size: 18px; }
 
   @media (max-width: 768px) {
-    .controls {
-      flex-direction: column;
-    }
-    
-    .date-control {
-      flex-direction: column;
-      width: 100%;
-    }
-    
-    .report-body {
-      padding: 20px;
-    }
-    
-    table {
-      font-size: 12px;
-    }
-    
-    th, td {
-      padding: 10px 12px;
-    }
-    
-    .header h1 {
-      font-size: 24px;
-    }
-    
-    .report-header h2 {
-      font-size: 22px;
-    }
+    .controls { flex-direction: column; }
+    .date-control { flex-direction: column; width: 100%; }
+    .report-body { padding: 20px; }
+    table { font-size: 12px; }
+    th, td { padding: 10px 12px; }
+    .header h1 { font-size: 24px; }
+    .report-header h2 { font-size: 22px; }
   }
 
   @media print {
-    body {
-      background: white;
-      padding: 0;
-    }
-    
-    .container {
-      max-width: 100%;
-    }
-    
-    .header, .controls {
-      display: none;
-    }
-    
-    .report-container {
-      display: block !important;
-      box-shadow: none;
-      margin: 0;
-      width: 100%;
-    }
-    
-    .report-header {
-      background: white;
-      color: black;
-      border-bottom: 2px solid #000;
-    }
-    
-    table {
-      box-shadow: none;
-    }
-    
-    th {
-      background: #f0f0f0 !important;
-      -webkit-print-color-adjust: exact;
-      color-adjust: exact;
-    }
+    body { background: white; padding: 0; }
+    .container { max-width: 100%; }
+    .header, .controls { display: none; }
+    .report-container { display: block !important; box-shadow: none; margin: 0; width: 100%; }
+    .report-header { background: white; color: black; border-bottom: 2px solid #000; }
+    table { box-shadow: none; }
+    th { background: #f0f0f0 !important; -webkit-print-color-adjust: exact; color-adjust: exact; }
   }
 </style>
 </head>
@@ -350,12 +140,8 @@
       <label for="reportDate"><i class="fas fa-calendar-alt"></i> Select Date:</label>
       <input type="date" id="reportDate">
     </div>
-    <button id="generateBtn" class="btn">
-      <i class="fas fa-chart-line"></i> Generate Report
-    </button>
-    <button onclick="printReport()" class="btn btn-print">
-      <i class="fas fa-print"></i> Print Report
-    </button>
+    <button id="generateBtn" class="btn"><i class="fas fa-chart-line"></i> Generate Report</button>
+    <button onclick="printReport()" class="btn btn-print"><i class="fas fa-print"></i> Print Report</button>
   </div>
 
   <div class="report-container" id="reportContainer">
@@ -435,7 +221,6 @@ generateBtn.addEventListener("click", async () => {
   reportDateText.innerText = `Generated on: ${new Date().toLocaleDateString()}`;
 
   try {
-    // Show loading state
     receiptsTableBody.innerHTML = '<tr><td colspan="8" class="loading"><i class="fas fa-spinner fa-spin"></i> Loading data...</td></tr>';
     voidedTableBody.innerHTML = '';
     summaryDiv.innerHTML = '';
@@ -443,7 +228,8 @@ generateBtn.addEventListener("click", async () => {
     const start = new Date(selectedDate + "T00:00:00");
     const end = new Date(selectedDate + "T23:59:59");
 
-    const snapshot = await db.collection("bookings")
+    // UPDATED: Use payments collection
+    const snapshot = await db.collection("payments")
       .where("timestamp", ">=", start)
       .where("timestamp", "<=", end)
       .get();
@@ -457,11 +243,9 @@ generateBtn.addEventListener("click", async () => {
 
     snapshot.docs.forEach(doc => {
       const data = doc.data();
-
       const key = `${data.paymentType} (${data.currency})`;
 
       if(data.voided){
-        // Voided totals to subtract later
         if(data.paymentType.toLowerCase() === "cash"){
           if(!voidedByTypeCurrency[data.currency]) voidedByTypeCurrency[data.currency] = 0;
           voidedByTypeCurrency[data.currency] += data.total;
@@ -481,7 +265,6 @@ generateBtn.addEventListener("click", async () => {
         voidedTableBody.appendChild(tr);
 
       } else {
-        // Active receipts table
         const tr = document.createElement("tr");
         tr.innerHTML = `
           <td>${data.receiptNo}</td>
@@ -505,30 +288,15 @@ generateBtn.addEventListener("click", async () => {
       }
     });
 
-    // Subtract voided amounts
-    for(const curr in totalsCashByCurrency){
-      if(voidedByTypeCurrency[curr]) totalsCashByCurrency[curr] -= voidedByTypeCurrency[curr];
-    }
-    for(const key in totalsNonCashByTypeCurrency){
-      if(voidedByTypeCurrency[key]) totalsNonCashByTypeCurrency[key] -= voidedByTypeCurrency[key];
-    }
+    // Subtract voided totals
+    for(const curr in totalsCashByCurrency){ if(voidedByTypeCurrency[curr]) totalsCashByCurrency[curr] -= voidedByTypeCurrency[curr]; }
+    for(const key in totalsNonCashByTypeCurrency){ if(voidedByTypeCurrency[key]) totalsNonCashByTypeCurrency[key] -= voidedByTypeCurrency[key]; }
 
     // Build summary
     summaryDiv.innerHTML = "<h3>Summary (Active Receipts Only, Voided Excluded)</h3>";
+    for(const curr in totalsCashByCurrency){ if(totalsCashByCurrency[curr] > 0) summaryDiv.innerHTML += `<div>Total Cash in ${curr}: ${totalsCashByCurrency[curr].toFixed(2)}</div>`; }
+    for(const key in totalsNonCashByTypeCurrency){ if(totalsNonCashByTypeCurrency[key] > 0) summaryDiv.innerHTML += `<div>Total by ${key}: ${totalsNonCashByTypeCurrency[key].toFixed(2)}</div>`; }
 
-    for(const curr in totalsCashByCurrency){
-      if (totalsCashByCurrency[curr] > 0) {
-        summaryDiv.innerHTML += `<div>Total Cash in ${curr}: ${totalsCashByCurrency[curr].toFixed(2)}</div>`;
-      }
-    }
-
-    for(const key in totalsNonCashByTypeCurrency){
-      if (totalsNonCashByTypeCurrency[key] > 0) {
-        summaryDiv.innerHTML += `<div>Total by ${key}: ${totalsNonCashByTypeCurrency[key].toFixed(2)}</div>`;
-      }
-    }
-
-    // Show empty state if no data
     if (receiptsTableBody.children.length === 0 && voidedTableBody.children.length === 0) {
       receiptsTableBody.innerHTML = '<tr><td colspan="8" class="empty-state"><i class="fas fa-receipt"></i><p>No receipts found for this date</p></td></tr>';
     }
@@ -539,9 +307,7 @@ generateBtn.addEventListener("click", async () => {
   }
 });
 
-function printReport(){
-  window.print();
-}
+function printReport(){ window.print(); }
 </script>
 </body>
 </html>
