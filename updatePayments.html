@@ -1,331 +1,276 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Payment Management System</title>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-<style>
-:root {
-  --primary: #3498db;
-  --danger: #e74c3c;
-  --success: #2ecc71;
-  --gray: #bdc3c7;
-}
-body {
-  font-family: Arial, sans-serif;
-  margin: 0; padding: 0;
-  background: #f5f6fa;
-}
-.container {
-  max-width: 1200px;
-  margin: auto;
-  padding: 20px;
-}
-.header {
-  text-align: center;
-  margin-bottom: 20px;
-}
-.header h2 { margin: 0; color: var(--primary); }
-.header p { color: #666; }
+  <meta charset="UTF-8">
+  <title>Payments Update & Receipt Print</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; background: #f4f6f9; }
+    h2 { text-align: center; margin-top: 30px; }
+    table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+    table, th, td { border: 1px solid #ddd; }
+    th, td { padding: 10px; text-align: center; }
+    th { background: #333; color: #fff; }
+    select, input { padding: 5px; }
+    button { padding: 5px 10px; cursor: pointer; }
+    .status-badge { padding: 5px 8px; border-radius: 6px; color: #fff; font-size: 12px; }
+    .status-pending { background: orange; }
+    .status-complete { background: green; }
+    .notification {
+      position: fixed;
+      top: 20px; right: 20px;
+      background: #333; color: #fff;
+      padding: 10px 15px; border-radius: 6px;
+      display: none; z-index: 999;
+    }
+    .notification.success { background: green; }
+    .notification.error { background: red; }
 
-.controls {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 15px;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 20px;
-}
-.search-container { display: flex; align-items: center; gap: 10px; }
-
-.btn {
-  padding: 6px 12px;
-  border: none;
-  cursor: pointer;
-  border-radius: 5px;
-  background: var(--primary);
-  color: #fff;
-}
-.btn-success { background: var(--success); }
-.btn-void { background: var(--danger); }
-.btn-edit { background: orange; color:#fff; }
-.btn-view { background: var(--primary); color:#fff; }
-
-.bookings-container {
-  background: #fff;
-  border-radius: 8px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-  padding: 15px;
-}
-.bookings-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-.bookings-content { margin-top: 15px; overflow-x: auto; }
-table { width: 100%; border-collapse: collapse; }
-th, td {
-  padding: 8px 12px;
-  border-bottom: 1px solid #ddd;
-  text-align: left;
-}
-th { background: #f0f0f0; cursor: pointer; }
-.status-badge {
-  padding: 3px 8px;
-  border-radius: 12px;
-  font-size: 12px;
-  color: #fff;
-}
-.status-active { background: var(--success); }
-.status-voided { background: var(--danger); }
-.voided-row { background: #ffeaea; }
-
-.action-buttons { display: flex; gap: 5px; }
-.pagination { margin-top: 15px; text-align: center; }
-.pagination-btn {
-  padding: 5px 10px;
-  border: none;
-  margin: 0 2px;
-  cursor: pointer;
-  background: var(--primary);
-  color: #fff;
-  border-radius: 4px;
-}
-.pagination-btn.active { background: var(--success); }
-
-/* Modal */
-.modal {
-  display: none;
-  position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-  background: rgba(0,0,0,0.5);
-  justify-content: center; align-items: center;
-}
-.modal-content {
-  background: #fff;
-  padding: 20px;
-  border-radius: 8px;
-  width: 500px;
-  max-width: 90%;
-}
-.modal-header {
-  display: flex; justify-content: space-between; align-items: center;
-}
-.close-modal { border: none; background: none; font-size: 20px; cursor: pointer; }
-</style>
+    /* Receipt Modal */
+    .modal {
+      display: none; position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0,0,0,0.6); z-index: 1000;
+      justify-content: center; align-items: center;
+    }
+    .modal-content {
+      background: #fff; padding: 20px;
+      border-radius: 8px; width: 400px;
+    }
+    .modal-header { display: flex; justify-content: space-between; align-items: center; }
+    .modal-header h3 { margin: 0; }
+    .close-modal { cursor: pointer; font-size: 20px; }
+    .receipt { font-family: monospace; margin-top: 10px; }
+    .receipt h4 { margin-bottom: 10px; text-align: center; }
+    .receipt p { margin: 4px 0; }
+    .top-controls { text-align: right; margin-bottom: 10px; }
+  </style>
 </head>
 <body>
+  <h2>Payments Requiring Update</h2>
 
-<div class="container">
-  <div class="header">
-    <h2><i class="fas fa-calendar-check"></i> Payment Management System</h2>
-    <p>View, edit, and manage all Payment receipts in one place</p>
+  <div class="top-controls">
+    <button onclick="printAllReceipts()">🖨 Print All Pending Receipts</button>
   </div>
 
-  <div class="controls">
-    <div class="search-container">
-      <label for="searchReceipt">Search:</label>
-      <input type="number" id="searchReceipt" placeholder="Enter Receipt No">
-      <button id="searchBtn" class="btn"><i class="fas fa-search"></i> Search</button>
-    </div>
-    <div>
-      <button id="loadAllBtn" class="btn btn-success"><i class="fas fa-sync-alt"></i> Refresh</button>
-    </div>
-  </div>
+  <table id="paymentsTable">
+    <thead>
+      <tr>
+        <th>Receipt No</th>
+        <th>Name</th>
+        <th>Flight</th>
+        <th>Payment Type</th>
+        <th>Batch No</th>
+        <th>Approval Code</th>
+        <th>Status</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
 
-  <div class="bookings-container">
-    <div class="bookings-header">
-      <div class="bookings-header-left">
-        <i class="fas fa-list"></i>
-        <span>Payments List</span>
+  <h2>Voided Payments (Audit)</h2>
+  <table id="voidedTable">
+    <thead>
+      <tr>
+        <th>Receipt No</th>
+        <th>Name</th>
+        <th>Flight</th>
+        <th>Payment Type</th>
+        <th>Total</th>
+        <th>Date</th>
+        <th>Reason</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <div id="notification" class="notification"></div>
+
+  <!-- Receipt Modal -->
+  <div class="modal" id="receiptModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>Receipt</h3>
+        <span class="close-modal" onclick="closeReceiptModal()">&times;</span>
       </div>
-    </div>
-    <div class="bookings-content">
-      <div id="bookingsDiv">
-        <div class="loading">
-          <i class="fas fa-spinner fa-spin"></i>
-          <p>Loading payments...</p>
-        </div>
-      </div>
-      <div class="pagination">
-        <button id="prevPage" class="pagination-btn"><i class="fas fa-chevron-left"></i></button>
-        <span id="currentPage">1</span>
-        <button id="nextPage" class="pagination-btn"><i class="fas fa-chevron-right"></i></button>
-      </div>
+      <div id="receiptDetails" class="receipt"></div>
+      <button onclick="printReceipt()">🖨 Print</button>
     </div>
   </div>
-</div>
 
-<div class="modal" id="viewModal">
-  <div class="modal-content">
-    <div class="modal-header">
-      <h3><i class="fas fa-receipt"></i> Payment Details</h3>
-      <button class="close-modal">&times;</button>
-    </div>
-    <div class="modal-body" id="modalBody"></div>
-    <div class="modal-footer">
-      <button id="printBtn" class="btn btn-warning"><i class="fas fa-print"></i> Print</button>
-      <button class="btn" id="closeModalBtn" style="background: var(--gray);">Close</button>
-    </div>
-  </div>
-</div>
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+  <script src="fire2.js"></script>
 
-<!-- Firebase -->
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-<script>
-const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_PROJECT.firebaseapp.com",
-  projectId: "YOUR_PROJECT",
-  storageBucket: "YOUR_PROJECT.appspot.com",
-  messagingSenderId: "XXXX",
-  appId: "XXXX"
-};
-firebase.initializeApp(firebaseConfig);
-const db = firebase.firestore();
+  <script>
+    const paymentsTable = document.getElementById("paymentsTable").querySelector("tbody");
+    const voidedTable = document.getElementById("voidedTable").querySelector("tbody");
+    const notification = document.getElementById("notification");
+    const receiptModal = document.getElementById("receiptModal");
+    const receiptDetails = document.getElementById("receiptDetails");
 
-const bookingsDiv = document.getElementById("bookingsDiv");
-const searchReceipt = document.getElementById("searchReceipt");
-const searchBtn = document.getElementById("searchBtn");
-const loadAllBtn = document.getElementById("loadAllBtn");
-const viewModal = document.getElementById("viewModal");
-const closeModal = document.querySelector(".close-modal");
-const closeModalBtn = document.getElementById("closeModalBtn");
-const modalBody = document.getElementById("modalBody");
-const printBtn = document.getElementById("printBtn");
+    let pendingPayments = [];
 
-let allPayments = [];
-let filtered = [];
-let currentPage = 1;
-const pageSize = 10;
-
-async function loadPayments(query=null){
-  bookingsDiv.innerHTML = `<p>Loading...</p>`;
-  try {
-    let snapshot;
-    if(query){
-      snapshot = await db.collection("payments").where("receiptNo","==",parseInt(query)).get();
-    } else {
-      snapshot = await db.collection("payments").orderBy("timestamp","desc").get();
+    function showNotification(message, type="success") {
+      notification.textContent = message;
+      notification.className = `notification ${type}`;
+      notification.style.display = "block";
+      setTimeout(() => { notification.style.display = "none"; }, 3000);
     }
-    allPayments = snapshot.docs.map(d=>({id:d.id,data:d.data()}));
-    filtered = allPayments;
-    currentPage=1;
-    renderTable();
-  } catch(err){
-    bookingsDiv.innerHTML = `<p style="color:red;">Error: ${err.message}</p>`;
-  }
-}
 
-function renderTable(){
-  if(filtered.length===0){
-    bookingsDiv.innerHTML = `<p>No payments found.</p>`;
-    return;
-  }
-  const start = (currentPage-1)*pageSize;
-  const end = start+pageSize;
-  const pageData = filtered.slice(start,end);
-  let html = `<table><thead><tr>
-    <th>Receipt</th><th>Date</th><th>Name</th><th>Flight</th>
-    <th>Seat</th><th>Adults</th><th>Kids</th><th>Total</th>
-    <th>Payment</th><th>Status</th><th>Actions</th>
-  </tr></thead><tbody>`;
-  pageData.forEach(p=>{
-    const d = p.data;
-    const voided = d.voided;
-    html += `<tr class="${voided?'voided-row':''}">
-      <td>${d.receiptNo}</td>
-      <td>${d.date||'-'}</td>
-      <td>${d.name||'-'}</td>
-      <td>${d.flight||'-'}</td>
-      <td>${d.seat||'-'}</td>
-      <td>${d.adults||0}</td>
-      <td>${d.kids||0}</td>
-      <td>${d.total?d.total.toFixed(2):'0.00'} ${d.currency||''}</td>
-      <td>${d.paymentType||'-'}</td>
-      <td><span class="status-badge ${voided?'status-voided':'status-active'}">${voided?'VOID':'Active'}</span></td>
-      <td>
-        <button class="btn btn-view" onclick="viewBooking('${p.id}')"><i class="fas fa-eye"></i></button>
-        <button class="btn btn-edit" onclick="editBooking('${p.id}')"><i class="fas fa-edit"></i></button>
-        ${!voided?`<button class="btn btn-void" onclick="voidBooking('${p.id}')"><i class="fas fa-ban"></i></button>`:''}
-      </td>
-    </tr>`;
-  });
-  html += `</tbody></table>`;
-  bookingsDiv.innerHTML = html;
-  document.getElementById("currentPage").textContent=currentPage;
-}
+    function openReceiptModal(data) {
+      receiptDetails.innerHTML = `
+        <h4>Booking Receipt</h4>
+        <p><b>Receipt No:</b> ${data.receiptNo || ''}</p>
+        <p><b>Date:</b> ${data.date || ''}</p>
+        <p><b>Name:</b> ${data.name || ''}</p>
+        <p><b>Flight:</b> ${data.flight || ''}</p>
+        <p><b>Seat:</b> ${data.seat || ''}</p>
+        <p><b>Adults:</b> ${data.adults || 0}</p>
+        <p><b>Kids:</b> ${data.kids || 0}</p>
+        <p><b>Total:</b> ${data.total || '0.00'} ${data.currency || ''}</p>
+        <p><b>Payment:</b> ${data.paymentType || ''}</p>
+        <p><b>Batch No:</b> ${data.batchNo || '-'}</p>
+        <p><b>Approval Code:</b> ${data.approvalCode || '-'}</p>
+      `;
+      receiptModal.style.display = "flex";
+    }
 
-function viewBooking(id){
-  const payment = allPayments.find(p=>p.id===id);
-  if(!payment) return;
-  const d = payment.data;
-  modalBody.innerHTML = `
-    <p><b>Receipt:</b> ${d.receiptNo}</p>
-    <p><b>Name:</b> ${d.name}</p>
-    <p><b>Flight:</b> ${d.flight}</p>
-    <p><b>Seat:</b> ${d.seat}</p>
-    <p><b>Total:</b> ${d.total} ${d.currency}</p>
-    <p><b>Payment:</b> ${d.paymentType}</p>
-    <p><b>Status:</b> ${d.voided?'VOID':'Active'}</p>
-  `;
-  viewModal.style.display="flex";
-}
+    function closeReceiptModal() {
+      receiptModal.style.display = "none";
+    }
 
-async function editBooking(id){
-  const ref = db.collection("payments").doc(id);
-  const snap = await ref.get();
-  if(!snap.exists) return alert("Not found");
-  const d = snap.data();
-  const newPay = prompt("Payment Type (Cash/Card):", d.paymentType||"");
-  if(newPay===null) return;
-  if(newPay==="Cash"){
-    await ref.update({paymentType:"Cash",batchNo:null,approvalCode:null});
-  } else {
-    const batch = prompt("Batch No:", d.batchNo||"");
-    if(batch===null) return;
-    const code = prompt("Approval Code:", d.approvalCode||"");
-    if(code===null) return;
-    await ref.update({paymentType:newPay,batchNo:batch,approvalCode:code});
-  }
-  alert("Updated");
-  loadPayments();
-}
+    function printReceipt() {
+      const printWin = window.open("", "", "width=400,height=600");
+      printWin.document.write("<pre>" + receiptDetails.innerHTML + "</pre>");
+      printWin.document.close();
+      printWin.print();
+    }
 
-async function voidBooking(id){
-  const reason = prompt("Reason for void?");
-  if(!reason) return;
-  await db.collection("payments").doc(id).update({voided:true,voidReason:reason});
-  alert("Voided");
-  loadPayments();
-}
+    function printAllReceipts() {
+      if (pendingPayments.length === 0) { alert("No pending receipts to print."); return; }
+      let content = "<h2>Pending Receipts</h2>";
+      pendingPayments.forEach(d => {
+        content += `
+          <h4>Booking Receipt</h4>
+          <p><b>Receipt No:</b> ${d.receiptNo || ''}</p>
+          <p><b>Date:</b> ${d.date || ''}</p>
+          <p><b>Name:</b> ${d.name || ''}</p>
+          <p><b>Flight:</b> ${d.flight || ''}</p>
+          <p><b>Seat:</b> ${d.seat || ''}</p>
+          <p><b>Adults:</b> ${d.adults || 0}</p>
+          <p><b>Kids:</b> ${d.kids || 0}</p>
+          <p><b>Total:</b> ${d.total || '0.00'} ${d.currency || ''}</p>
+          <p><b>Payment:</b> ${d.paymentType || ''}</p>
+          <p><b>Batch No:</b> ${d.batchNo || '-'}</p>
+          <p><b>Approval Code:</b> ${d.approvalCode || '-'}</p>
+          <hr/>
+        `;
+      });
+      const printWin = window.open("", "", "width=500,height=700");
+      printWin.document.write("<pre>" + content + "</pre>");
+      printWin.document.close();
+      printWin.print();
+    }
 
-// Pagination
-document.getElementById("prevPage").addEventListener("click",()=>{
-  if(currentPage>1){ currentPage--; renderTable(); }
-});
-document.getElementById("nextPage").addEventListener("click",()=>{
-  if(currentPage*pageSize < filtered.length){ currentPage++; renderTable(); }
-});
+    function loadPayments() {
+      db.collection("payments").onSnapshot(snapshot => {
+        paymentsTable.innerHTML = "";
+        voidedTable.innerHTML = "";
+        pendingPayments = [];
 
-// Events
-searchBtn.addEventListener("click",()=>{
-  if(searchReceipt.value) loadPayments(searchReceipt.value);
-  else alert("Enter receipt no");
-});
-loadAllBtn.addEventListener("click",()=>{ searchReceipt.value=""; loadPayments(); });
-closeModal.addEventListener("click",()=>viewModal.style.display="none");
-closeModalBtn.addEventListener("click",()=>viewModal.style.display="none");
-window.addEventListener("click",e=>{ if(e.target===viewModal) viewModal.style.display="none"; });
-printBtn.addEventListener("click",()=>{
-  const printWin = window.open("","Print","width=800,height=600");
-  printWin.document.write("<html><body>"+modalBody.innerHTML+"</body></html>");
-  printWin.document.close(); printWin.print();
-});
+        snapshot.forEach(doc => {
+          const data = doc.data();
+          const id = doc.id;
 
-// Init
-window.addEventListener("DOMContentLoaded",()=>loadPayments());
-</script>
+          // ✅ Voided payments
+          if (data.voided === true) {
+            const row = document.createElement("tr");
+            row.innerHTML = `
+              <td>${data.receiptNo || ''}</td>
+              <td>${data.name || ''}</td>
+              <td>${data.flight || ''}</td>
+              <td>${data.paymentType || ''}</td>
+              <td>${data.total || ''}</td>
+              <td>${data.date || ''}</td>
+              <td>${data.voidReason || '-'}</td>
+            `;
+            voidedTable.appendChild(row);
+            return;
+          }
+
+          // Non-cash pending payments
+          if (data.paymentType !== "Cash" && (!data.batchNo || !data.approvalCode)) {
+            pendingPayments.push(data);
+
+            const row = document.createElement("tr");
+            row.innerHTML = `
+              <td>${data.receiptNo || ""}</td>
+              <td>${data.name || ""}</td>
+              <td>${data.flight || ""}</td>
+              <td>
+                <select class="payType">
+                  <option value="Card" ${data.paymentType==="Card"?"selected":""}>Card</option>
+                  <option value="Visa" ${data.paymentType==="Visa"?"selected":""}>Visa</option>
+                  <option value="MasterCard" ${data.paymentType==="MasterCard"?"selected":""}>MasterCard</option>
+                  <option value="Cash" ${data.paymentType==="Cash"?"selected":""}>Cash</option>
+                </select>
+              </td>
+              <td><input type="text" class="batchNo" value="${data.batchNo||""}"></td>
+              <td><input type="text" class="approvalCode" value="${data.approvalCode||""}"></td>
+              <td>
+                <span class="status-badge ${data.status==="complete"?"status-complete":"status-pending"}">
+                  ${data.status || "Pending"}
+                </span>
+              </td>
+              <td>
+                <button class="btn-update">Update</button>
+                <button class="btn-print">Print</button>
+              </td>
+            `;
+
+            row.querySelector(".btn-update").addEventListener("click", async () => {
+              const newPayType = row.querySelector(".payType").value;
+              const batchNo = row.querySelector(".batchNo").value.trim();
+              const approvalCode = row.querySelector(".approvalCode").value.trim();
+
+              if (newPayType==="Cash" && (batchNo || approvalCode)) {
+                alert("Cash payments must not have Batch No or Approval Code."); return;
+              }
+              if (newPayType!=="Cash" && (!batchNo || !approvalCode)) {
+                alert("Non-cash payments require Batch No and Approval Code."); return;
+              }
+
+              try {
+                await db.collection("payments").doc(id).update({
+                  paymentType: newPayType,
+                  batchNo: newPayType==="Cash"?null:batchNo,
+                  approvalCode: newPayType==="Cash"?null:approvalCode,
+                  status: "complete",
+                  updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+
+                const statusBadge = row.querySelector(".status-badge");
+                statusBadge.textContent = "Complete";
+                statusBadge.className = "status-badge status-complete";
+
+                showNotification("✅ Payment updated successfully!", "success");
+              } catch (err) {
+                showNotification("❌ Error updating payment: "+err.message, "error");
+              }
+            });
+
+            row.querySelector(".btn-print").addEventListener("click", () => openReceiptModal(data));
+
+            paymentsTable.appendChild(row);
+          }
+        });
+      });
+    }
+
+    loadPayments();
+    window.onclick = e => { if (e.target === receiptModal) closeReceiptModal(); }
+  </script>
 </body>
 </html>
