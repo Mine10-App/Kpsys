@@ -3,1088 +3,329 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Update Payments</title>
+<title>Payment Management System</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-<script src="fire2.js"></script>
-<script src="Co.js"></script>
 <style>
 :root {
-  --primary: #4361ee;
-  --primary-dark: #3a56d4;
-  --secondary: #6c757d;
-  --success: #28a745;
-  --danger: #dc3545;
-  --warning: #ffc107;
-  --info: #17a2b8;
-  --light: #f8f9fa;
-  --dark: #343a40;
-  --white: #ffffff;
-  --gray-100: #f8f9fa;
-  --gray-200: #e9ecef;
-  --gray-300: #dee2e6;
-  --gray-400: #ced4da;
-  --gray-500: #adb5bd;
-  --gray-600: #6c757d;
-  --gray-700: #495057;
-  --gray-800: #343a40;
-  --gray-900: #212529;
-  --border-radius: 12px;
-  --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  --transition: all 0.3s ease;
+  --primary: #3498db;
+  --danger: #e74c3c;
+  --success: #2ecc71;
+  --gray: #bdc3c7;
 }
-
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
 body {
-  font-family: 'Inter', sans-serif;
-  background-color: #f5f7fa;
-  color: var(--gray-800);
-  line-height: 1.6;
+  font-family: Arial, sans-serif;
+  margin: 0; padding: 0;
+  background: #f5f6fa;
 }
-
-/* Header Bar (replaces sidebar) */
-.header-bar {
-  background: linear-gradient(90deg, var(--primary) 0%, var(--primary-dark) 100%);
-  color: var(--white);
-  padding: 1rem 1.5rem;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  box-shadow: var(--shadow);
-  position: sticky;
-  top: 0;
-  z-index: 100;
+.container {
+  max-width: 1200px;
+  margin: auto;
+  padding: 20px;
 }
-
-.header-left {
-  display: flex;
-  align-items: center;
-  gap: 1.5rem;
+.header {
+  text-align: center;
+  margin-bottom: 20px;
 }
-
-.logo {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-}
-
-.logo h2 {
-  font-weight: 700;
-  font-size: 1.5rem;
-}
-
-.logo i {
-  font-size: 1.8rem;
-}
-
-.nav-links {
-  display: flex;
-  gap: 0.5rem;
-}
-
-.nav-item {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.5rem 1rem;
-  color: rgba(255, 255, 255, 0.9);
-  text-decoration: none;
-  border-radius: var(--border-radius);
-  transition: var(--transition);
-}
-
-.nav-item:hover, .nav-item.active {
-  background: rgba(255, 255, 255, 0.1);
-  color: var(--white);
-}
-
-.header-right {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-}
-
-.user-info {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-}
-
-.user-details {
-  text-align: right;
-}
-
-.user-details p {
-  margin-bottom: 0.25rem;
-  font-size: 0.9rem;
-}
-
-.level-badge {
-  background: rgba(255, 255, 255, 0.2);
-  padding: 0.25rem 0.5rem;
-  border-radius: 20px;
-  font-size: 0.8rem;
-  font-weight: 600;
-}
-
-.logout-btn {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.5rem 1rem;
-  color: rgba(255, 255, 255, 0.9);
-  border-radius: var(--border-radius);
-  cursor: pointer;
-  transition: var(--transition);
-}
-
-.logout-btn:hover {
-  background: rgba(255, 255, 255, 0.1);
-  color: var(--white);
-}
-
-/* Main Content */
-.main-content {
-  padding: 1.5rem;
-}
-
-.page-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  margin-bottom: 1.5rem;
-}
-
-.page-header h1 {
-  font-size: 1.8rem;
-  font-weight: 700;
-  color: var(--gray-800);
-  margin-bottom: 0.5rem;
-}
-
-.page-header p {
-  color: var(--gray-600);
-  font-size: 1rem;
-}
-
-.date-display {
-  background: var(--white);
-  padding: 0.75rem 1.25rem;
-  border-radius: var(--border-radius);
-  box-shadow: var(--shadow);
-  font-weight: 500;
-  color: var(--gray-700);
-}
-
-/* Controls Card */
-.controls-card {
-  background: var(--white);
-  border-radius: var(--border-radius);
-  box-shadow: var(--shadow);
-  padding: 1.5rem;
-  margin-bottom: 1.5rem;
-}
+.header h2 { margin: 0; color: var(--primary); }
+.header p { color: #666; }
 
 .controls {
   display: flex;
   flex-wrap: wrap;
-  gap: 1rem;
+  gap: 15px;
+  justify-content: space-between;
   align-items: center;
+  margin-bottom: 20px;
 }
+.search-container { display: flex; align-items: center; gap: 10px; }
 
-.search-box {
-  position: relative;
-  flex: 1;
-  min-width: 250px;
-}
-
-.search-box i {
-  position: absolute;
-  left: 1rem;
-  top: 50%;
-  transform: translateY(-50%);
-  color: var(--gray-500);
-}
-
-.search-box input {
-  width: 100%;
-  padding: 0.75rem 1rem 0.75rem 2.75rem;
-  border: 1px solid var(--gray-300);
-  border-radius: var(--border-radius);
-  font-size: 1rem;
-  transition: var(--transition);
-}
-
-.search-box input:focus {
-  outline: none;
-  border-color: var(--primary);
-  box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.15);
-}
-
-.filter-controls {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.75rem;
-  align-items: center;
-}
-
-.filter-controls select {
-  padding: 0.75rem 1rem;
-  border: 1px solid var(--gray-300);
-  border-radius: var(--border-radius);
-  background: var(--white);
-  font-size: 0.9rem;
-  cursor: pointer;
-  transition: var(--transition);
-}
-
-.filter-controls select:focus {
-  outline: none;
-  border-color: var(--primary);
-}
-
-.refresh-btn {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.75rem 1.25rem;
-  background: var(--primary);
-  color: var(--white);
+.btn {
+  padding: 6px 12px;
   border: none;
-  border-radius: var(--border-radius);
-  font-weight: 500;
   cursor: pointer;
-  transition: var(--transition);
+  border-radius: 5px;
+  background: var(--primary);
+  color: #fff;
 }
+.btn-success { background: var(--success); }
+.btn-void { background: var(--danger); }
+.btn-edit { background: orange; color:#fff; }
+.btn-view { background: var(--primary); color:#fff; }
 
-.refresh-btn:hover {
-  background: var(--primary-dark);
+.bookings-container {
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  padding: 15px;
 }
-
-/* Table Container */
-.table-container {
-  background: var(--white);
-  border-radius: var(--border-radius);
-  box-shadow: var(--shadow);
-  overflow: hidden;
-}
-
-.table-header {
+.bookings-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 1.25rem 1.5rem;
-  border-bottom: 1px solid var(--gray-200);
 }
-
-.table-header h2 {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  font-size: 1.25rem;
-  font-weight: 600;
-}
-
-#resultsCount {
-  color: var(--gray-600);
-  font-size: 0.9rem;
-}
-
-.table-scroll {
-  overflow-x: auto;
-}
-
-table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
+.bookings-content { margin-top: 15px; overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; }
 th, td {
-  padding: 1rem 1.25rem;
+  padding: 8px 12px;
+  border-bottom: 1px solid #ddd;
   text-align: left;
-  border-bottom: 1px solid var(--gray-200);
 }
-
-th {
-  background: var(--gray-100);
-  font-weight: 600;
-  color: var(--gray-700);
-  white-space: nowrap;
-}
-
-tbody tr {
-  transition: var(--transition);
-}
-
-tbody tr:hover {
-  background: var(--gray-100);
-}
-
-.loading, .empty-state {
-  text-align: center;
-  padding: 2rem;
-  color: var(--gray-600);
-}
-
-.empty-state i {
-  font-size: 2.5rem;
-  margin-bottom: 1rem;
-  color: var(--gray-400);
-}
-
-.empty-state p {
-  margin-top: 0.5rem;
-}
-
-.payType, .batchNo, .approvalCode {
-  padding: 0.5rem 0.75rem;
-  border: 1px solid var(--gray-300);
-  border-radius: 6px;
-  font-size: 0.9rem;
-  transition: var(--transition);
-  width: 100%;
-}
-
-.payType:focus, .batchNo:focus, .approvalCode:focus {
-  outline: none;
-  border-color: var(--primary);
-  box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.15);
-}
-
+th { background: #f0f0f0; cursor: pointer; }
 .status-badge {
-  padding: 0.35rem 0.75rem;
-  border-radius: 20px;
-  font-size: 0.8rem;
-  font-weight: 500;
-  display: inline-block;
+  padding: 3px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  color: #fff;
 }
+.status-active { background: var(--success); }
+.status-voided { background: var(--danger); }
+.voided-row { background: #ffeaea; }
 
-.status-complete {
-  background: rgba(40, 167, 69, 0.15);
-  color: var(--success);
-}
-
-.status-pending {
-  background: rgba(255, 193, 7, 0.15);
-  color: var(--warning);
-}
-
-.btn-update, .btn-print {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0.5rem;
+.action-buttons { display: flex; gap: 5px; }
+.pagination { margin-top: 15px; text-align: center; }
+.pagination-btn {
+  padding: 5px 10px;
   border: none;
-  border-radius: 6px;
+  margin: 0 2px;
   cursor: pointer;
-  transition: var(--transition);
-  margin-right: 0.5rem;
-}
-
-.btn-update {
-  background: var(--success);
-  color: var(--white);
-}
-
-.btn-update:hover {
-  background: #218838;
-}
-
-.btn-print {
-  background: var(--info);
-  color: var(--white);
-}
-
-.btn-print:hover {
-  background: #138496;
-}
-
-.pagination {
-  display: flex;
-  justify-content: center;
-  padding: 1.25rem;
-  gap: 0.5rem;
-}
-
-.pagination button {
-  padding: 0.5rem 0.9rem;
-  border: 1px solid var(--gray-300);
-  background: var(--white);
-  border-radius: 6px;
-  cursor: pointer;
-  transition: var(--transition);
-}
-
-.pagination button:hover {
-  background: var(--gray-100);
-}
-
-.pagination button.active {
   background: var(--primary);
-  color: var(--white);
-  border-color: var(--primary);
+  color: #fff;
+  border-radius: 4px;
 }
+.pagination-btn.active { background: var(--success); }
 
-/* Print Modal */
-.print-modal {
+/* Modal */
+.modal {
   display: none;
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.5);
-  z-index: 1000;
-  align-items: center;
-  justify-content: center;
+  position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+  background: rgba(0,0,0,0.5);
+  justify-content: center; align-items: center;
 }
-
-.print-modal-content {
-  background: var(--white);
-  border-radius: var(--border-radius);
-  width: 90%;
-  max-width: 500px;
-  padding: 1.5rem;
-  position: relative;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+.modal-content {
+  background: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  width: 500px;
+  max-width: 90%;
 }
-
-.close-modal {
-  position: absolute;
-  top: 1rem;
-  right: 1.25rem;
-  font-size: 1.5rem;
-  cursor: pointer;
-  color: var(--gray-500);
-  transition: var(--transition);
+.modal-header {
+  display: flex; justify-content: space-between; align-items: center;
 }
-
-.close-modal:hover {
-  color: var(--gray-700);
-}
-
-.receipt {
-  padding: 1.5rem;
-  border: 1px dashed var(--gray-300);
-  border-radius: var(--border-radius);
-  margin-bottom: 1.5rem;
-}
-
-.receipt-header {
-  text-align: center;
-  margin-bottom: 1.5rem;
-}
-
-.receipt-header h2 {
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: var(--gray-800);
-  margin-bottom: 0.25rem;
-}
-
-.receipt-header p {
-  color: var(--gray-600);
-  margin-bottom: 0.25rem;
-}
-
-.receipt-details p {
-  margin-bottom: 0.75rem;
-  padding-bottom: 0.75rem;
-  border-bottom: 1px solid var(--gray-200);
-}
-
-.receipt-details p:last-child {
-  border-bottom: none;
-  margin-bottom: 0;
-  padding-bottom: 0;
-}
-
-.receipt-footer {
-  text-align: center;
-  margin-top: 1.5rem;
-  padding-top: 1.5rem;
-  border-top: 1px dashed var(--gray-300);
-}
-
-.validity-notice {
-  font-weight: 500;
-  color: var(--info);
-  margin-bottom: 0.75rem;
-}
-
-.print-actions {
-  display: flex;
-  gap: 0.75rem;
-  justify-content: flex-end;
-}
-
-.btn-print-receipt, .btn-close-receipt {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.75rem 1.25rem;
-  border: none;
-  border-radius: var(--border-radius);
-  font-weight: 500;
-  cursor: pointer;
-  transition: var(--transition);
-}
-
-.btn-print-receipt {
-  background: var(--primary);
-  color: var(--white);
-}
-
-.btn-print-receipt:hover {
-  background: var(--primary-dark);
-}
-
-.btn-close-receipt {
-  background: var(--gray-200);
-  color: var(--gray-700);
-}
-
-.btn-close-receipt:hover {
-  background: var(--gray-300);
-}
-
-/* Responsive Design */
-@media (max-width: 992px) {
-  .header-bar {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 1rem;
-    padding: 1rem;
-  }
-  
-  .header-left, .header-right {
-    width: 100%;
-    justify-content: space-between;
-  }
-  
-  .nav-links {
-    flex-wrap: wrap;
-  }
-}
-
-@media (max-width: 768px) {
-  .page-header {
-    flex-direction: column;
-    gap: 1rem;
-  }
-  
-  .date-display {
-    align-self: flex-start;
-  }
-  
-  .controls {
-    flex-direction: column;
-    align-items: stretch;
-  }
-  
-  .search-box {
-    min-width: 100%;
-  }
-  
-  .filter-controls {
-    flex-direction: column;
-    align-items: stretch;
-  }
-  
-  .table-header {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 0.75rem;
-  }
-  
-  th, td {
-    padding: 0.75rem 0.5rem;
-  }
-}
-
-@media (max-width: 576px) {
-  .main-content {
-    padding: 1rem;
-  }
-  
-  .print-modal-content {
-    width: 95%;
-    padding: 1rem;
-  }
-  
-  .print-actions {
-    flex-direction: column;
-  }
-  
-  .user-details {
-    display: none;
-  }
-}
+.close-modal { border: none; background: none; font-size: 20px; cursor: pointer; }
 </style>
 </head>
 <body>
 
-<!-- Header Bar (replaces sidebar) -->
-<div class="header-bar">
-  <div class="header-left">
-    <div class="logo">
-      <h2><i class="fas fa-money-bill-wave"></i> Payment System</h2>
-    </div>
-    
-    <div class="nav-links">
-      <a href="dashboard.html" class="nav-item"><i class="fas fa-home"></i> Dashboard</a>
-      <a href="update-payments.html" class="nav-item active"><i class="fas fa-sync-alt"></i> Update Payments</a>
-      <a href="reports.html" class="nav-item"><i class="fas fa-chart-bar"></i> Reports</a>
-    </div>
+<div class="container">
+  <div class="header">
+    <h2><i class="fas fa-calendar-check"></i> Payment Management System</h2>
+    <p>View, edit, and manage all Payment receipts in one place</p>
   </div>
-  
-  <div class="header-right">
-    <div class="user-info">
-      <div class="user-details">
-        <p id="sidebarUsername">Username</p>
-        <p>Level: <span class="level-badge" id="sidebarLevel">Level</span></p>
-      </div>
-      <div class="logout-btn" onclick="logout()">
-        <i class="fas fa-sign-out-alt"></i> Logout
-      </div>
-    </div>
-  </div>
-</div>
 
-<!-- Main Content -->
-<div class="main-content">
-  <div class="page-header">
+  <div class="controls">
+    <div class="search-container">
+      <label for="searchReceipt">Search:</label>
+      <input type="number" id="searchReceipt" placeholder="Enter Receipt No">
+      <button id="searchBtn" class="btn"><i class="fas fa-search"></i> Search</button>
+    </div>
     <div>
-      <h1>Update Payments</h1>
-      <p>Manage and update payment details for completed transactions</p>
-    </div>
-    <div class="date-display" id="currentDate"></div>
-  </div>
-
-  <div class="controls-card">
-    <div class="controls">
-      <div class="search-box">
-        <i class="fas fa-search"></i>
-        <input type="text" id="searchInput" placeholder="Search by receipt no, name, or flight...">
-      </div>
-      
-      <div class="filter-controls">
-        <select id="paymentTypeFilter">
-          <option value="">All Payment Types</option>
-          <option value="Cash">Cash</option>
-          <option value="Visa">Visa</option>
-          <option value="MasterCard">MasterCard</option>
-          <option value="Amex">Amex</option>
-          <option value="UnionPay">UnionPay</option>
-          <option value="QR Sale">QR Sale</option>
-          <option value="Other">Other</option>
-        </select>
-        
-        <select id="statusFilter">
-          <option value="">All Statuses</option>
-          <option value="complete">Complete</option>
-          <option value="pending">Pending</option>
-        </select>
-        
-        <button class="refresh-btn" id="refreshBtn"><i class="fas fa-sync-alt"></i> Refresh</button>
-      </div>
+      <button id="loadAllBtn" class="btn btn-success"><i class="fas fa-sync-alt"></i> Refresh</button>
     </div>
   </div>
 
-  <div class="table-container">
-    <div class="table-header">
-      <h2><i class="fas fa-receipt"></i> Payment Records</h2>
-      <div id="resultsCount">0 results</div>
-    </div>
-    
-    <div class="table-scroll">
-      <table id="paymentsTable">
-        <thead>
-          <tr>
-            <th>Receipt No</th>
-            <th>Name</th>
-            <th>Flight</th>
-            <th>Total Amount</th>
-            <th>Payment Type</th>
-            <th>Batch No</th>
-            <th>Approval Code</th>
-            <th>Status</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td colspan="9" class="loading">
-              <i class="fas fa-spinner fa-spin"></i> Loading payments...
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-
-    <div class="pagination" id="pagination"></div>
-  </div>
-</div>
-
-<!-- Print Receipt Modal -->
-<div class="print-modal" id="printModal">
-  <div class="print-modal-content">
-    <span class="close-modal" id="closeModal">&times;</span>
-    <div class="receipt" id="receiptContent">
-      <div class="receipt-header">
-        <h2 id="companyNameHeader">Koveli Lounge</h2>
-        <p id="companyAddress">Velana International Airport</p>
-        <p id="companyPhone">+960 304 6677</p>
-      </div>
-      
-      <div class="receipt-details" id="receiptDetails"></div>
-      
-      <div class="receipt-footer">
-        <p class="validity-notice">This package is valid for three hours from the time of purchase</p>
-        <p>Thank you for your business!</p>
+  <div class="bookings-container">
+    <div class="bookings-header">
+      <div class="bookings-header-left">
+        <i class="fas fa-list"></i>
+        <span>Payments List</span>
       </div>
     </div>
-    
-    <div class="print-actions">
-      <button class="btn-print-receipt" id="printReceiptBtn"><i class="fas fa-print"></i> Print Receipt</button>
-      <button class="btn-close-receipt" id="closeReceiptBtn"><i class="fas fa-times"></i> Close</button>
+    <div class="bookings-content">
+      <div id="bookingsDiv">
+        <div class="loading">
+          <i class="fas fa-spinner fa-spin"></i>
+          <p>Loading payments...</p>
+        </div>
+      </div>
+      <div class="pagination">
+        <button id="prevPage" class="pagination-btn"><i class="fas fa-chevron-left"></i></button>
+        <span id="currentPage">1</span>
+        <button id="nextPage" class="pagination-btn"><i class="fas fa-chevron-right"></i></button>
+      </div>
     </div>
   </div>
 </div>
 
+<div class="modal" id="viewModal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3><i class="fas fa-receipt"></i> Payment Details</h3>
+      <button class="close-modal">&times;</button>
+    </div>
+    <div class="modal-body" id="modalBody"></div>
+    <div class="modal-footer">
+      <button id="printBtn" class="btn btn-warning"><i class="fas fa-print"></i> Print</button>
+      <button class="btn" id="closeModalBtn" style="background: var(--gray);">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 <script>
-window.addEventListener('load', function() {
-  // Show current date
-  const now = new Date();
-  const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-  document.getElementById('currentDate').textContent = now.toLocaleDateString('en-US', options);
+const firebaseConfig = {
+  apiKey: "YOUR_API_KEY",
+  authDomain: "YOUR_PROJECT.firebaseapp.com",
+  projectId: "YOUR_PROJECT",
+  storageBucket: "YOUR_PROJECT.appspot.com",
+  messagingSenderId: "XXXX",
+  appId: "XXXX"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
 
-  // Logged in user
-  const user = JSON.parse(localStorage.getItem("loggedInUser"));
-  if (user) {
-    document.getElementById("sidebarUsername").textContent = user.username;
-    document.getElementById("sidebarLevel").textContent = user.Level;
-  } else {
-    window.location.href = "login.html";
-  }
+const bookingsDiv = document.getElementById("bookingsDiv");
+const searchReceipt = document.getElementById("searchReceipt");
+const searchBtn = document.getElementById("searchBtn");
+const loadAllBtn = document.getElementById("loadAllBtn");
+const viewModal = document.getElementById("viewModal");
+const closeModal = document.querySelector(".close-modal");
+const closeModalBtn = document.getElementById("closeModalBtn");
+const modalBody = document.getElementById("modalBody");
+const printBtn = document.getElementById("printBtn");
 
-  // Firebase init
-  if (typeof firebaseConfig !== 'undefined') {
-    try { firebase.initializeApp(firebaseConfig); } catch(e) {}
-  }
+let allPayments = [];
+let filtered = [];
+let currentPage = 1;
+const pageSize = 10;
 
-  const tableBody = document.querySelector("#paymentsTable tbody");
-  const searchInput = document.getElementById("searchInput");
-  const paymentTypeFilter = document.getElementById("paymentTypeFilter");
-  const statusFilter = document.getElementById("statusFilter");
-  const refreshBtn = document.getElementById("refreshBtn");
-  const paginationContainer = document.getElementById("pagination");
-  const printModal = document.getElementById("printModal");
-  const closeModal = document.getElementById("closeModal");
-  const closeReceiptBtn = document.getElementById("closeReceiptBtn");
-  const printReceiptBtn = document.getElementById("printReceiptBtn");
-  const receiptDetails = document.getElementById("receiptDetails");
-  const resultsCount = document.getElementById("resultsCount");
-
-  let allPayments = [];
-  let filteredPayments = [];
-  let currentPage = 1;
-  const itemsPerPage = 10;
-
-  async function loadPayments() {
-    tableBody.innerHTML = `<tr><td colspan="9" class="loading"><i class="fas fa-spinner fa-spin"></i> Loading payments...</td></tr>`;
-    
-    try {
-      const snapshot = await firebase.firestore().collection("payments").orderBy("timestamp", "desc").get();
-      allPayments = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-      filterPayments();
-    } catch (error) {
-      console.error("Error loading payments:", error);
-      tableBody.innerHTML = `<tr><td colspan="9" class="empty-state"><i class="fas fa-exclamation-circle"></i><p>Error loading payments. Please try again.</p></td></tr>`;
-    }
-  }
-
-  function filterPayments() {
-    const searchTerm = searchInput.value.toLowerCase();
-    const paymentType = paymentTypeFilter.value;
-    const status = statusFilter.value;
-
-    filteredPayments = allPayments.filter(payment => {
-      const matchesSearch = !searchTerm || 
-        String(payment.receiptNo).includes(searchTerm) ||
-        (payment.name && payment.name.toLowerCase().includes(searchTerm)) ||
-        (payment.flight && payment.flight.toLowerCase().includes(searchTerm));
-
-      const matchesType = !paymentType || payment.paymentType === paymentType;
-      const matchesStatus = !status || (payment.status || "pending").toLowerCase() === status.toLowerCase();
-
-      return matchesSearch && matchesType && matchesStatus;
-    });
-
-    resultsCount.textContent = `${filteredPayments.length} ${filteredPayments.length === 1 ? 'result' : 'results'}`;
-    renderPayments();
-  }
-
-  function renderPayments() {
-    tableBody.innerHTML = "";
-    if (filteredPayments.length === 0) {
-      tableBody.innerHTML = `<tr><td colspan="9" class="empty-state"><i class="fas fa-receipt"></i><p>No payments found matching your criteria.</p></td></tr>`;
-      paginationContainer.innerHTML = "";
-      return;
-    }
-
-    const startIndex = (currentPage - 1) * itemsPerPage;
-    const endIndex = startIndex + itemsPerPage;
-    const pagePayments = filteredPayments.slice(startIndex, endIndex);
-
-    pagePayments.forEach(data => {
-      const row = document.createElement("tr");
-      row.innerHTML = `
-        <td>${data.receiptNo || ""}</td>
-        <td>${data.name || ""}</td>
-        <td>${data.flight || ""}</td>
-        <td>${data.currency || "$"} ${parseFloat(data.total || 0).toFixed(2)}</td>
-        <td>
-          <select class="payType">
-            <option value="Cash" ${data.paymentType==="Cash"?"selected":""}>Cash</option>
-            <option value="Visa" ${data.paymentType==="Visa"?"selected":""}>Visa</option>
-            <option value="MasterCard" ${data.paymentType==="MasterCard"?"selected":""}>MasterCard</option>
-            <option value="Amex" ${data.paymentType==="Amex"?"selected":""}>Amex</option>
-            <option value="UnionPay" ${data.paymentType==="UnionPay"?"selected":""}>UnionPay</option>
-            <option value="QR Sale" ${data.paymentType==="QR Sale"?"selected":""}>QR Sale</option>
-            <option value="Other" ${data.paymentType==="Other"?"selected":""}>Other</option>
-          </select>
-        </td>
-        <td><input class="batchNo" value="${data.batchNo || ""}" placeholder="Enter batch no"></td>
-        <td><input class="approvalCode" value="${data.approvalCode || ""}" placeholder="Enter approval code"></td>
-        <td><span class="status-badge ${data.status==="complete"?"status-complete":"status-pending"}">${data.status || "Pending"}</span></td>
-        <td>
-          <button class="btn-update" title="Update Payment"><i class="fas fa-check"></i></button>
-          <button class="btn-print" title="Print Receipt"><i class="fas fa-print"></i></button>
-        </td>
-      `;
-      tableBody.appendChild(row);
-
-      // Update handler
-      row.querySelector(".btn-update").addEventListener("click", async () => {
-        const newPayType = row.querySelector(".payType").value;
-        const batchNo = row.querySelector(".batchNo").value.trim();
-        const approvalCode = row.querySelector(".approvalCode").value.trim();
-
-        if (newPayType === "Cash") {
-          if (batchNo || approvalCode) {
-            alert("Cash payments must not have Batch No or Approval Code.");
-            return;
-          }
-        } else {
-          if (!batchNo || !approvalCode) {
-            alert("Non-cash payments require Batch No and Approval Code.");
-            return;
-          }
-        }
-
-        try {
-          await firebase.firestore().collection("payments").doc(data.id).update({
-            paymentType: newPayType,
-            batchNo: newPayType==="Cash" ? null : batchNo,
-            approvalCode: newPayType==="Cash" ? null : approvalCode,
-            status: "complete"
-          });
-
-          const statusBadge = row.querySelector(".status-badge");
-          statusBadge.textContent = "Complete";
-          statusBadge.className = "status-badge status-complete";
-
-          // Show success notification
-          showNotification("Payment updated successfully!", "success");
-        } catch (error) {
-          showNotification("Error updating payment: " + error.message, "error");
-        }
-      });
-
-      // Print handler
-      row.querySelector(".btn-print").addEventListener("click", () => {
-        const receiptDate = data.timestamp ? new Date(data.timestamp.seconds * 1000) : new Date();
-        
-        receiptDetails.innerHTML = `
-          <p><strong>Receipt No:</strong> ${data.receiptNo || ""}</p>
-          <p><strong>Date:</strong> ${receiptDate.toLocaleDateString()}</p>
-          <p><strong>Time:</strong> ${receiptDate.toLocaleTimeString()}</p>
-          <p><strong>Name:</strong> ${data.name || ""}</p>
-          <p><strong>Flight:</strong> ${data.flight || ""}</p>
-          <p><strong>Total Amount:</strong> ${data.currency || "$"} ${parseFloat(data.total || 0).toFixed(2)}</p>
-          <p><strong>Payment Method:</strong> ${data.paymentType || ""}</p>
-          ${data.paymentType !== "Cash" ? `<p><strong>Batch No:</strong> ${data.batchNo || ""}</p>` : ''}
-          ${data.paymentType !== "Cash" ? `<p><strong>Approval Code:</strong> ${data.approvalCode || ""}</p>` : ''}
-          ${data.seat ? `<p><strong>Seat:</strong> ${data.seat || ""}</p>` : ''}
-          ${data.adults ? `<p><strong>Adults:</strong> ${data.adults || ""}</p>` : ''}
-          ${data.kids ? `<p><strong>Children:</strong> ${data.kids || ""}</p>` : ''}
-        `;
-        printModal.style.display = "flex";
-      });
-    });
-
-    renderPagination();
-  }
-
-  function renderPagination() {
-    paginationContainer.innerHTML = "";
-    const totalPages = Math.ceil(filteredPayments.length / itemsPerPage);
-    if (totalPages <= 1) return;
-
-    // Previous button
-    if (totalPages > 1) {
-      const prevBtn = document.createElement("button");
-      prevBtn.innerHTML = "&laquo;";
-      prevBtn.addEventListener("click", () => {
-        if (currentPage > 1) {
-          currentPage--;
-          renderPayments();
-        }
-      });
-      if (currentPage === 1) prevBtn.disabled = true;
-      paginationContainer.appendChild(prevBtn);
-    }
-
-    // Page buttons
-    for (let i = 1; i <= totalPages; i++) {
-      const btn = document.createElement("button");
-      btn.textContent = i;
-      if (i === currentPage) btn.classList.add("active");
-      btn.addEventListener("click", () => {
-        currentPage = i;
-        renderPayments();
-      });
-      paginationContainer.appendChild(btn);
-    }
-
-    // Next button
-    if (totalPages > 1) {
-      const nextBtn = document.createElement("button");
-      nextBtn.innerHTML = "&raquo;";
-      nextBtn.addEventListener("click", () => {
-        if (currentPage < totalPages) {
-          currentPage++;
-          renderPayments();
-        }
-      });
-      if (currentPage === totalPages) nextBtn.disabled = true;
-      paginationContainer.appendChild(nextBtn);
-    }
-  }
-
-  function showNotification(message, type) {
-    // Create notification element
-    const notification = document.createElement("div");
-    notification.style.position = "fixed";
-    notification.style.top = "20px";
-    notification.style.right = "20px";
-    notification.style.padding = "12px 20px";
-    notification.style.borderRadius = "6px";
-    notification.style.color = "white";
-    notification.style.fontWeight = "500";
-    notification.style.zIndex = "10000";
-    notification.style.boxShadow = "0 4px 12px rgba(0,0,0,0.15)";
-    notification.style.opacity = "0";
-    notification.style.transform = "translateX(100%)";
-    notification.style.transition = "all 0.3s ease";
-    
-    if (type === "success") {
-      notification.style.background = "var(--success)";
+async function loadPayments(query=null){
+  bookingsDiv.innerHTML = `<p>Loading...</p>`;
+  try {
+    let snapshot;
+    if(query){
+      snapshot = await db.collection("payments").where("receiptNo","==",parseInt(query)).get();
     } else {
-      notification.style.background = "var(--danger)";
+      snapshot = await db.collection("payments").orderBy("timestamp","desc").get();
     }
-    
-    notification.textContent = message;
-    document.body.appendChild(notification);
-    
-    // Animate in
-    setTimeout(() => {
-      notification.style.opacity = "1";
-      notification.style.transform = "translateX(0)";
-    }, 10);
-    
-    // Remove after 3 seconds
-    setTimeout(() => {
-      notification.style.opacity = "0";
-      notification.style.transform = "translateX(100%)";
-      setTimeout(() => {
-        document.body.removeChild(notification);
-      }, 300);
-    }, 3000);
+    allPayments = snapshot.docs.map(d=>({id:d.id,data:d.data()}));
+    filtered = allPayments;
+    currentPage=1;
+    renderTable();
+  } catch(err){
+    bookingsDiv.innerHTML = `<p style="color:red;">Error: ${err.message}</p>`;
   }
+}
 
-  searchInput.addEventListener("input", filterPayments);
-  paymentTypeFilter.addEventListener("change", filterPayments);
-  statusFilter.addEventListener("change", filterPayments);
-  refreshBtn.addEventListener("click", loadPayments);
-
-  closeModal.addEventListener("click", () => printModal.style.display="none");
-  closeReceiptBtn.addEventListener("click", () => printModal.style.display="none");
-  printReceiptBtn.addEventListener("click", () => {
-    const printContent = document.getElementById("receiptContent").innerHTML;
-    const originalContent = document.body.innerHTML;
-    
-    document.body.innerHTML = `
-      <!DOCTYPE html>
-      <html>
-        <head>
-          <title>Print Receipt</title>
-          <style>
-            body { 
-              font-family: Arial, sans-serif; 
-              padding: 20px; 
-              max-width: 500px;
-              margin: 0 auto;
-            }
-            .receipt-header { text-align: center; margin-bottom: 20px; }
-            .receipt-details p { 
-              margin-bottom: 10px; 
-              padding-bottom: 10px; 
-              border-bottom: 1px dashed #ccc; 
-            }
-            .receipt-footer { 
-              margin-top: 20px; 
-              padding-top: 20px; 
-              border-top: 1px dashed #ccc; 
-              text-align: center; 
-            }
-            .validity-notice { font-weight: bold; color: #17a2b8; }
-            @media print {
-              body { padding: 0; }
-            }
-          </style>
-        </head>
-        <body>${printContent}</body>
-      </html>
-    `;
-    
-    window.print();
-    document.body.innerHTML = originalContent;
-    window.location.reload();
+function renderTable(){
+  if(filtered.length===0){
+    bookingsDiv.innerHTML = `<p>No payments found.</p>`;
+    return;
+  }
+  const start = (currentPage-1)*pageSize;
+  const end = start+pageSize;
+  const pageData = filtered.slice(start,end);
+  let html = `<table><thead><tr>
+    <th>Receipt</th><th>Date</th><th>Name</th><th>Flight</th>
+    <th>Seat</th><th>Adults</th><th>Kids</th><th>Total</th>
+    <th>Payment</th><th>Status</th><th>Actions</th>
+  </tr></thead><tbody>`;
+  pageData.forEach(p=>{
+    const d = p.data;
+    const voided = d.voided;
+    html += `<tr class="${voided?'voided-row':''}">
+      <td>${d.receiptNo}</td>
+      <td>${d.date||'-'}</td>
+      <td>${d.name||'-'}</td>
+      <td>${d.flight||'-'}</td>
+      <td>${d.seat||'-'}</td>
+      <td>${d.adults||0}</td>
+      <td>${d.kids||0}</td>
+      <td>${d.total?d.total.toFixed(2):'0.00'} ${d.currency||''}</td>
+      <td>${d.paymentType||'-'}</td>
+      <td><span class="status-badge ${voided?'status-voided':'status-active'}">${voided?'VOID':'Active'}</span></td>
+      <td>
+        <button class="btn btn-view" onclick="viewBooking('${p.id}')"><i class="fas fa-eye"></i></button>
+        <button class="btn btn-edit" onclick="editBooking('${p.id}')"><i class="fas fa-edit"></i></button>
+        ${!voided?`<button class="btn btn-void" onclick="voidBooking('${p.id}')"><i class="fas fa-ban"></i></button>`:''}
+      </td>
+    </tr>`;
   });
+  html += `</tbody></table>`;
+  bookingsDiv.innerHTML = html;
+  document.getElementById("currentPage").textContent=currentPage;
+}
 
-  // Close modal when clicking outside
-  window.addEventListener("click", (e) => {
-    if (e.target === printModal) {
-      printModal.style.display = "none";
-    }
-  });
+function viewBooking(id){
+  const payment = allPayments.find(p=>p.id===id);
+  if(!payment) return;
+  const d = payment.data;
+  modalBody.innerHTML = `
+    <p><b>Receipt:</b> ${d.receiptNo}</p>
+    <p><b>Name:</b> ${d.name}</p>
+    <p><b>Flight:</b> ${d.flight}</p>
+    <p><b>Seat:</b> ${d.seat}</p>
+    <p><b>Total:</b> ${d.total} ${d.currency}</p>
+    <p><b>Payment:</b> ${d.paymentType}</p>
+    <p><b>Status:</b> ${d.voided?'VOID':'Active'}</p>
+  `;
+  viewModal.style.display="flex";
+}
 
+async function editBooking(id){
+  const ref = db.collection("payments").doc(id);
+  const snap = await ref.get();
+  if(!snap.exists) return alert("Not found");
+  const d = snap.data();
+  const newPay = prompt("Payment Type (Cash/Card):", d.paymentType||"");
+  if(newPay===null) return;
+  if(newPay==="Cash"){
+    await ref.update({paymentType:"Cash",batchNo:null,approvalCode:null});
+  } else {
+    const batch = prompt("Batch No:", d.batchNo||"");
+    if(batch===null) return;
+    const code = prompt("Approval Code:", d.approvalCode||"");
+    if(code===null) return;
+    await ref.update({paymentType:newPay,batchNo:batch,approvalCode:code});
+  }
+  alert("Updated");
   loadPayments();
+}
+
+async function voidBooking(id){
+  const reason = prompt("Reason for void?");
+  if(!reason) return;
+  await db.collection("payments").doc(id).update({voided:true,voidReason:reason});
+  alert("Voided");
+  loadPayments();
+}
+
+// Pagination
+document.getElementById("prevPage").addEventListener("click",()=>{
+  if(currentPage>1){ currentPage--; renderTable(); }
+});
+document.getElementById("nextPage").addEventListener("click",()=>{
+  if(currentPage*pageSize < filtered.length){ currentPage++; renderTable(); }
 });
 
-function logout() {
-  localStorage.removeItem("loggedInUser");
-  window.location.href = "login.html";
-}
+// Events
+searchBtn.addEventListener("click",()=>{
+  if(searchReceipt.value) loadPayments(searchReceipt.value);
+  else alert("Enter receipt no");
+});
+loadAllBtn.addEventListener("click",()=>{ searchReceipt.value=""; loadPayments(); });
+closeModal.addEventListener("click",()=>viewModal.style.display="none");
+closeModalBtn.addEventListener("click",()=>viewModal.style.display="none");
+window.addEventListener("click",e=>{ if(e.target===viewModal) viewModal.style.display="none"; });
+printBtn.addEventListener("click",()=>{
+  const printWin = window.open("","Print","width=800,height=600");
+  printWin.document.write("<html><body>"+modalBody.innerHTML+"</body></html>");
+  printWin.document.close(); printWin.print();
+});
+
+// Init
+window.addEventListener("DOMContentLoaded",()=>loadPayments());
 </script>
 </body>
 </html>
