@@ -674,7 +674,6 @@
 <script src="Co.js"></script> <!-- Your company info -->
 
 <script>
-
   // --- Load logged in user ---
   const loggedInUser = JSON.parse(localStorage.getItem("loggedInUser"));
   if (!loggedInUser) {
@@ -720,11 +719,12 @@
       kidsSpan.textContent = shiftData.kids || 0;
       pendingNotice.classList.remove("hidden");
     });
-  // Set current date
+
+  // --- Set current date ---
   const dateField = document.getElementById("date");
   dateField.value = new Date().toISOString().split('T')[0];
 
-  // Get all input fields
+  // --- Input fields ---
   const qrInput = document.getElementById("qrCode");
   const nameField = document.getElementById("name");
   const flightField = document.getElementById("flight");
@@ -741,7 +741,7 @@
   const gstField = document.getElementById("gstField");
   const totalField = document.getElementById("totalField");
 
-  // Receipt elements
+  // --- Receipt elements ---
   const receiptContainer = document.getElementById("receiptContainer");
   const receiptNumber = document.getElementById("receipt-number");
   const receiptDate = document.getElementById("receipt-date");
@@ -763,75 +763,62 @@
   const receiptCashDetails = document.getElementById("receipt-cash-details");
   const printBtn = document.getElementById("printBtn");
   const newPaymentBtn = document.getElementById("newPaymentBtn");
+
+  // --- Company info ---
   const companyName = document.getElementById("company-name");
   const companyAddress = document.getElementById("company-address");
   const companyPhone = document.getElementById("company-phone");
 
-  // Set company info if available
   if (typeof companyInfo !== 'undefined') {
     companyName.textContent = companyInfo.name;
     companyAddress.textContent = companyInfo.address;
     companyPhone.textContent = companyInfo.phone;
   }
 
-  // Receipt counter using localStorage for persistence
+  // --- Receipt counter ---
   let receiptCounter = parseInt(localStorage.getItem('receiptCounter')) || 1000;
 
-  // Convert inputs to uppercase
+  // --- Uppercase input ---
   [nameField, flightField, seatField].forEach(input => {
-    input.addEventListener("input", () => {
-      input.value = input.value.toUpperCase();
-    });
+    input.addEventListener("input", () => input.value = input.value.toUpperCase());
   });
 
-  // Toggle cash payment fields based on payment type
+  // --- Payment type toggle ---
   paymentTypeSelect.addEventListener("change", function() {
-    if (this.value === "Cash") {
+    if(this.value === "Cash") {
       cashPaymentFields.classList.add("visible");
       receiptCashDetails.style.display = "block";
     } else {
       cashPaymentFields.classList.remove("visible");
       receiptCashDetails.style.display = "none";
-      // Clear cash fields
       paidAmountField.value = "";
       balanceAmountField.value = "";
     }
   });
 
-  // Calculate balance when paid amount changes
+  // --- Balance calculation ---
   paidAmountField.addEventListener("input", function() {
     const total = parseFloat(totalField.textContent.replace(/[^\d.-]/g, '')) || 0;
     const paidAmount = parseFloat(this.value) || 0;
     const balance = paidAmount - total;
-    
     const currencySymbol = currencyType.value === 'USD' ? '$' : 'MVR ';
-    balanceAmountField.value = balance >= 0 ? 
-      `${currencySymbol}${balance.toFixed(2)}` : 
-      `-${currencySymbol}${Math.abs(balance).toFixed(2)}`;
-    
-    // Color coding for balance
-    if (balance < 0) {
-      balanceAmountField.style.color = '#dc3545'; // Red for negative balance
-    } else if (balance === 0) {
-      balanceAmountField.style.color = '#28a745'; // Green for exact amount
-    } else {
-      balanceAmountField.style.color = '#17a2b8'; // Blue for positive balance
-    }
+
+    balanceAmountField.value = balance >= 0 ? `${currencySymbol}${balance.toFixed(2)}` : `-${currencySymbol}${Math.abs(balance).toFixed(2)}`;
+    balanceAmountField.style.color = balance < 0 ? '#dc3545' : (balance === 0 ? '#28a745' : '#17a2b8');
   });
 
-  // QR Code Parser
+  // --- QR Code Parser ---
   function parseQR(code){
     code = code.trim().toUpperCase().replace(/\s+/g,' ');
     const allParts = code.split(' ');
     let name="", flightNo="", seatNo="";
+
     if(code.startsWith("TKVCPO")){
       const tkIndex = code.indexOf("TK0");
-      if(tkIndex!=-1){ 
-        flightNo=code.substring(tkIndex,tkIndex+6); 
-        name=code.substring(6,tkIndex);
-      }
+      if(tkIndex!=-1) flightNo=code.substring(tkIndex,tkIndex+6); 
+      name=code.substring(6,tkIndex);
       const mlePos = code.indexOf("MLE");
-      if(mlePos!=-1){ 
+      if(mlePos!=-1){
         const afterMLE = code.substring(mlePos).split(' ')[0]; 
         if(afterMLE.length>=11) seatNo=afterMLE.substring(8,11);
       }
@@ -845,8 +832,7 @@
         const partsAfterMLE = allParts.slice(mleIndex+1);
         for(let w of partsAfterMLE){
           if(w.length>=9 && !w.includes("QR") && !w.includes("MLE")){ 
-            seatNo = w.substring(5,w.length-4); 
-            break; 
+            seatNo = w.substring(5,w.length-4); break; 
           }
         }
       }
@@ -854,170 +840,118 @@
     return {name, flightNo, seatNo};
   }
 
-  // QR Code input handler
-  qrInput.addEventListener("change", ()=>{
-    const parsed = parseQR(qrInput.value);
-    if(parsed.name) nameField.value = parsed.name;
-    if(parsed.flightNo) flightField.value = parsed.flightNo;
-    if(parsed.seatNo) seatField.value = parsed.seatNo;
-    qrInput.value='';
+  // --- QR Input Enter Key ---
+  qrInput.addEventListener("keypress", function(e){
+    if(e.key === "Enter"){
+      e.preventDefault();
+      const parsed = parseQR(qrInput.value);
+      if(parsed.name) nameField.value = parsed.name;
+      if(parsed.flightNo) flightField.value = parsed.flightNo;
+      if(parsed.seatNo) seatField.value = parsed.seatNo;
+      qrInput.value = '';
+      calculate();
+    }
   });
 
-  // Calculate function
+  // --- Calculation ---
   function calculate() {
     const curr = currencyType.value;
     const rate = rateType.value;
     const adults = parseInt(adultCount.value) || 0;
     const kids = parseInt(kidCount.value) || 0;
-    
-    // Use the rates from your rate.js file
+
     const adultRate = rates[`Adult${rate}${curr}`]?.price || 0;
     const kidRate = rates[`Kids${rate}${curr}`]?.price || 0;
     const gstPercent = rates[`Adult${rate}${curr}`]?.GST || 0;
-    
+
     const subtotal = adults * adultRate + kids * kidRate;
     const gstAmount = subtotal * (gstPercent / 100);
     const total = subtotal + gstAmount;
-
-    // Format currency display
     const currencySymbol = curr === 'USD' ? '$' : 'MVR ';
+
     totalAdultsField.textContent = currencySymbol + subtotal.toFixed(2);
     gstField.textContent = currencySymbol + gstAmount.toFixed(2);
     totalField.textContent = currencySymbol + total.toFixed(2);
 
-    // Recalculate balance if paid amount exists
-    if (paymentTypeSelect.value === "Cash" && paidAmountField.value) {
+    if(paymentTypeSelect.value === "Cash" && paidAmountField.value){
       const paidAmount = parseFloat(paidAmountField.value) || 0;
       const balance = paidAmount - total;
-      
-      balanceAmountField.value = balance >= 0 ? 
-        `${currencySymbol}${balance.toFixed(2)}` : 
-        `-${currencySymbol}${Math.abs(balance).toFixed(2)}`;
-      
-      // Color coding for balance
-      if (balance < 0) {
-        balanceAmountField.style.color = '#dc3545';
-      } else if (balance === 0) {
-        balanceAmountField.style.color = '#28a745';
-      } else {
-        balanceAmountField.style.color = '#17a2b8';
-      }
+      balanceAmountField.value = balance >= 0 ? `${currencySymbol}${balance.toFixed(2)}` : `-${currencySymbol}${Math.abs(balance).toFixed(2)}`;
+      balanceAmountField.style.color = balance < 0 ? '#dc3545' : (balance===0?'#28a745':'#17a2b8');
     }
 
-    return {
-      total,
-      subtotal,
-      gstAmount,
-      adultRate,
-      kidRate,
-      currencySymbol
-    };
+    return {total, subtotal, gstAmount, adultRate, kidRate, currencySymbol};
   }
 
-  // Add event listeners for calculation
-  [currencyType, rateType, adultCount, kidCount].forEach(el => {
+  [currencyType, rateType, adultCount, kidCount].forEach(el=>{
     el.addEventListener("input", calculate);
     el.addEventListener("change", calculate);
   });
-
-  // Calculate on page load
   window.addEventListener("DOMContentLoaded", calculate);
 
-  // Print receipt function
-  printBtn.addEventListener("click", () => {
-    // First make sure the receipt container is visible
-    receiptContainer.style.display = 'block';
-    
-    // Use a small timeout to ensure the DOM is updated before printing
-    setTimeout(() => {
-      window.print();
-    }, 100);
+  // --- Print receipt ---
+  printBtn.addEventListener("click", ()=>{
+    receiptContainer.style.display='block';
+    setTimeout(()=>window.print(), 100);
   });
 
-  // New Payment function
-  newPaymentBtn.addEventListener("click", () => {
-    // Reset form
+  // --- New Payment ---
+  newPaymentBtn.addEventListener("click", ()=>{
     document.getElementById("paymentForm").reset();
-    
-    // Hide cash fields
     cashPaymentFields.classList.remove("visible");
-    
-    // Hide receipt
-    receiptContainer.style.display = 'none';
-    
-    // Reset date to today
+    receiptContainer.style.display='none';
     dateField.value = new Date().toISOString().split('T')[0];
-    
-    // Reset balance field color
-    balanceAmountField.style.color = '';
-    
-    // Recalculate totals
+    balanceAmountField.style.color='';
     calculate();
-    
-    // Scroll to top
-    window.scrollTo(0, 0);
+    window.scrollTo(0,0);
   });
 
-  // Save button functionality
-  document.getElementById("saveBtn").addEventListener("click", async () => {
+  // --- Save payment ---
+  document.getElementById("saveBtn").addEventListener("click", async ()=>{
     const calculation = calculate();
-    
-    // Validate cash payment
-    if (paymentTypeSelect.value === "Cash") {
-      const paidAmount = parseFloat(paidAmountField.value) || 0;
-      if (paidAmount <= 0) {
-        alert("Please enter a valid paid amount for cash payment");
-        paidAmountField.focus();
-        return;
-      }
-      
+
+    if(paymentTypeSelect.value==="Cash"){
+      const paidAmount = parseFloat(paidAmountField.value)||0;
+      if(paidAmount <=0){ alert("Enter valid paid amount"); paidAmountField.focus(); return; }
       const balance = paidAmount - calculation.total;
-      if (balance < 0) {
-        const confirmPayment = confirm(`The paid amount is less than the total. The balance is negative: ${calculation.currencySymbol}${Math.abs(balance).toFixed(2)}\nDo you want to proceed?`);
-        if (!confirmPayment) {
-          paidAmountField.focus();
-          return;
-        }
-      }
+      if(balance<0 && !confirm(`Balance negative: ${calculation.currencySymbol}${Math.abs(balance).toFixed(2)}. Proceed?`)){ paidAmountField.focus(); return; }
     }
-    
+
     try {
-      // Increment receipt counter and save to localStorage
       receiptCounter++;
       localStorage.setItem('receiptCounter', receiptCounter.toString());
       const nextReceiptNo = receiptCounter;
 
       const now = new Date();
+      const qrData = qrInput.value || null; // store QR before clearing
+
       const data = {
         date: dateField.value,
-        qrCode: qrInput.value || null,
-        loginUser: document.getElementById("loginUser").textContent,
-        shift: document.getElementById("shift").textContent,
+        qrCode: qrData,
+        loginUser: loggedInUser.name,
+        shift: shiftNoSpan.textContent,
         name: nameField.value,
         flight: flightField.value,
         seat: seatField.value,
         currency: currencyType.value,
         rate: rateType.value,
-        adults: parseInt(adultCount.value) || 0,
-        kids: parseInt(kidCount.value) || 0,
+        adults: parseInt(adultCount.value)||0,
+        kids: parseInt(kidCount.value)||0,
         paymentType: paymentTypeSelect.value,
         receiptNo: nextReceiptNo,
         total: calculation.total,
         timestamp: now
       };
 
-    
-
-      // Add cash payment details if payment type is cash
-      if (paymentTypeSelect.value === "Cash") {
-        data.paidAmount = parseFloat(paidAmountField.value) || 0;
+      if(paymentTypeSelect.value==="Cash"){
+        data.paidAmount = parseFloat(paidAmountField.value)||0;
         data.balance = data.paidAmount - calculation.total;
       }
 
       await db.collection("payments").add(data);
-      
-      // Update receipt with data
-      receiptNumber.textContent = nextReceiptNo.toString().padStart(6, '0');
+
+      // Update receipt
+      receiptNumber.textContent = nextReceiptNo.toString().padStart(6,'0');
       receiptDate.textContent = dateField.value;
       receiptTime.textContent = now.toLocaleTimeString();
       receiptName.textContent = nameField.value || '-';
@@ -1032,33 +966,31 @@
       receiptTotal.textContent = `${calculation.currencySymbol}${calculation.total.toFixed(2)}`;
       receiptPaymentType.textContent = paymentTypeSelect.value;
       receiptCurrency.textContent = currencyType.value;
-      
-      // Update cash details on receipt if payment is cash
-      if (paymentTypeSelect.value === "Cash") {
-        const paidAmount = parseFloat(paidAmountField.value) || 0;
+
+      if(paymentTypeSelect.value==="Cash"){
+        const paidAmount = parseFloat(paidAmountField.value)||0;
         const balance = paidAmount - calculation.total;
         receiptPaidAmount.textContent = `${calculation.currencySymbol}${paidAmount.toFixed(2)}`;
         receiptBalanceAmount.textContent = `${calculation.currencySymbol}${balance.toFixed(2)}`;
-        receiptCashDetails.style.display = "block";
+        receiptCashDetails.style.display="block";
       } else {
-        receiptCashDetails.style.display = "none";
+        receiptCashDetails.style.display="none";
       }
-      
-      // Show receipt container
-      receiptContainer.style.display = 'block';
-      
-      // Scroll to receipt
-      receiptContainer.scrollIntoView({ behavior: 'smooth' });
-      
-    } catch (err) {
-      alert("Error saving: " + err.message);
+
+      receiptContainer.style.display='block';
+      receiptContainer.scrollIntoView({behavior:'smooth'});
+
+    } catch(err){
+      alert("Error saving: "+err.message);
       console.error(err);
     }
   });
 </script>
 
+
 </body>
 </html>
+
 
 
 
