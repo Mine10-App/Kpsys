@@ -702,7 +702,13 @@
           pendingNotice.classList.add("hidden");
           return;
         }
-  });
+
+        const shiftData = snapshot.docs[0].data();
+        const shiftNo = shiftData.shiftNo;
+        const shiftName = shiftNo === 1 ? "Morning" : "Evening";
+
+        shiftNoSpan.textContent = shiftNo;
+        shiftNameSpan.textContent = shiftName;
   
 
   // Set current date
@@ -1044,6 +1050,7 @@
 
 </body>
 </html>
+
 
 
 
