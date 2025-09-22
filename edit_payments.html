@@ -6,7 +6,40 @@
 <title>Payment Management System</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <style>
-/* your same styles (unchanged) */
+:root {
+  --primary: #3498db;
+  --success: #2ecc71;
+  --warning: #f39c12;
+  --danger: #e74c3c;
+  --gray: #bdc3c7;
+}
+body { font-family: Arial, sans-serif; background:#f4f6f9; margin:0; padding:20px; }
+.container { max-width: 1200px; margin:auto; background:#fff; padding:20px; border-radius:10px; box-shadow:0 0 10px rgba(0,0,0,0.1);}
+.header h2 { margin:0; color: var(--primary);}
+.header p { color:#555; margin:5px 0 20px 0;}
+.controls { display:flex; flex-wrap:wrap; gap:10px; margin-bottom:10px; align-items:center; }
+.search-container input { padding:5px; }
+.filter-container button { padding:5px 10px; margin-right:5px; border:none; border-radius:5px; cursor:pointer;}
+.filter-container button.active { background: var(--primary); color:#fff;}
+.btn { padding:5px 10px; cursor:pointer; border:none; border-radius:5px; background: var(--primary); color:#fff;}
+.btn-success { background: var(--success);}
+.btn-warning { background: var(--warning);}
+.btn-edit { background: var(--primary);}
+.btn-void { background: var(--danger);}
+.bookings-container { margin-top:20px;}
+.bookings-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;}
+.bookings-content table { width:100%; border-collapse: collapse; }
+.bookings-content th, .bookings-content td { padding:8px; border:1px solid #ddd; text-align:center;}
+.status-badge { padding:3px 6px; border-radius:5px; color:#fff;}
+.status-active { background: var(--success);}
+.status-voided { background: var(--danger);}
+.voided-row { background:#fdd;}
+.loading, .empty-state { text-align:center; padding:20px; color:#555;}
+.modal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); justify-content:center; align-items:center; z-index:1000;}
+.modal-content { background:#fff; padding:20px; border-radius:10px; width:400px; max-width:90%;}
+.modal-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;}
+.close-modal { background:none; border:none; font-size:20px; cursor:pointer;}
+.pagination .btn { margin:0 5px;}
 </style>
 </head>
 <body>
@@ -19,43 +52,33 @@
 
   <div class="controls">
     <div class="search-container">
-      <label for="searchReceipt">Search Payments:</label>
-      <i class="fas fa-search search-icon"></i>
-      <input type="number" id="searchReceipt" placeholder="Enter Receipt Number">
-      <button id="searchBtn" class="btn">
-        <i class="fas fa-search"></i> Search
-      </button>
+      <input type="number" id="searchReceipt" placeholder="Enter Receipt No">
+      <button id="searchBtn" class="btn"><i class="fas fa-search"></i> Search</button>
+    </div>
+    <div class="filter-container">
+      <label>Payment Type:</label>
+      <button class="filter-btn active" data-type="All">All</button>
+      <button class="filter-btn" data-type="Cash">Cash</button>
+      <button class="filter-btn" data-type="Card">Card</button>
     </div>
     <div>
-      <button id="loadAllBtn" class="btn btn-success">
-        <i class="fas fa-sync-alt"></i> Refresh
-      </button>
+      <label>Date:</label>
+      <input type="date" id="filterDate">
+    </div>
+    <div>
+      <button id="loadAllBtn" class="btn btn-success"><i class="fas fa-sync-alt"></i> Refresh</button>
     </div>
   </div>
 
   <div class="bookings-container">
-    <div class="bookings-header">
-      <div class="bookings-header-left">
-        <i class="fas fa-list"></i>
-        <span>Payments List</span>
-      </div>
-      <div class="filter-controls">
-        <button class="filter-btn active">All</button>
-      </div>
-    </div>
     <div class="bookings-content">
       <div id="bookingsDiv">
-        <div class="loading">
-          <i class="fas fa-spinner fa-spin"></i>
-          <p>Loading payments...</p>
-        </div>
+        <div class="loading"><i class="fas fa-spinner fa-spin"></i> Loading payments...</div>
       </div>
-      <div class="pagination">
-        <button class="pagination-btn"><i class="fas fa-chevron-left"></i></button>
-        <button class="pagination-btn active">1</button>
-        <button class="pagination-btn">2</button>
-        <button class="pagination-btn">3</button>
-        <button class="pagination-btn"><i class="fas fa-chevron-right"></i></button>
+      <div class="pagination" style="text-align:center; margin-top:10px;">
+        <button id="prevPage" class="btn">Prev</button>
+        <span id="currentPage">1</span>
+        <button id="nextPage" class="btn">Next</button>
       </div>
     </div>
   </div>
@@ -81,9 +104,7 @@
 <!-- Firebase -->
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-
 <script>
-// ✅ Firestore Initialization
 const firebaseConfig = {
   apiKey: "YOUR_API_KEY",
   authDomain: "YOUR_PROJECT.firebaseapp.com",
@@ -102,139 +123,140 @@ const searchBtn = document.getElementById("searchBtn");
 const loadAllBtn = document.getElementById("loadAllBtn");
 const viewModal = document.getElementById("viewModal");
 const closeModal = document.querySelector(".close-modal");
+const filterBtns = document.querySelectorAll(".filter-btn");
+const filterDate = document.getElementById("filterDate");
+const prevPageBtn = document.getElementById("prevPage");
+const nextPageBtn = document.getElementById("nextPage");
+const currentPageSpan = document.getElementById("currentPage");
 
-// Fetch and display payments
-async function loadBookings(query = null) {
-  bookingsDiv.innerHTML = `
-    <div class="loading">
-      <i class="fas fa-spinner fa-spin"></i>
-      <p>Loading payments...</p>
-    </div>
-  `;
+let currentPayments = [];
+let filteredPayments = [];
+let currentPage = 1;
+const pageSize = 10;
 
-  let snapshot;
-  try {
+// Load all payments
+async function loadBookings(query=null){
+  bookingsDiv.innerHTML = `<div class="loading"><i class="fas fa-spinner fa-spin"></i> Loading payments...</div>`;
+  try{
+    let snapshot;
     if(query){
       snapshot = await db.collection("payments")
-                         .where("receiptNo", "==", parseInt(query))
+                         .where("receiptNo","==",parseInt(query))
                          .get();
     } else {
       snapshot = await db.collection("payments")
-                         .orderBy("timestamp", "desc")
+                         .orderBy("timestamp","desc")
                          .get();
     }
-
     if(snapshot.empty){
-      bookingsDiv.innerHTML = `
-        <div class="empty-state">
-          <i class="fas fa-receipt"></i>
-          <p>No payments found.</p>
-          <button class="btn" onclick="loadBookings()"><i class="fas fa-sync"></i> Try Again</button>
-        </div>
-      `;
+      bookingsDiv.innerHTML = `<div class="empty-state"><i class="fas fa-receipt"></i><p>No payments found.</p></div>`;
+      currentPayments = [];
+      filteredPayments = [];
       return;
     }
 
-    let html = `<table>
-      <thead>
-        <tr>
-          <th>Receipt No <i class="fas fa-sort"></i></th>
-          <th>Date</th>
-          <th>Name</th>
-          <th>Flight</th>
-          <th>Seat</th>
-          <th>Adults</th>
-          <th>Kids</th>
-          <th>Total</th>
-          <th>Payment</th>
-          <th>Status</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-      <tbody>`;
+    currentPayments = snapshot.docs.map(doc=>({id: doc.id, data: doc.data()}));
+    applyFilters();
 
-    snapshot.docs.forEach(doc => {
-      const data = doc.data();
-      const voidedClass = data.voided ? "voided-row" : "";
-      const statusClass = data.voided ? "status-voided" : "status-active";
-      const statusText = data.voided ? "VOID" : "Active";
-      
-      html += `
-      <tr class="${voidedClass}">
-        <td>${data.receiptNo}</td>
-        <td>${data.date || '-'}</td>
-        <td>${data.name || '-'}</td>
-        <td>${data.flight || '-'}</td>
-        <td>${data.seat || '-'}</td>
-        <td>${data.adults || '0'}</td>
-        <td>${data.kids || '0'}</td>
-        <td>${data.total ? data.total.toFixed(2) : '0.00'} ${data.currency || ''}</td>
-        <td>${data.paymentType || '-'}</td>
-        <td><span class="status-badge ${statusClass}">${statusText}</span></td>
-        <td>
-          <div class="action-buttons">
-            <button onclick="viewBooking('${doc.id}')" class="action-btn btn-view">
-              <i class="fas fa-eye"></i> View
-            </button>
-            <button onclick="editBooking('${doc.id}')" class="action-btn btn-edit">
-              <i class="fas fa-edit"></i> Edit
-            </button>
-            ${!data.voided ? `
-            <button onclick="voidBooking('${doc.id}')" class="action-btn btn-void">
-              <i class="fas fa-ban"></i> Void
-            </button>
-            ` : ''}
-          </div>
-        </td>
-      </tr>`;
-    });
-
-    html += `</tbody></table>`;
-    bookingsDiv.innerHTML = html;
-  } catch(err){
+  }catch(err){
     console.error(err);
-    bookingsDiv.innerHTML = `
-      <div style="color: #e74c3c; text-align: center; padding: 20px;">
-        <i class="fas fa-exclamation-circle"></i>
-        <p>Error loading payments: ${err.message}</p>
-      </div>
-    `;
+    bookingsDiv.innerHTML = `<div style="color: #e74c3c; text-align: center; padding: 20px;">
+      <i class="fas fa-exclamation-circle"></i>
+      <p>Error loading payments: ${err.message}</p>
+    </div>`;
   }
 }
 
-// View payment
-function viewBooking(docId) {
-  viewModal.style.display = "flex";
+// Render table with pagination
+function renderTable(){
+  const start = (currentPage-1)*pageSize;
+  const end = start+pageSize;
+  const pageData = filteredPayments.slice(start,end);
+
+  if(pageData.length===0){
+    bookingsDiv.innerHTML = `<div class="empty-state"><i class="fas fa-receipt"></i><p>No payments found.</p></div>`;
+    return;
+  }
+
+  let html = `<table>
+    <thead>
+      <tr>
+        <th>Receipt No</th>
+        <th>Date</th>
+        <th>Name</th>
+        <th>Flight</th>
+        <th>Seat</th>
+        <th>Adults</th>
+        <th>Kids</th>
+        <th>Total</th>
+        <th>Payment</th>
+        <th>Status</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>`;
+
+  pageData.forEach(p=>{
+    const data = p.data;
+    const voidedClass = data.voided ? "voided-row" : "";
+    const statusClass = data.voided ? "status-voided" : "status-active";
+    const statusText = data.voided ? "VOID" : "Active";
+
+    html += `<tr class="${voidedClass}">
+      <td>${data.receiptNo}</td>
+      <td>${data.date||'-'}</td>
+      <td>${data.name||'-'}</td>
+      <td>${data.flight||'-'}</td>
+      <td>${data.seat||'-'}</td>
+      <td>${data.adults||0}</td>
+      <td>${data.kids||0}</td>
+      <td>${data.total?data.total.toFixed(2):'0.00'} ${data.currency||''}</td>
+      <td>${data.paymentType||'-'}</td>
+      <td><span class="status-badge ${statusClass}">${statusText}</span></td>
+      <td>
+        <button class="btn btn-view" onclick="viewBooking('${p.id}')"><i class="fas fa-eye"></i></button>
+        <button class="btn btn-edit" onclick="editBooking('${p.id}')"><i class="fas fa-edit"></i></button>
+        ${!data.voided?`<button class="btn btn-void" onclick="voidBooking('${p.id}')"><i class="fas fa-ban"></i></button>`:''}
+      </td>
+    </tr>`;
+  });
+
+  html += `</tbody></table>`;
+  bookingsDiv.innerHTML = html;
+  currentPageSpan.textContent = currentPage;
 }
+
+// Filter payments
+function applyFilters(){
+  const typeFilter = document.querySelector(".filter-btn.active").dataset.type;
+  const dateFilter = filterDate.value;
+
+  filteredPayments = currentPayments.filter(p=>{
+    let typeMatch = typeFilter==="All" || p.data.paymentType===typeFilter;
+    let dateMatch = !dateFilter || p.data.date===dateFilter;
+    return typeMatch && dateMatch;
+  });
+  currentPage=1;
+  renderTable();
+}
+
+// View payment
+function viewBooking(docId){ viewModal.style.display="flex"; }
 
 // Edit payment
 async function editBooking(docId){
-  try {
+  try{
     const docRef = db.collection("payments").doc(docId);
     const docSnap = await docRef.get();
-    if(!docSnap.exists){ 
-      alert("Payment not found!"); 
-      return; 
-    }
+    if(!docSnap.exists){ alert("Payment not found!"); return; }
     const data = docSnap.data();
 
-    const newName = prompt("Name:", data.name || '');
-    if(newName === null) return;
-
-    const newFlight = prompt("Flight:", data.flight || '');
-    if(newFlight === null) return;
-
-    const newSeat = prompt("Seat:", data.seat || '');
-    if(newSeat === null) return;
-
-    const newAdults = prompt("Adults:", data.adults || '0');
-    if(newAdults === null) return;
-
-    const newKids = prompt("Kids:", data.kids || '0');
-    if(newKids === null) return;
-
-    const newPayment = prompt("Payment Type (Cash/Card):", data.paymentType || '');
-    if(newPayment === null) return;
+    const newName = prompt("Name:", data.name||''); if(newName===null) return;
+    const newFlight = prompt("Flight:", data.flight||''); if(newFlight===null) return;
+    const newSeat = prompt("Seat:", data.seat||''); if(newSeat===null) return;
+    const newAdults = prompt("Adults:", data.adults||'0'); if(newAdults===null) return;
+    const newKids = prompt("Kids:", data.kids||'0'); if(newKids===null) return;
+    const newPayment = prompt("Payment Type (Cash/Card):", data.paymentType||''); if(newPayment===null) return;
 
     await docRef.update({
       name: newName,
@@ -248,10 +270,7 @@ async function editBooking(docId){
     alert("Payment updated successfully!");
     loadBookings();
 
-  } catch(err){
-    console.error("Update failed:", err);
-    alert("Error updating payment: " + err.message);
-  }
+  }catch(err){ console.error(err); alert("Error updating payment: "+err.message);}
 }
 
 // Void payment
@@ -259,38 +278,31 @@ async function voidBooking(docId){
   const reason = prompt("Enter reason for voiding this payment:");
   if(!reason) return;
   try{
-    await db.collection("payments").doc(docId).update({
-      voided: true,
-      voidReason: reason
-    });
+    await db.collection("payments").doc(docId).update({ voided:true, voidReason:reason });
     alert("Payment voided successfully!");
     loadBookings();
-  } catch(err){
-    alert("Error voiding payment: " + err.message);
-  }
+  } catch(err){ alert("Error voiding payment: "+err.message); }
 }
 
-// Events
-searchBtn.addEventListener("click", () => {
-  if (searchReceipt.value) {
-    loadBookings(searchReceipt.value);
-  } else {
-    alert("Please enter a receipt number to search");
-  }
+// Event listeners
+searchBtn.addEventListener("click", ()=>{ 
+  if(searchReceipt.value){ loadBookings(searchReceipt.value); } 
+  else { alert("Enter receipt number"); }
 });
-loadAllBtn.addEventListener("click", () => {
-  searchReceipt.value = "";
-  loadBookings();
-});
-closeModal.addEventListener("click", () => {
-  viewModal.style.display = "none";
-});
-window.addEventListener("click", (e) => {
-  if (e.target === viewModal) {
-    viewModal.style.display = "none";
-  }
-});
-window.addEventListener("DOMContentLoaded", () => loadBookings());
+loadAllBtn.addEventListener("click", ()=>{ searchReceipt.value=""; loadBookings(); });
+closeModal.addEventListener("click", ()=>{ viewModal.style.display="none"; });
+window.addEventListener("click",(e)=>{ if(e.target===viewModal) viewModal.style.display="none"; });
+filterBtns.forEach(btn=>{ btn.addEventListener("click",()=>{
+  filterBtns.forEach(b=>b.classList.remove("active"));
+  btn.classList.add("active");
+  applyFilters();
+});});
+filterDate.addEventListener("change", applyFilters);
+prevPageBtn.addEventListener("click", ()=>{ if(currentPage>1){ currentPage--; renderTable(); }});
+nextPageBtn.addEventListener("click", ()=>{ if(currentPage*pageSize<filteredPayments.length){ currentPage++; renderTable(); }});
+
+// Initial load
+window.addEventListener("DOMContentLoaded", ()=>loadBookings());
 </script>
 </body>
 </html>
