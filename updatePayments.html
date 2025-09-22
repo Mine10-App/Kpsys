@@ -8,6 +8,8 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script src="fire2.js"></script>
+<script src="Co.js"></script>
 <style>
 :root {
   --primary: #4361ee;
@@ -352,11 +354,6 @@ tbody tr:hover {
   box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.15);
 }
 
-/* Wider fields for batch no and approval code */
-.batchNo, .approvalCode {
-  min-width: 120px;
-}
-
 .status-badge {
   padding: 0.35rem 0.75rem;
   border-radius: 20px;
@@ -663,8 +660,8 @@ tbody tr:hover {
     </div>
     
     <div class="user-info">
-      <p><i class="fas fa-user"></i> <span id="sidebarUsername">Admin User</span></p>
-      <p><i class="fas fa-star"></i> Level: <span class="level-badge" id="sidebarLevel">Manager</span></p>
+      <p><i class="fas fa-user"></i> <span id="sidebarUsername">Username</span></p>
+      <p><i class="fas fa-star"></i> Level: <span class="level-badge" id="sidebarLevel">Level</span></p>
     </div>
   </div>
   
@@ -703,7 +700,6 @@ tbody tr:hover {
           <option value="MasterCard">MasterCard</option>
           <option value="Amex">Amex</option>
           <option value="UnionPay">UnionPay</option>
-          <option value="QR sale">QR sale</option>
           <option value="Other">Other</option>
         </select>
         
@@ -740,88 +736,16 @@ tbody tr:hover {
           </tr>
         </thead>
         <tbody>
-          <!-- Sample data for demonstration -->
           <tr>
-            <td>RCPT-1001</td>
-            <td>John Smith</td>
-            <td>EK 123</td>
-            <td>$ 150.00</td>
-            <td>
-              <select class="payType">
-                <option value="Cash">Cash</option>
-                <option value="Visa">Visa</option>
-                <option value="MasterCard">MasterCard</option>
-                <option value="Amex">Amex</option>
-                <option value="UnionPay">UnionPay</option>
-                <option value="QR sale" selected>QR sale</option>
-                <option value="Other">Other</option>
-              </select>
-            </td>
-            <td><input class="batchNo" value="BATCH001" placeholder="Enter batch no"></td>
-            <td><input class="approvalCode" value="APPR12345" placeholder="Enter approval code"></td>
-            <td><span class="status-badge status-complete">Complete</span></td>
-            <td>
-              <button class="btn-update" title="Update Payment"><i class="fas fa-check"></i> Update</button>
-              <button class="btn-print" title="Print Receipt"><i class="fas fa-print"></i> Print</button>
-            </td>
-          </tr>
-          <tr>
-            <td>RCPT-1002</td>
-            <td>Emma Johnson</td>
-            <td>QF 456</td>
-            <td>$ 225.50</td>
-            <td>
-              <select class="payType">
-                <option value="Cash">Cash</option>
-                <option value="Visa" selected>Visa</option>
-                <option value="MasterCard">MasterCard</option>
-                <option value="Amex">Amex</option>
-                <option value="UnionPay">UnionPay</option>
-                <option value="QR sale">QR sale</option>
-                <option value="Other">Other</option>
-              </select>
-            </td>
-            <td><input class="batchNo" value="BATCH002" placeholder="Enter batch no"></td>
-            <td><input class="approvalCode" value="APPR67890" placeholder="Enter approval code"></td>
-            <td><span class="status-badge status-pending">Pending</span></td>
-            <td>
-              <button class="btn-update" title="Update Payment"><i class="fas fa-check"></i> Update</button>
-              <button class="btn-print" title="Print Receipt"><i class="fas fa-print"></i> Print</button>
-            </td>
-          </tr>
-          <tr>
-            <td>RCPT-1003</td>
-            <td>Michael Brown</td>
-            <td>SQ 789</td>
-            <td>$ 180.75</td>
-            <td>
-              <select class="payType">
-                <option value="Cash" selected>Cash</option>
-                <option value="Visa">Visa</option>
-                <option value="MasterCard">MasterCard</option>
-                <option value="Amex">Amex</option>
-                <option value="UnionPay">UnionPay</option>
-                <option value="QR sale">QR sale</option>
-                <option value="Other">Other</option>
-              </select>
-            </td>
-            <td><input class="batchNo" value="" placeholder="Enter batch no"></td>
-            <td><input class="approvalCode" value="" placeholder="Enter approval code"></td>
-            <td><span class="status-badge status-complete">Complete</span></td>
-            <td>
-              <button class="btn-update" title="Update Payment"><i class="fas fa-check"></i> Update</button>
-              <button class="btn-print" title="Print Receipt"><i class="fas fa-print"></i> Print</button>
+            <td colspan="9" class="loading">
+              <i class="fas fa-spinner fa-spin"></i> Loading payments...
             </td>
           </tr>
         </tbody>
       </table>
     </div>
 
-    <div class="pagination" id="pagination">
-      <button class="active">1</button>
-      <button>2</button>
-      <button>3</button>
-    </div>
+    <div class="pagination" id="pagination"></div>
   </div>
 </div>
 
@@ -836,17 +760,7 @@ tbody tr:hover {
         <p id="companyPhone">+123 456 7890</p>
       </div>
       
-      <div class="receipt-details" id="receiptDetails">
-        <p><strong>Receipt No:</strong> <span>RCPT-1001</span></p>
-        <p><strong>Date:</strong> <span>October 15, 2023</span></p>
-        <p><strong>Time:</strong> <span>14:30:45</span></p>
-        <p><strong>Name:</strong> <span>John Smith</span></p>
-        <p><strong>Flight:</strong> <span>EK 123</span></p>
-        <p><strong>Total Amount:</strong> <span>$ 150.00</span></p>
-        <p><strong>Payment Method:</strong> <span>QR sale</span></p>
-        <p><strong>Batch No:</strong> <span>BATCH001</span></p>
-        <p><strong>Approval Code:</strong> <span>APPR12345</span></p>
-      </div>
+      <div class="receipt-details" id="receiptDetails"></div>
       
       <div class="receipt-footer">
         <p class="validity-notice">This package is valid for three hours from the time of purchase</p>
@@ -868,6 +782,20 @@ window.addEventListener('load', function() {
   const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
   document.getElementById('currentDate').textContent = now.toLocaleDateString('en-US', options);
 
+  // Logged in user
+  const user = JSON.parse(localStorage.getItem("loggedInUser"));
+  if (user) {
+    document.getElementById("sidebarUsername").textContent = user.username;
+    document.getElementById("sidebarLevel").textContent = user.Level;
+  } else {
+    window.location.href = "login.html";
+  }
+
+  // Firebase init
+  if (typeof firebaseConfig !== 'undefined') {
+    try { firebase.initializeApp(firebaseConfig); } catch(e) {}
+  }
+
   const tableBody = document.querySelector("#paymentsTable tbody");
   const searchInput = document.getElementById("searchInput");
   const paymentTypeFilter = document.getElementById("paymentTypeFilter");
@@ -881,75 +809,196 @@ window.addEventListener('load', function() {
   const receiptDetails = document.getElementById("receiptDetails");
   const resultsCount = document.getElementById("resultsCount");
 
-  // Set initial results count
-  resultsCount.textContent = "3 results";
+  let allPayments = [];
+  let filteredPayments = [];
+  let currentPage = 1;
+  const itemsPerPage = 10;
 
-  // Add event listeners to print buttons in table
-  document.querySelectorAll('.btn-print').forEach(button => {
-    button.addEventListener('click', function() {
-      const row = this.closest('tr');
-      const receiptNo = row.cells[0].textContent;
-      const name = row.cells[1].textContent;
-      const flight = row.cells[2].textContent;
-      const total = row.cells[3].textContent;
-      const paymentType = row.querySelector('.payType').value;
-      const batchNo = row.querySelector('.batchNo').value;
-      const approvalCode = row.querySelector('.approvalCode').value;
-      
-      const receiptDate = new Date().toLocaleDateString();
-      const receiptTime = new Date().toLocaleTimeString();
-      
-      let receiptHTML = `
-        <p><strong>Receipt No:</strong> <span>${receiptNo}</span></p>
-        <p><strong>Date:</strong> <span>${receiptDate}</span></p>
-        <p><strong>Time:</strong> <span>${receiptTime}</span></p>
-        <p><strong>Name:</strong> <span>${name}</span></p>
-        <p><strong>Flight:</strong> <span>${flight}</span></p>
-        <p><strong>Total Amount:</strong> <span>${total}</span></p>
-        <p><strong>Payment Method:</strong> <span>${paymentType}</span></p>
+  async function loadPayments() {
+    tableBody.innerHTML = `<tr><td colspan="9" class="loading"><i class="fas fa-spinner fa-spin"></i> Loading payments...</td></tr>`;
+    
+    try {
+      const snapshot = await firebase.firestore().collection("payments").orderBy("timestamp", "desc").get();
+      allPayments = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      filterPayments();
+    } catch (error) {
+      console.error("Error loading payments:", error);
+      tableBody.innerHTML = `<tr><td colspan="9" class="empty-state"><i class="fas fa-exclamation-circle"></i><p>Error loading payments. Please try again.</p></td></tr>`;
+    }
+  }
+
+  function filterPayments() {
+    const searchTerm = searchInput.value.toLowerCase();
+    const paymentType = paymentTypeFilter.value;
+    const status = statusFilter.value;
+
+    filteredPayments = allPayments.filter(payment => {
+      const matchesSearch = !searchTerm || 
+        String(payment.receiptNo).includes(searchTerm) ||
+        (payment.name && payment.name.toLowerCase().includes(searchTerm)) ||
+        (payment.flight && payment.flight.toLowerCase().includes(searchTerm));
+
+      const matchesType = !paymentType || payment.paymentType === paymentType;
+      const matchesStatus = !status || (payment.status || "pending").toLowerCase() === status.toLowerCase();
+
+      return matchesSearch && matchesType && matchesStatus;
+    });
+
+    resultsCount.textContent = `${filteredPayments.length} ${filteredPayments.length === 1 ? 'result' : 'results'}`;
+    renderPayments();
+  }
+
+  function renderPayments() {
+    tableBody.innerHTML = "";
+    if (filteredPayments.length === 0) {
+      tableBody.innerHTML = `<tr><td colspan="9" class="empty-state"><i class="fas fa-receipt"></i><p>No payments found matching your criteria.</p></td></tr>`;
+      paginationContainer.innerHTML = "";
+      return;
+    }
+
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    const pagePayments = filteredPayments.slice(startIndex, endIndex);
+
+    pagePayments.forEach(data => {
+      const row = document.createElement("tr");
+      row.innerHTML = `
+        <td>${data.receiptNo || ""}</td>
+        <td>${data.name || ""}</td>
+        <td>${data.flight || ""}</td>
+        <td>${data.currency || "$"} ${data.total || ""}</td>
+        <td>
+          <select class="payType">
+            <option value="Cash" ${data.paymentType==="Cash"?"selected":""}>Cash</option>
+            <option value="Visa" ${data.paymentType==="Visa"?"selected":""}>Visa</option>
+            <option value="MasterCard" ${data.paymentType==="MasterCard"?"selected":""}>MasterCard</option>
+            <option value="Amex" ${data.paymentType==="Amex"?"selected":""}>Amex</option>
+            <option value="UnionPay" ${data.paymentType==="UnionPay"?"selected":""}>UnionPay</option>
+            <option value="Other" ${data.paymentType==="Other"?"selected":""}>Other</option>
+          </select>
+        </td>
+        <td><input class="batchNo" value="${data.batchNo || ""}" placeholder="Enter batch no"></td>
+        <td><input class="approvalCode" value="${data.approvalCode || ""}" placeholder="Enter approval code"></td>
+        <td><span class="status-badge ${data.status==="complete"?"status-complete":"status-pending"}">${data.status || "Pending"}</span></td>
+        <td>
+          <button class="btn-update" title="Update Payment"><i class="fas fa-check"></i> Update</button>
+          <button class="btn-print" title="Print Receipt"><i class="fas fa-print"></i> Print</button>
+        </td>
       `;
-      
-      if (paymentType !== "Cash") {
-        receiptHTML += `
-          <p><strong>Batch No:</strong> <span>${batchNo}</span></p>
-          <p><strong>Approval Code:</strong> <span>${approvalCode}</span></p>
+      tableBody.appendChild(row);
+
+      // Update handler
+      row.querySelector(".btn-update").addEventListener("click", async () => {
+        const newPayType = row.querySelector(".payType").value;
+        const batchNo = row.querySelector(".batchNo").value.trim();
+        const approvalCode = row.querySelector(".approvalCode").value.trim();
+
+        if (newPayType === "Cash") {
+          if (batchNo || approvalCode) {
+            alert("Cash payments must not have Batch No or Approval Code.");
+            return;
+          }
+        } else {
+          if (!batchNo || !approvalCode) {
+            alert("Non-cash payments require Batch No and Approval Code.");
+            return;
+          }
+        }
+
+        try {
+          await firebase.firestore().collection("payments").doc(data.id).update({
+            paymentType: newPayType,
+            batchNo: newPayType==="Cash" ? null : batchNo,
+            approvalCode: newPayType==="Cash" ? null : approvalCode,
+            status: "complete"
+          });
+
+          const statusBadge = row.querySelector(".status-badge");
+          statusBadge.textContent = "Complete";
+          statusBadge.className = "status-badge status-complete";
+
+          // Show success notification
+          showNotification("Payment updated successfully!", "success");
+        } catch (error) {
+          showNotification("Error updating payment: " + error.message, "error");
+        }
+      });
+
+      // Print handler
+      row.querySelector(".btn-print").addEventListener("click", () => {
+        const receiptDate = new Date().toLocaleDateString();
+        const receiptTime = new Date().toLocaleTimeString();
+        
+        let receiptHTML = `
+          <p><strong>Receipt No:</strong> <span>${data.receiptNo || ""}</span></p>
+          <p><strong>Date:</strong> <span>${receiptDate}</span></p>
+          <p><strong>Time:</strong> <span>${receiptTime}</span></p>
+          <p><strong>Name:</strong> <span>${data.name || ""}</span></p>
+          <p><strong>Flight:</strong> <span>${data.flight || ""}</span></p>
+          <p><strong>Total Amount:</strong> <span>${data.currency || "$"} ${data.total || ""}</span></p>
+          <p><strong>Payment Method:</strong> <span>${data.paymentType || ""}</span></p>
         `;
-      }
-      
-      receiptDetails.innerHTML = receiptHTML;
-      printModal.style.display = "flex";
-    });
-  });
-
-  // Add event listeners to update buttons
-  document.querySelectorAll('.btn-update').forEach(button => {
-    button.addEventListener('click', function() {
-      const row = this.closest('tr');
-      const paymentType = row.querySelector('.payType').value;
-      const batchNo = row.querySelector('.batchNo').value.trim();
-      const approvalCode = row.querySelector('.approvalCode').value.trim();
-      const statusBadge = row.querySelector('.status-badge');
-
-      if (paymentType === "Cash") {
-        if (batchNo || approvalCode) {
-          alert("Cash payments must not have Batch No or Approval Code.");
-          return;
+        
+        if (data.paymentType !== "Cash") {
+          receiptHTML += `
+            <p><strong>Batch No:</strong> <span>${data.batchNo || ""}</span></p>
+            <p><strong>Approval Code:</strong> <span>${data.approvalCode || ""}</span></p>
+          `;
         }
-      } else {
-        if (!batchNo || !approvalCode) {
-          alert("Non-cash payments require Batch No and Approval Code.");
-          return;
-        }
-      }
-
-      // Update status to complete
-      statusBadge.textContent = "Complete";
-      statusBadge.className = "status-badge status-complete";
-      
-      // Show success notification
-      showNotification("Payment updated successfully!", "success");
+        
+        receiptDetails.innerHTML = receiptHTML;
+        printModal.style.display = "flex";
+      });
     });
-  });
+
+    renderPagination();
+  }
+
+  function renderPagination() {
+    paginationContainer.innerHTML = "";
+    const totalPages = Math.ceil(filteredPayments.length / itemsPerPage);
+    if (totalPages <= 1) return;
+
+    // Previous button
+    if (totalPages > 1) {
+      const prevBtn = document.createElement("button");
+      prevBtn.innerHTML = "&laquo;";
+      prevBtn.addEventListener("click", () => {
+        if (currentPage > 1) {
+          currentPage--;
+          renderPayments();
+        }
+      });
+      if (currentPage === 1) prevBtn.disabled = true;
+      paginationContainer.appendChild(prevBtn);
+    }
+
+    // Page buttons
+    for (let i = 1; i <= totalPages; i++) {
+      const btn = document.createElement("button");
+      btn.textContent = i;
+      if (i === currentPage) btn.classList.add("active");
+      btn.addEventListener("click", () => {
+        currentPage = i;
+        renderPayments();
+      });
+      paginationContainer.appendChild(btn);
+    }
+
+    // Next button
+    if (totalPages > 1) {
+      const nextBtn = document.createElement("button");
+      nextBtn.innerHTML = "&raquo;";
+      nextBtn.addEventListener("click", () => {
+        if (currentPage < totalPages) {
+          currentPage++;
+          renderPayments();
+        }
+      });
+      if (currentPage === totalPages) nextBtn.disabled = true;
+      paginationContainer.appendChild(nextBtn);
+    }
+  }
 
   function showNotification(message, type) {
     // Create notification element
@@ -995,43 +1044,7 @@ window.addEventListener('load', function() {
   searchInput.addEventListener("input", filterPayments);
   paymentTypeFilter.addEventListener("change", filterPayments);
   statusFilter.addEventListener("change", filterPayments);
-  refreshBtn.addEventListener("click", function() {
-    showNotification("Payments refreshed", "success");
-  });
-
-  function filterPayments() {
-    // Simple filtering for demonstration
-    const searchTerm = searchInput.value.toLowerCase();
-    const paymentType = paymentTypeFilter.value;
-    const status = statusFilter.value;
-    
-    let visibleRows = 0;
-    
-    document.querySelectorAll('#paymentsTable tbody tr').forEach(row => {
-      const receiptNo = row.cells[0].textContent.toLowerCase();
-      const name = row.cells[1].textContent.toLowerCase();
-      const flight = row.cells[2].textContent.toLowerCase();
-      const rowPaymentType = row.querySelector('.payType').value;
-      const statusBadge = row.querySelector('.status-badge').textContent.toLowerCase();
-      
-      const matchesSearch = !searchTerm || 
-        receiptNo.includes(searchTerm) ||
-        name.includes(searchTerm) ||
-        flight.includes(searchTerm);
-      
-      const matchesType = !paymentType || rowPaymentType === paymentType;
-      const matchesStatus = !status || statusBadge === status.toLowerCase();
-      
-      if (matchesSearch && matchesType && matchesStatus) {
-        row.style.display = '';
-        visibleRows++;
-      } else {
-        row.style.display = 'none';
-      }
-    });
-    
-    resultsCount.textContent = `${visibleRows} ${visibleRows === 1 ? 'result' : 'results'}`;
-  }
+  refreshBtn.addEventListener("click", loadPayments);
 
   closeModal.addEventListener("click", () => printModal.style.display="none");
   closeReceiptBtn.addEventListener("click", () => printModal.style.display="none");
@@ -1091,13 +1104,13 @@ window.addEventListener('load', function() {
       printModal.style.display = "none";
     }
   });
+
+  loadPayments();
 });
 
 function logout() {
-  if (confirm("Are you sure you want to logout?")) {
-    // In a real application, this would clear the user session
-    alert("You have been logged out.");
-  }
+  localStorage.removeItem("loggedInUser");
+  window.location.href = "login.html";
 }
 </script>
 </body>
