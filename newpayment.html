@@ -6,20 +6,6 @@
   <title>Payment Entry</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
-    :root {
-      --primary: #4361ee;
-      --primary-dark: #3a0ca3;
-      --secondary: #f72585;
-      --success: #4cc9f0;
-      --light: #f8f9fa;
-      --dark: #212529;
-      --gray: #6c757d;
-      --light-gray: #e9ecef;
-      --border-radius: 12px;
-      --box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-      --transition: all 0.3s ease;
-    }
-    
     * {
       margin: 0;
       padding: 0;
@@ -29,9 +15,8 @@
     
     body {
       background: linear-gradient(135deg, #f5f7fa 0%, #e4e8f0 100%);
-      color: var(--dark);
+      color: #333;
       min-height: 100vh;
-      padding: 0;
     }
     
     .dashboard-container {
@@ -41,51 +26,47 @@
     
     /* Sidebar Styles */
     .sidebar {
-      width: 280px;
-      background: linear-gradient(to bottom, var(--primary-dark), var(--primary));
+      width: 250px;
+      background: linear-gradient(to bottom, #2c3e50, #34495e);
       color: white;
-      padding: 25px 0;
+      padding: 20px 0;
       display: flex;
       flex-direction: column;
-      box-shadow: var(--box-shadow);
     }
     
     .logo {
-      padding: 0 25px 25px;
+      padding: 0 20px 20px;
       border-bottom: 1px solid rgba(255,255,255,0.1);
-      margin-bottom: 25px;
+      margin-bottom: 20px;
     }
     
     .logo h2 {
       display: flex;
       align-items: center;
-      gap: 12px;
-      font-size: 22px;
+      gap: 10px;
     }
     
     .logo h2 i {
-      color: #4cc9f0;
+      color: #3498db;
     }
     
     .user-info {
-      padding: 0 25px;
+      padding: 0 20px;
       margin-bottom: 30px;
     }
     
     .user-info p {
-      margin: 8px 0;
+      margin: 5px 0;
       display: flex;
       align-items: center;
-      gap: 10px;
-      font-size: 14px;
+      gap: 8px;
     }
     
     .level-badge {
-      background: rgba(76, 201, 240, 0.2);
-      padding: 4px 12px;
+      background: #3498db;
+      padding: 3px 8px;
       border-radius: 20px;
       font-size: 12px;
-      border: 1px solid rgba(76, 201, 240, 0.3);
     }
     
     .nav-links {
@@ -95,35 +76,31 @@
     .nav-item {
       display: flex;
       align-items: center;
-      padding: 14px 25px;
-      color: rgba(255, 255, 255, 0.9);
+      padding: 12px 20px;
+      color: #ecf0f1;
       text-decoration: none;
-      transition: var(--transition);
-      gap: 15px;
-      font-size: 15px;
+      transition: all 0.3s;
+      gap: 12px;
     }
     
     .nav-item:hover, .nav-item.active {
-      background: rgba(255, 255, 255, 0.1);
-      border-left: 4px solid #4cc9f0;
-      color: white;
+      background: rgba(52, 152, 219, 0.2);
+      border-left: 4px solid #3498db;
     }
     
     .logout-btn {
       margin-top: auto;
-      padding: 16px 25px;
+      padding: 15px 20px;
       display: flex;
       align-items: center;
-      gap: 15px;
+      gap: 12px;
       cursor: pointer;
-      color: rgba(255, 255, 255, 0.8);
+      color: #e74c3c;
       border-top: 1px solid rgba(255,255,255,0.1);
-      transition: var(--transition);
     }
     
     .logout-btn:hover {
       background: rgba(231, 76, 60, 0.1);
-      color: white;
     }
     
     /* Main Content Styles */
@@ -141,78 +118,69 @@
     }
     
     .header h1 {
-      color: var(--primary-dark);
-      font-weight: 700;
-      font-size: 28px;
+      color: #2c3e50;
+      font-weight: 600;
     }
     
     .date-display {
-      color: var(--gray);
-      font-size: 15px;
-      display: flex;
-      align-items: center;
-      gap: 8px;
+      color: #7f8c8d;
+      font-size: 14px;
     }
     
     /* Payment Form Styles */
     .payment-form {
       background: white;
-      border-radius: var(--border-radius);
-      padding: 30px;
-      box-shadow: var(--box-shadow);
-      margin-bottom: 30px;
+      border-radius: 12px;
+      padding: 25px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+      margin-bottom: 25px;
     }
     
     .form-section {
-      margin-bottom: 30px;
+      margin-bottom: 25px;
     }
     
     .section-title {
       display: flex;
       align-items: center;
-      gap: 12px;
-      color: var(--primary-dark);
-      margin-bottom: 25px;
-      padding-bottom: 15px;
-      border-bottom: 1px solid var(--light-gray);
-    }
-    
-    .section-title i {
-      color: var(--primary);
+      gap: 10px;
+      color: #2c3e50;
+      margin-bottom: 20px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid #eee;
     }
     
     .form-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 25px;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 20px;
     }
     
     .form-group {
-      margin-bottom: 20px;
+      margin-bottom: 18px;
     }
     
     .form-group label {
       display: block;
-      margin-bottom: 10px;
+      margin-bottom: 8px;
       font-weight: 600;
-      color: var(--dark);
+      color: #2c3e50;
       font-size: 14px;
     }
     
     .form-control {
       width: 100%;
-      padding: 14px 18px;
-      border: 1px solid var(--light-gray);
-      border-radius: var(--border-radius);
+      padding: 12px 15px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
       font-size: 15px;
-      transition: var(--transition);
-      background: var(--light);
+      transition: all 0.3s ease;
     }
     
     .form-control:focus {
       outline: none;
-      border-color: var(--primary);
-      box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.2);
+      border-color: #3498db;
+      box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
     }
     
     .input-with-icon {
@@ -221,91 +189,81 @@
     
     .input-icon {
       position: absolute;
-      left: 18px;
+      left: 15px;
       top: 50%;
       transform: translateY(-50%);
-      color: var(--gray);
+      color: #7f8c8d;
     }
     
     .input-with-icon .form-control {
-      padding-left: 50px;
+      padding-left: 45px;
     }
     
     .info-badge {
       display: flex;
       align-items: center;
-      gap: 12px;
-      background: var(--light);
-      padding: 14px 18px;
-      border-radius: var(--border-radius);
+      gap: 10px;
+      background: #f8f9fa;
+      padding: 12px 15px;
+      border-radius: 8px;
       font-size: 15px;
-      border-left: 4px solid var(--primary);
     }
     
     .info-badge i {
-      color: var(--primary);
+      color: #3498db;
     }
     
     .totals-grid {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
-      gap: 20px;
-      background: var(--light);
-      padding: 25px;
-      border-radius: var(--border-radius);
-      margin-top: 25px;
+      gap: 15px;
+      background: #f8f9fc;
+      padding: 20px;
+      border-radius: 8px;
+      margin-top: 20px;
     }
     
     .total-item {
       text-align: center;
-      padding: 15px;
-      background: white;
-      border-radius: var(--border-radius);
-      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
     }
     
     .total-item label {
       display: block;
       font-weight: 600;
-      margin-bottom: 10px;
-      color: var(--gray);
+      margin-bottom: 8px;
+      color: #7f8c8d;
       font-size: 14px;
     }
     
     .total-value {
-      font-size: 22px;
+      font-size: 20px;
       font-weight: 700;
-      color: var(--primary);
+      color: #3498db;
     }
     
     .btn {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 10px;
-      padding: 16px 28px;
-      background: var(--primary);
+      display: inline-block;
+      padding: 12px 20px;
+      background: #3498db;
       color: white;
       border: none;
-      border-radius: var(--border-radius);
-      font-size: 16px;
+      border-radius: 8px;
+      font-size: 15px;
       font-weight: 600;
       cursor: pointer;
-      transition: var(--transition);
+      transition: all 0.3s ease;
       text-align: center;
     }
     
     .btn:hover {
-      background: var(--primary-dark);
+      background: #2980b9;
       transform: translateY(-2px);
-      box-shadow: 0 6px 15px rgba(67, 97, 238, 0.3);
     }
     
     .btn-full {
-      display: flex;
+      display: block;
       width: 100%;
-      padding: 18px;
-      margin-top: 10px;
+      padding: 16px;
     }
     
     .btn-success {
@@ -317,46 +275,45 @@
     }
     
     .btn-secondary {
-      background: var(--gray);
+      background: #7f8c8d;
     }
     
     .btn-secondary:hover {
-      background: #5a6268;
+      background: #6c7a7d;
     }
     
     /* Receipt Styles */
     #receiptContainer {
       display: none;
-      margin-top: 40px;
+      margin-top: 30px;
     }
     
     .receipt {
       width: 80mm;
-      padding: 20px;
+      padding: 10px;
       font-family: 'Courier New', monospace;
       font-size: 14px;
       background: white;
       margin: 0 auto;
-      box-shadow: var(--box-shadow);
-      border-radius: var(--border-radius);
+      box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+      border-radius: 8px;
     }
     
     .receipt-header {
       text-align: center;
       margin-bottom: 15px;
       border-bottom: 1px dashed #ccc;
-      padding-bottom: 15px;
+      padding-bottom: 10px;
     }
     
     .receipt-divider {
       border-top: 1px dashed #ccc;
-      margin: 12px 0;
+      margin: 10px 0;
     }
     
     .receipt-total {
       font-weight: bold;
       text-transform: uppercase;
-      font-size: 16px;
     }
     
     .receipt-footer {
@@ -364,21 +321,14 @@
       margin-top: 15px;
       font-size: 12px;
       border-top: 1px dashed #ccc;
-      padding-top: 15px;
+      padding-top: 10px;
     }
     
     .receipt-controls {
       display: flex;
       justify-content: center;
-      gap: 20px;
-      margin-top: 30px;
-    }
-    
-    /* Responsive Design */
-    @media (max-width: 1200px) {
-      .sidebar {
-        width: 240px;
-      }
+      gap: 15px;
+      margin-top: 20px;
     }
     
     @media (max-width: 992px) {
@@ -388,27 +338,20 @@
       
       .sidebar {
         width: 100%;
-        padding: 20px;
+        padding: 15px;
       }
       
       .nav-links {
         display: flex;
         overflow-x: auto;
-        gap: 10px;
-        margin-bottom: 20px;
-        padding-bottom: 10px;
+        gap: 5px;
+        margin-bottom: 15px;
       }
       
       .nav-item {
-        padding: 12px 20px;
-        border-radius: var(--border-radius);
+        padding: 10px 15px;
+        border-radius: 8px;
         white-space: nowrap;
-        border-left: none;
-      }
-      
-      .nav-item.active {
-        border-left: none;
-        background: rgba(76, 201, 240, 0.2);
       }
       
       .logout-btn {
@@ -421,13 +364,7 @@
     
     @media (max-width: 768px) {
       .main-content {
-        padding: 20px;
-      }
-      
-      .header {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 10px;
+        padding: 20px 15px;
       }
       
       .form-grid,
@@ -438,15 +375,6 @@
       .receipt {
         width: 100%;
       }
-      
-      .receipt-controls {
-        flex-direction: column;
-        gap: 15px;
-      }
-      
-      .btn {
-        width: 100%;
-      }
     }
   </style>
 </head>
@@ -455,7 +383,7 @@
     <!-- Sidebar -->
     <div class="sidebar">
       <div class="logo">
-        <h2><i class="fas fa-money-bill-wave"></i> Payment System</h2>
+        <h2><i class="fas fa-money-bill-wave"></i> Payments</h2>
       </div>
       
       <div class="user-info">
@@ -477,7 +405,7 @@
           <i class="fas fa-ban"></i> Void
         </a>
         <a href="shiftmanagement.html" class="nav-item">
-          <i class="fas fa-cogs"></i> Shift Management
+          <i class="fas fa-clock"></i> Shift Management
         </a>
         <a href="cashiermanagement.html" class="nav-item">
           <i class="fas fa-users"></i> Cashier Management
@@ -493,10 +421,7 @@
     <div class="main-content">
       <div class="header">
         <h1>Payment Entry</h1>
-        <div class="date-display">
-          <i class="fas fa-calendar-alt"></i>
-          <span id="currentDate"></span>
-        </div>
+        <div class="date-display" id="currentDate"></div>
       </div>
       
       <!-- Payment Form -->
@@ -604,15 +529,13 @@
           </div>
           
           <div id="cashPaymentFields" style="display:none;">
-            <div class="form-grid">
-              <div class="form-group">
-                <label>Paid Amount</label>
-                <input type="number" id="paidAmount" class="form-control" placeholder="Enter amount">
-              </div>
-              <div class="form-group">
-                <label>Balance</label>
-                <input type="text" id="balanceAmount" class="form-control" readonly>
-              </div>
+            <div class="form-group">
+              <label>Paid Amount</label>
+              <input type="number" id="paidAmount" class="form-control" placeholder="Enter amount">
+            </div>
+            <div class="form-group">
+              <label>Balance</label>
+              <input type="text" id="balanceAmount" class="form-control" readonly>
             </div>
           </div>
           
@@ -714,29 +637,28 @@
         return;
       }
       
-      // Generate receipt number
-      let lastReceiptNo = parseInt(localStorage.getItem("lastReceiptNo")) || 0;
-      const newReceiptNo = lastReceiptNo + 1;
-      localStorage.setItem("lastReceiptNo", newReceiptNo);
-      
-      // Generate receipt content
-      const receiptBody = document.getElementById('receipt-body');
-      receiptBody.innerHTML = `
-        <p>Receipt No: ${newReceiptNo}</p>
-        <p>Date: ${new Date().toLocaleDateString()}</p>
-        <p>Passenger: ${name}</p>
-        <p>Flight: ${flight}</p>
-        <p>Seat: ${document.getElementById('seat').value || 'N/A'}</p>
-        <p>Adults: ${document.getElementById('adultCount').value}</p>
-        <p>Kids: ${document.getElementById('kidCount').value}</p>
-        <div class="receipt-divider"></div>
-        <p>Payment Type: ${document.getElementById('paymentType').value}</p>
-        <p>Currency: ${document.getElementById('currency').value}</p>
-        <p class="receipt-total">Total: $50.00</p>
-        <div class="receipt-divider"></div>
-        <p>Processed by: ${user.username}</p>
-        <p>Shift: ${user.Level}</p>
-      `;
+    // Generate receipt number
+let lastReceiptNo = parseInt(localStorage.getItem("lastReceiptNo")) || 0;
+const newReceiptNo = lastReceiptNo + 1;
+localStorage.setItem("lastReceiptNo", newReceiptNo);
+
+// Include in receipt
+receiptBody.innerHTML = `
+  <p>Receipt No: ${newReceiptNo}</p>
+  <p>Date: ${new Date().toLocaleDateString()}</p>
+  <p>Passenger: ${name}</p>
+  <p>Flight: ${flight}</p>
+  <p>Seat: ${document.getElementById('seat').value || 'N/A'}</p>
+  <p>Adults: ${document.getElementById('adultCount').value}</p>
+  <p>Kids: ${document.getElementById('kidCount').value}</p>
+  <div class="receipt-divider"></div>
+  <p>Payment Type: ${document.getElementById('paymentType').value}</p>
+  <p>Currency: ${document.getElementById('currency').value}</p>
+  <p class="receipt-total">Total: $50.00</p>
+  <div class="receipt-divider"></div>
+  <p>Processed by: ${user.username}</p>
+  <p>Shift: ${user.Level}</p>
+`;
       
       // Show receipt
       document.getElementById('receiptContainer').style.display = 'block';
