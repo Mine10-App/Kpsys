@@ -1,0 +1,341 @@
+ <!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login - Payment System</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    
+    body {
+      background: linear-gradient(135deg, #4361ee 0%, #3a0ca3 100%);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 20px;
+    }
+    
+    .login-container {
+      display: flex;
+      width: 900px;
+      height: 500px;
+      background: white;
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: 0 15px 40px rgba(0, 0, 0, 0.25);
+    }
+    
+    .illustration {
+      flex: 1;
+      background: linear-gradient(135deg, #4cc9f0 0%, #4361ee 100%);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      color: white;
+      padding: 40px;
+    }
+    
+    .illustration-content {
+      text-align: center;
+      max-width: 300px;
+    }
+    
+    .illustration h2 {
+      font-size: 28px;
+      margin-bottom: 15px;
+      font-weight: 700;
+    }
+    
+    .illustration p {
+      font-size: 16px;
+      opacity: 0.9;
+      line-height: 1.6;
+    }
+    
+    .illustration-img {
+      width: 100%;
+      max-width: 280px;
+      margin: 30px 0;
+    }
+    
+    .login-form {
+      flex: 1;
+      padding: 50px 40px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+    
+    .logo {
+      display: flex;
+      align-items: center;
+      margin-bottom: 30px;
+    }
+    
+    .logo-icon {
+      width: 40px;
+      height: 40px;
+      background: #4361ee;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 20px;
+      margin-right: 12px;
+    }
+    
+    .logo-text {
+      font-size: 24px;
+      font-weight: 700;
+      color: #4361ee;
+    }
+    
+    .welcome-text {
+      margin-bottom: 30px;
+    }
+    
+    .welcome-text h1 {
+      font-size: 28px;
+      color: #212529;
+      margin-bottom: 8px;
+    }
+    
+    .welcome-text p {
+      color: #6c757d;
+      font-size: 16px;
+    }
+    
+    .input-group {
+      margin-bottom: 20px;
+      position: relative;
+    }
+    
+    .input-group i {
+      position: absolute;
+      left: 15px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #6c757d;
+      font-size: 18px;
+    }
+    
+    .input-group input {
+      width: 100%;
+      padding: 15px 15px 15px 45px;
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+      font-size: 16px;
+      transition: all 0.3s ease;
+    }
+    
+    .input-group input:focus {
+      outline: none;
+      border-color: #4361ee;
+      box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.2);
+    }
+    
+    .remember-forgot {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 25px;
+      font-size: 14px;
+    }
+    
+    .remember {
+      display: flex;
+      align-items: center;
+    }
+    
+    .remember input {
+      margin-right: 8px;
+    }
+    
+    .forgot-password {
+      color: #4361ee;
+      text-decoration: none;
+      font-weight: 500;
+    }
+    
+    .forgot-password:hover {
+      text-decoration: underline;
+    }
+    
+    .login-button {
+      background: #4361ee;
+      color: white;
+      border: none;
+      padding: 15px;
+      border-radius: 10px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 12px rgba(67, 97, 238, 0.25);
+    }
+    
+    .login-button:hover {
+      background: #3a0ca3;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(67, 97, 238, 0.3);
+    }
+    
+    .error-message {
+      background: #ffeaea;
+      color: #e63946;
+      padding: 12px;
+      border-radius: 8px;
+      margin-top: 20px;
+      font-size: 14px;
+      display: none;
+    }
+    
+    .error-message.show {
+      display: block;
+    }
+    
+    /* Responsive design */
+    @media (max-width: 900px) {
+      .login-container {
+        flex-direction: column;
+        height: auto;
+        width: 100%;
+        max-width: 500px;
+      }
+      
+      .illustration {
+        padding: 30px 20px;
+      }
+      
+      .illustration-img {
+        max-width: 200px;
+        margin: 20px 0;
+      }
+      
+      .login-form {
+        padding: 40px 30px;
+      }
+    }
+    
+    @media (max-width: 480px) {
+      .remember-forgot {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+      }
+      
+      .illustration h2 {
+        font-size: 24px;
+      }
+      
+      .welcome-text h1 {
+        font-size: 24px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="login-container">
+    <div class="illustration">
+      <div class="illustration-content">
+        <h2>Koveli Lounge</h2>
+       
+        <svg class="illustration-img" viewBox="0 0 500 500" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="250" cy="250" r="200" fill="#f8f9fa" />
+          <circle cx="250" cy="200" r="80" fill="#4361ee" />
+          <path d="M150 350 C150 300, 350 300, 350 350 L350 380 C350 400, 150 400, 150 380 Z" fill="#4361ee" />
+          <rect x="180" y="300" width="140" height="40" rx="5" fill="#3a0ca3" />
+          <rect x="200" y="310" width="100" height="20" rx="3" fill="#f8f9fa" />
+        </svg>
+       
+      </div>
+    </div>
+    
+    <div class="login-form">
+      <div class="logo">
+        <div class="logo-icon">
+          <i class="fas fa-money-check-alt"></i>
+        </div>
+        <div class="logo-text">PaySystem</div>
+      </div>
+      
+      <div class="welcome-text">
+        <h1>Sign In</h1>
+        <p>Enter your credentials to access your account</p>
+      </div>
+      
+      <div class="input-group">
+        <i class="fas fa-user"></i>
+        <input type="text" id="username" placeholder="Username" required>
+      </div>
+      
+      <div class="input-group">
+        <i class="fas fa-lock"></i>
+        <input type="password" id="password" placeholder="Password" required>
+      </div>
+      
+      
+      
+      <button class="login-button" onclick="login()">Login</button>
+      
+      <div id="error" class="error-message"></div>
+    </div>
+  </div>
+
+  <script src="user.js"></script>
+  <script>
+    function login() {
+      const username = document.getElementById("username").value.trim();
+      const password = document.getElementById("password").value.trim();
+      const errorMsg = document.getElementById("error");
+
+      const user = users.find(u => u.username === username && u.password === password);
+
+      if (user) {
+        // Save user info to localStorage
+        localStorage.setItem("loggedInUser", JSON.stringify(user));
+        window.location.href = "dashboard.html";
+      } else {
+        errorMsg.textContent = "Invalid username or password. Please try again.";
+        errorMsg.classList.add("show");
+        
+        // Add shake animation to inputs
+        document.getElementById("username").style.animation = "shake 0.5s";
+        document.getElementById("password").style.animation = "shake 0.5s";
+        
+        setTimeout(() => {
+          document.getElementById("username").style.animation = "";
+          document.getElementById("password").style.animation = "";
+        }, 500);
+      }
+    }
+    
+    // Allow login on Enter key press
+    document.addEventListener("keydown", function(event) {
+      if (event.key === "Enter") {
+        login();
+      }
+    });
+    
+    // Add shake animation
+    const style = document.createElement('style');
+    style.textContent = `
+      @keyframes shake {
+        0%, 100% { transform: translateX(0); }
+        20%, 60% { transform: translateX(-8px); }
+        40%, 80% { transform: translateX(8px); }
+      }
+    `;
+    document.head.appendChild(style);
+  </script>
+</body>
+</html>

@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Shift Management</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<script src="fire2.js"></script> <!-- Firebase config -->
+<style>
+:root {
+  --primary: #4361ee;
+  --primary-light: #eef0ff;
+  --secondary: #3a0ca3;
+  --success: #28a745;
+  --success-light: #e8f5e9;
+  --danger: #dc3545;
+  --danger-light: #ffebee;
+  --warning: #ffca2c;
+  --info: #17a2b8;
+  --light: #f8f9fa;
+  --dark: #212529;
+  --gray: #6c757d;
+  --light-gray: #e9ecef;
+  --border-radius: 12px;
+  --card-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  --transition: all 0.3s ease;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: linear-gradient(135deg, #f5f7fa 0%, #e4e9f2 100%);
+  padding: 20px;
+  min-height: 100vh;
+  color: var(--dark);
+  line-height: 1.6;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* Header Styles */
+.header {
+  text-align: center;
+  margin-bottom: 30px;
+  padding: 25px;
+  background: white;
+  border-radius: var(--border-radius);
+  box-shadow: var(--card-shadow);
+}
+
+.header h1 {
+  color: var(--primary);
+  font-size: 2.2rem;
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+
+.header p {
+  color: var(--gray);
+  font-size: 1.1rem;
+}
+
+/* Dashboard Cards */
+.dashboard {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  margin-bottom: 30px;
+}
+
+.card {
+  background: white;
+  border-radius: var(--border-radius);
+  padding: 24px;
+  box-shadow: var(--card-shadow);
+}
+
+.card-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 20px;
+  gap: 12px;
+}
+
+.card-header i {
+  font-size: 1.5rem;
+  color: var(--primary);
+}
+
+.card-header h2 {
+  font-size: 1.4rem;
+  color: var(--dark);
+}
+
+/* Current Shift Card */
+.current-shift-card {
+  grid-column: 1 / -1;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.shift-status {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.status-badge {
+  padding: 8px 16px;
+  border-radius: 50px;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.status-badge.open {
+  background-color: rgba(40, 167, 69, 0.15);
+  color: var(--success);
+}
+
+.status-badge.closed {
+  background-color: rgba(220, 53, 69, 0.15);
+  color: var(--danger);
+}
+
+.shift-details {
+  display: flex;
+  gap: 25px;
+  flex-wrap: wrap;
+}
+
+.detail-item {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.detail-label {
+  font-size: 0.85rem;
+  color: var(--gray);
+  font-weight: 500;
+}
+
+.detail-value {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--dark);
+}
+
+/* Action Buttons */
+.action-buttons {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 30px;
+  justify-content: center;
+}
+
+.btn {
+  padding: 14px 28px;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  color: white;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  transition: var(--transition);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+}
+
+.btn:active {
+  transform: translateY(0);
+}
+
+.btn-success {
+  background: var(--success);
+}
+
+.btn-danger {
+  background: var(--danger);
+}
+
+.btn:disabled {
+  background: var(--light-gray);
+  color: var(--gray);
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+/* Shifts Table */
+.shifts-table-container {
+  background: white;
+  border-radius: var(--border-radius);
+  overflow: hidden;
+  box-shadow: var(--card-shadow);
+  margin-bottom: 30px;
+}
+
+.table-header {
+  padding: 20px;
+  background: var(--light);
+  border-bottom: 1px solid var(--light-gray);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.table-header h2 {
+  color: var(--dark);
+  font-size: 1.4rem;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th, td {
+  padding: 16px 20px;
+  text-align: left;
+  border-bottom: 1px solid var(--light-gray);
+}
+
+th {
+  background: var(--light);
+  font-weight: 600;
+  color: var(--dark);
+  position: sticky;
+  top: 0;
+}
+
+tr:last-child td {
+  border-bottom: none;
+}
+
+tr:hover {
+  background-color: rgba(67, 97, 238, 0.03);
+}
+
+.status-cell {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.status-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.status-dot.open {
+  background-color: var(--success);
+}
+
+.status-dot.closed {
+  background-color: var(--danger);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .dashboard {
+    grid-template-columns: 1fr;
+  }
+  
+  .current-shift-card {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .action-buttons {
+    flex-direction: column;
+  }
+  
+  .btn {
+    width: 100%;
+    justify-content: center;
+  }
+  
+  .shifts-table-container {
+    overflow-x: auto;
+  }
+  
+  table {
+    min-width: 600px;
+  }
+}
+
+.loading {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  border: 3px solid rgba(67, 97, 238, 0.3);
+  border-radius: 50%;
+  border-top-color: var(--primary);
+  animation: spin 1s ease-in-out infinite;
+  margin-right: 10px;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.empty-state {
+  text-align: center;
+  padding: 40px;
+  color: var(--gray);
+}
+
+.empty-state i {
+  font-size: 3rem;
+  margin-bottom: 15px;
+  color: var(--light-gray);
+}
+
+.footer {
+  text-align: center;
+  margin-top: 30px;
+  color: var(--gray);
+  font-size: 0.9rem;
+}
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <h1><i class="fas fa-business-time"></i> Shift Management System</h1>
+    <p>Manage and track work shifts in real-time</p>
+  </div>
+  
+  <div class="dashboard">
+    <div class="card">
+      <div class="card-header">
+        <i class="fas fa-user-clock"></i>
+        <h2>Current User</h2>
+      </div>
+      <div class="detail-item">
+        <span class="detail-label">Logged in as</span>
+        <span class="detail-value" id="currentUser">Koveli</span>
+      </div>
+    </div>
+    
+    <div class="card">
+      <div class="card-header">
+        <i class="fas fa-list-ol"></i>
+        <h2>Shifts Today</h2>
+      </div>
+      <div class="detail-item">
+        <span class="detail-label">Total shifts opened</span>
+        <span class="detail-value" id="shiftsCount">0</span>
+      </div>
+    </div>
+    
+    <div class="card current-shift-card">
+      <div class="shift-status">
+        <span class="status-badge closed" id="statusBadge">Closed</span>
+        <div id="currentShiftInfo">Loading current shift...</div>
+      </div>
+      <div class="shift-details">
+        <div class="detail-item">
+          <span class="detail-label">Current Status</span>
+          <span class="detail-value" id="currentStatus">No active shift</span>
+        </div>
+        <div class="detail-item">
+          <span class="detail-label">Last Activity</span>
+          <span class="detail-value" id="lastActivity">-</span>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <div class="action-buttons">
+    <button id="openShiftBtn" class="btn btn-success">
+      <i class="fas fa-door-open"></i> Open New Shift
+    </button>
+    <button id="closeShiftBtn" class="btn btn-danger">
+      <i class="fas fa-door-closed"></i> Close Current Shift
+    </button>
+  </div>
+  
+  <div class="shifts-table-container">
+    <div class="table-header">
+      <i class="fas fa-history"></i>
+      <h2>Shift History</h2>
+    </div>
+    <table id="shiftsTable">
+      <thead>
+        <tr>
+          <th>Shift No</th>
+          <th>Status</th>
+          <th>User</th>
+          <th>Start Time</th>
+          <th>End Time</th>
+          <th>Duration</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td colspan="6" class="empty-state">
+            <i class="fas fa-clipboard-list"></i>
+            <p>Loading shifts...</p>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  
+  <div class="footer">
+    <p>Shift Management System © 2023 | Designed for efficient workforce management</p>
+  </div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script src="users.js"></script>
+<script>
+window.addEventListener('load', async () => {
+  if (typeof firebaseConfig === 'undefined') { 
+    alert("Firebase config not found in fire2.js"); 
+    return; 
+  }
+  
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.firestore();
+
+  const currentShiftInfo = document.getElementById("currentShiftInfo");
+  const statusBadge = document.getElementById("statusBadge");
+  const currentStatus = document.getElementById("currentStatus");
+  const lastActivity = document.getElementById("lastActivity");
+  const currentUserElement = document.getElementById("currentUser");
+  const shiftsCountElement = document.getElementById("shiftsCount");
+  const openBtn = document.getElementById("openShiftBtn");
+  const closeBtn = document.getElementById("closeShiftBtn");
+  const shiftsTableBody = document.querySelector("#shiftsTable tbody");
+
+  let currentShift = null;
+  const currentUser = "Koveli"; // Set logged-in user dynamically
+  const maxShifts = 2;
+  
+  // Display current user
+  currentUserElement.textContent = currentUser;
+
+  async function loadShifts() {
+    const snapshot = await db.collection("shifts").orderBy("shiftNo").get();
+    const shifts = [];
+    snapshot.forEach(doc => shifts.push({ id: doc.id, ...doc.data() }));
+    renderShifts(shifts);
+    updateShiftCount(shifts);
+    currentShift = shifts.find(s => s.status === "open") || null;
+    updateShiftInfo(shifts);
+  }
+
+  function updateShiftCount(shifts) {
+    shiftsCountElement.textContent = shifts.length;
+  }
+
+  function renderShifts(shifts) {
+    if (shifts.length === 0) {
+      shiftsTableBody.innerHTML = `
+        <tr>
+          <td colspan="6" class="empty-state">
+            <i class="fas fa-clipboard-list"></i>
+            <p>No shifts found</p>
+          </td>
+        </tr>`;
+      return;
+    }
+    
+    shiftsTableBody.innerHTML = "";
+    shifts.forEach(shift => {
+      const start = shift.startTime ? new Date(shift.startTime.seconds * 1000) : null;
+      const end = shift.endTime ? new Date(shift.endTime.seconds * 1000) : null;
+      
+      const startFormatted = start ? start.toLocaleString() : "-";
+      const endFormatted = end ? end.toLocaleString() : "-";
+      
+      // Calculate duration
+      let duration = "-";
+      if (start && end) {
+        const diffMs = end - start;
+        const hours = Math.floor(diffMs / (1000 * 60 * 60));
+        const minutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+        duration = `${hours}h ${minutes}m`;
+      } else if (start && !end) {
+        duration = "In progress";
+      }
+      
+      shiftsTableBody.innerHTML += `
+        <tr>
+          <td>${shift.shiftNo}</td>
+          <td class="status-cell">
+            <span class="status-dot ${shift.status}"></span>
+            ${shift.status}
+          </td>
+          <td>${shift.user}</td>
+          <td>${startFormatted}</td>
+          <td>${endFormatted}</td>
+          <td>${duration}</td>
+        </tr>`;
+    });
+  }
+
+  function updateShiftInfo(shifts) {
+    const shift1 = shifts.find(s => s.shiftNo === 1) || null;
+    const shift2 = shifts.find(s => s.shiftNo === 2) || null;
+
+    if (currentShift) {
+      const start = currentShift.startTime ? new Date(currentShift.startTime.seconds * 1000).toLocaleString() : "-";
+      currentShiftInfo.innerHTML = `<span class="loading"></span><strong>Shift ${currentShift.shiftNo}</strong> opened by ${currentShift.user}`;
+      currentStatus.textContent = "Active";
+      lastActivity.textContent = start;
+      statusBadge.textContent = "Open";
+      statusBadge.className = "status-badge open";
+      openBtn.disabled = true;
+      closeBtn.disabled = false;
+    } else {
+      // Determine which shift can open
+      if (!shift1) { 
+        openBtn.disabled = false; 
+        currentShiftInfo.textContent = "Ready to open Shift 1";
+        currentStatus.textContent = "No active shift";
+      } 
+      else if (shift1 && shift1.status === "closed" && !shift2) { 
+        openBtn.disabled = false; 
+        currentShiftInfo.textContent = "Ready to open Shift 2";
+        currentStatus.textContent = "No active shift";
+      } 
+      else { 
+        openBtn.disabled = true; 
+        currentShiftInfo.textContent = "All shifts completed for today";
+        currentStatus.textContent = "Completed";
+      }
+      
+      // Set last activity
+      if (shifts.length > 0) {
+        const lastShift = shifts[shifts.length - 1];
+        const endTime = lastShift.endTime ? new Date(lastShift.endTime.seconds * 1000).toLocaleString() : "-";
+        lastActivity.textContent = endTime;
+      } else {
+        lastActivity.textContent = "-";
+      }
+      
+      statusBadge.textContent = "Closed";
+      statusBadge.className = "status-badge closed";
+      closeBtn.disabled = true;
+    }
+  }
+
+  async function promptSupervisor() {
+    const username = prompt("Supervisor username:");
+    const password = prompt("Supervisor password:");
+    const supervisor = users.find(u => u.Level === "Supervisor" && u.username === username && u.password === password);
+    if (!supervisor) {
+      alert("Invalid supervisor credentials!");
+      return false;
+    }
+    return true;
+  }
+
+  openBtn.addEventListener("click", async () => {
+    const snapshot = await db.collection("shifts").orderBy("shiftNo").get();
+    const shifts = [];
+    snapshot.forEach(doc => shifts.push({ id: doc.id, ...doc.data() }));
+
+    let nextShiftNo = 1;
+    if (shifts.length > 0) nextShiftNo = shifts.length + 1;
+
+    if (nextShiftNo > maxShifts) { 
+      alert("Only 2 shifts allowed per day."); 
+      return; 
+    }
+
+    // Reopening check
+    const existingShift = shifts.find(s => s.shiftNo === nextShiftNo && s.status === "closed");
+    if (existingShift) {
+      const ok = await promptSupervisor();
+      if (!ok) return;
+    }
+
+    await db.collection("shifts").add({
+      shiftNo: nextShiftNo,
+      status: "open",
+      user: currentUser,
+      startTime: firebase.firestore.FieldValue.serverTimestamp(),
+      endTime: null
+    });
+    await loadShifts();
+    alert(`Shift ${nextShiftNo} opened successfully!`);
+  });
+
+  closeBtn.addEventListener("click", async () => {
+    if (!currentShift) return;
+
+    await db.collection("shifts").doc(currentShift.id).update({
+      status: "closed",
+      endTime: firebase.firestore.FieldValue.serverTimestamp()
+    });
+    await loadShifts();
+    alert(`Shift ${currentShift.shiftNo} closed successfully!`);
+  });
+
+  // Load initial shifts
+  loadShifts();
+
+  // Live updates
+  db.collection("shifts").orderBy("shiftNo").onSnapshot(snapshot => {
+    const shifts = [];
+    snapshot.forEach(doc => shifts.push({ id: doc.id, ...doc.data() }));
+    renderShifts(shifts);
+    updateShiftCount(shifts);
+    currentShift = shifts.find(s => s.status === "open") || null;
+    updateShiftInfo(shifts);
+  });
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,1295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Update Payments</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script src="fire2.js"></script>
+<script src="Co.js"></script>
+<style>
+  :root {
+    --primary: #4361ee;
+    --primary-light: #e6ecff;
+    --primary-dark: #3a56d4;
+    --secondary: #3f37c9;
+    --success: #4cc9f0;
+    --warning: #ff9e00;
+    --danger: #e63946;
+    --light: #f8f9fa;
+    --dark: #212529;
+    --gray: #6c757d;
+    --gray-light: #dee2e6;
+    --border: #dee2e6;
+    --card-bg: #ffffff;
+    --sidebar-bg: #1a2236;
+    --sidebar-hover: #222c44;
+    --shadow: 0 4px 20px rgba(0,0,0,0.05);
+    --radius: 10px;
+    --transition: all 0.3s ease;
+  }
+
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background: #f5f7fa;
+    color: var(--dark);
+    line-height: 1.6;
+    min-height: 100vh;
+    padding: 0;
+  }
+
+  .dashboard-container {
+    display: flex;
+    min-height: 100vh;
+    max-width: 100%;
+    margin: 0;
+    gap: 0;
+  }
+
+  /* Sidebar Styles */
+  .sidebar {
+    width: 280px;
+    background: var(--sidebar-bg);
+    color: white;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+    position: fixed;
+    height: 100vh;
+    z-index: 100;
+    overflow-y: auto;
+  }
+
+  .logo {
+    padding: 24px;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+    margin-bottom: 10px;
+  }
+
+  .logo h2 {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 20px;
+    font-weight: 700;
+  }
+
+  .logo h2 i {
+    color: #4cc9f0;
+  }
+
+  .user-info {
+    padding: 0 24px 20px;
+    margin-bottom: 10px;
+  }
+
+  .user-info p {
+    margin: 8px 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 14px;
+    color: rgba(255,255,255,0.8);
+  }
+
+  .level-badge {
+    background: #4cc9f0;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+  }
+
+  .nav-links {
+    flex-grow: 1;
+    padding: 0 16px;
+  }
+
+  .nav-item {
+    display: flex;
+    align-items: center;
+    padding: 14px 16px;
+    color: rgba(255,255,255,0.8);
+    text-decoration: none;
+    transition: var(--transition);
+    gap: 12px;
+    font-size: 15px;
+    border-radius: var(--radius);
+    margin-bottom: 6px;
+  }
+
+  .nav-item:hover, .nav-item.active {
+    background: var(--sidebar-hover);
+    color: white;
+  }
+
+  .nav-item.active {
+    background: var(--primary);
+    color: white;
+    box-shadow: 0 4px 12px rgba(67, 97, 238, 0.2);
+  }
+
+  .logout-btn {
+    margin: 20px 16px;
+    padding: 14px 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+    color: rgba(255,255,255,0.8);
+    border-radius: var(--radius);
+    transition: var(--transition);
+  }
+
+  .logout-btn:hover {
+    background: rgba(231, 76, 60, 0.1);
+    color: #e74c3c;
+  }
+
+  /* Main Content Styles */
+  .main-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    margin-left: 280px;
+    padding: 24px;
+    background: #f5f7fa;
+  }
+
+  .header {
+    background: var(--card-bg);
+    border-radius: var(--radius);
+    padding: 24px;
+    box-shadow: var(--shadow);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .header h1 {
+    color: var(--dark);
+    font-weight: 700;
+    margin-bottom: 8px;
+    font-size: 28px;
+  }
+
+  .header p {
+    color: var(--gray);
+    font-size: 16px;
+  }
+
+  .date-display {
+    color: var(--gray);
+    font-size: 14px;
+    text-align: right;
+    background: var(--primary-light);
+    padding: 8px 16px;
+    border-radius: 20px;
+  }
+
+  /* Controls Section */
+  .controls-card {
+    background: var(--card-bg);
+    border-radius: var(--radius);
+    padding: 24px;
+    box-shadow: var(--shadow);
+  }
+
+  .controls {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+
+  .search-box {
+    flex: 1;
+    min-width: 300px;
+    position: relative;
+  }
+
+  .search-box input {
+    width: 100%;
+    padding: 14px 15px 14px 45px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    font-size: 15px;
+    transition: var(--transition);
+    background: var(--light);
+  }
+
+  .search-box input:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.15);
+  }
+
+  .search-box i {
+    position: absolute;
+    left: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--gray);
+  }
+
+  .filter-controls {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+
+  .filter-controls select {
+    padding: 14px 15px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    font-size: 15px;
+    background: var(--light);
+    min-width: 160px;
+    transition: var(--transition);
+  }
+
+  .filter-controls select:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.15);
+  }
+
+  .refresh-btn {
+    padding: 14px 20px;
+    background: var(--primary);
+    color: white;
+    border: none;
+    border-radius: var(--radius);
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .refresh-btn:hover {
+    background: var(--primary-dark);
+    transform: translateY(-2px);
+  }
+
+  /* Table Container */
+  .table-container {
+    background: var(--card-bg);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    overflow: hidden;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .table-header {
+    padding: 20px 24px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .table-header h2 {
+    color: var(--dark);
+    font-size: 18px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .table-scroll {
+    overflow-x: auto;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    min-width: 1000px;
+  }
+
+  th, td {
+    padding: 16px;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+    font-size: 14px;
+  }
+
+  th {
+    background: #f8f9fc;
+    font-weight: 600;
+    color: var(--dark);
+    position: sticky;
+    top: 0;
+    padding: 16px;
+  }
+
+  tr {
+    transition: var(--transition);
+  }
+
+  tr:hover {
+    background: #f8f9fc;
+  }
+
+  input, select {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-size: 14px;
+    transition: var(--transition);
+    background: white;
+  }
+
+  input:focus, select:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.15);
+  }
+
+  .action-buttons {
+    display: flex;
+    gap: 8px;
+  }
+
+  .btn {
+    padding: 8px 12px;
+    border: none;
+    border-radius: 8px;
+    font-size: 13px;
+    cursor: pointer;
+    transition: var(--transition);
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-weight: 600;
+  }
+
+  .btn-update {
+    background: var(--primary);
+    color: white;
+  }
+
+  .btn-update:hover {
+    background: var(--primary-dark);
+    transform: translateY(-2px);
+  }
+
+  .btn-print {
+    background: #28a745;
+    color: white;
+  }
+
+  .btn-print:hover {
+    background: #218838;
+    transform: translateY(-2px);
+  }
+
+  .status-badge {
+    display: inline-block;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+  }
+
+  .status-complete {
+    background: #e8f5e8;
+    color: #2e7d32;
+  }
+
+  .status-pending {
+    background: #fff3e0;
+    color: #ef6c00;
+  }
+
+  .loading {
+    text-align: center;
+    padding: 40px;
+    color: var(--gray);
+  }
+
+  .empty-state {
+    text-align: center;
+    padding: 50px;
+    color: var(--gray);
+  }
+
+  .empty-state i {
+    font-size: 56px;
+    margin-bottom: 15px;
+    color: #dee2e6;
+  }
+
+  .empty-state p {
+    font-size: 16px;
+    margin-bottom: 20px;
+  }
+
+  .pagination {
+    display: flex;
+    justify-content: center;
+    padding: 20px;
+    gap: 10px;
+    border-top: 1px solid var(--border);
+  }
+
+  .pagination button {
+    padding: 10px 16px;
+    border: 1px solid var(--border);
+    background: white;
+    border-radius: var(--radius);
+    cursor: pointer;
+    transition: var(--transition);
+    font-weight: 600;
+  }
+
+  .pagination button:hover {
+    background: #f8f9fc;
+  }
+
+  .pagination button.active {
+    background: var(--primary);
+    color: white;
+    border-color: var(--primary);
+  }
+
+  /* Print Receipt Modal */
+  .print-modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    z-index: 1000;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+  }
+
+  .print-modal-content {
+    background-color: white;
+    padding: 30px;
+    border-radius: var(--radius);
+    width: 90%;
+    max-width: 500px;
+    box-shadow: var(--shadow);
+    position: relative;
+  }
+
+  .close-modal {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    font-size: 24px;
+    cursor: pointer;
+    color: var(--gray);
+    transition: var(--transition);
+  }
+
+  .close-modal:hover {
+    color: var(--dark);
+  }
+
+  /* Receipt styles */
+  .receipt {
+    width: 80mm;
+    padding: 15px;
+    font-family: 'Courier New', monospace;
+    font-size: 14px;
+    background: white;
+    margin: 0 auto;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+  }
+
+  .receipt-header {
+    text-align: center;
+    margin-bottom: 15px;
+    border-bottom: 1px dashed #000;
+    padding-bottom: 10px;
+  }
+
+  .receipt-header h2 {
+    font-size: 18px;
+    margin-bottom: 5px;
+    text-transform: uppercase;
+  }
+
+  .receipt-details {
+    margin-bottom: 15px;
+  }
+
+  .receipt-line {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 3px;
+  }
+
+  .receipt-divider {
+    border-top: 1px dashed #000;
+    margin: 10px 0;
+  }
+
+  .receipt-total {
+    font-weight: bold;
+    text-transform: uppercase;
+  }
+
+  .receipt-footer {
+    text-align: center;
+    margin-top: 15px;
+    font-size: 12px;
+    border-top: 1px dashed #000;
+    padding-top: 10px;
+  }
+
+  .validity-notice {
+    font-size: 11px;
+    margin-top: 10px;
+    font-style: italic;
+    color: #666;
+  }
+
+  .print-actions {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-top: 25px;
+  }
+
+  .print-actions button {
+    padding: 12px 20px;
+    border: none;
+    border-radius: var(--radius);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 600;
+    transition: var(--transition);
+  }
+
+  .btn-print-receipt {
+    background: var(--primary);
+    color: white;
+  }
+
+  .btn-print-receipt:hover {
+    background: var(--primary-dark);
+  }
+
+  .btn-close-receipt {
+    background: var(--gray);
+    color: white;
+  }
+
+  .btn-close-receipt:hover {
+    background: #5a6268;
+  }
+
+  /* Responsive Design */
+  @media (max-width: 1200px) {
+    .sidebar {
+      width: 240px;
+    }
+    
+    .main-content {
+      margin-left: 240px;
+    }
+  }
+
+  @media (max-width: 992px) {
+    .sidebar {
+      width: 80px;
+      overflow: visible;
+    }
+    
+    .sidebar .logo h2 span,
+    .sidebar .user-info,
+    .sidebar .nav-item span,
+    .sidebar .logout-btn span {
+      display: none;
+    }
+    
+    .sidebar .logo {
+      padding: 24px 0;
+      text-align: center;
+    }
+    
+    .sidebar .nav-item {
+      justify-content: center;
+      padding: 16px;
+    }
+    
+    .main-content {
+      margin-left: 80px;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .sidebar {
+      display: none;
+    }
+    
+    .main-content {
+      margin-left: 0;
+      padding: 16px;
+    }
+    
+    .header {
+      flex-direction: column;
+      text-align: center;
+      gap: 15px;
+    }
+    
+    .date-display {
+      text-align: center;
+    }
+    
+    .controls {
+      flex-direction: column;
+    }
+    
+    .search-box {
+      min-width: 100%;
+    }
+    
+    .filter-controls {
+      width: 100%;
+      justify-content: space-between;
+    }
+    
+    .action-buttons {
+      flex-direction: column;
+    }
+
+    .print-modal-content {
+      width: 95%;
+      padding: 20px;
+    }
+  }
+
+  @media print {
+    body * {
+      visibility: hidden;
+    }
+    .print-modal, .print-modal * {
+      visibility: visible;
+    }
+    .print-modal {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background: white;
+    }
+    .print-actions, .close-modal {
+      display: none !important;
+    }
+  }
+</style>
+</head>
+<body>
+
+<div class="dashboard-container">
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <div class="logo">
+      <h2><i class="fas fa-money-bill-wave"></i> <span>Payment System</span></h2>
+    </div>
+    
+    <div class="user-info">
+      <p><i class="fas fa-user"></i> <span id="sidebarUsername">Username</span></p>
+      <p><i class="fas fa-star"></i> Level: <span class="level-badge" id="sidebarLevel">Level</span></p>
+    </div>
+    
+    <div class="nav-links">
+      <a href="dashboard.html" class="nav-item">
+        <i class="fas fa-home"></i> <span>Dashboard</span>
+      </a>
+      <a href="newpayment.html" class="nav-item">
+        <i class="fas fa-plus-circle"></i> <span>New Payment</span>
+      </a>
+      <a href="#" class="nav-item active">
+        <i class="fas fa-edit"></i> <span>Update Payment</span>
+      </a>
+      <a href="edit_payments.html" class="nav-item">
+        <i class="fas fa-ban"></i> <span>Void</span>
+      </a>
+      <a href="shiftmanagement.html" class="nav-item">
+        <i class="fas fa-clock"></i> <span>Shift Management</span>
+      </a>
+      <a href="cashiermanagement.html" class="nav-item">
+        <i class="fas fa-users"></i> <span>Cashier Management</span>
+      </a>
+    </div>
+    
+    <div class="logout-btn" onclick="logout()">
+      <i class="fas fa-sign-out-alt"></i> <span>Logout</span>
+    </div>
+  </div>
+  
+  <!-- Main Content -->
+  <div class="main-content">
+    <div class="header">
+      <div>
+        <h1>Update Payments</h1>
+        <p>Manage and update payment details for completed transactions</p>
+      </div>
+      <div class="date-display" id="currentDate"></div>
+    </div>
+
+    <div class="controls-card">
+      <div class="controls">
+        <div class="search-box">
+          <i class="fas fa-search"></i>
+          <input type="text" id="searchInput" placeholder="Search by receipt no, name, or flight...">
+        </div>
+        
+        <div class="filter-controls">
+          <select id="paymentTypeFilter">
+            <option value="">All Payment Types</option>
+            <option value="Cash">Cash</option>
+            <option value="Visa">Visa</option>
+            <option value="MasterCard">MasterCard</option>
+            <option value="Amex">Amex</option>
+            <option value="UnionPay">UnionPay</option>
+            <option value="Other">Other</option>
+          </select>
+          
+          <select id="statusFilter">
+            <option value="">All Statuses</option>
+            <option value="complete">Complete</option>
+            <option value="pending">Pending</option>
+          </select>
+          
+          <button class="refresh-btn" id="refreshBtn">
+            <i class="fas fa-sync-alt"></i>
+            Refresh
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="table-container">
+      <div class="table-header">
+        <h2><i class="fas fa-receipt"></i> Payment Records</h2>
+        <div id="resultsCount">0 results</div>
+      </div>
+      
+      <div class="table-scroll">
+        <table id="paymentsTable">
+          <thead>
+            <tr>
+              <th>Receipt No</th>
+              <th>Name</th>
+              <th>Flight</th>
+              <th>Total Amount</th>
+              <th>Payment Type</th>
+              <th>Batch No</th>
+              <th>Approval Code</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td colspan="9" class="loading">
+                <i class="fas fa-spinner fa-spin"></i> Loading payments...
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="pagination" id="pagination">
+        <button id="prevBtn"><i class="fas fa-chevron-left"></i></button>
+        <button id="nextBtn"><i class="fas fa-chevron-right"></i></button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Print Receipt Modal -->
+<div class="print-modal" id="printModal">
+  <div class="print-modal-content">
+    <span class="close-modal" id="closeModal">&times;</span>
+    <div class="receipt" id="receiptContent">
+      <div class="receipt-header">
+        <h2 id="companyNameHeader">Koveli Lounge</h2>
+        <p id="companyAddress">Velana International Airport</p>
+        <p id="companyPhone">+123 456 7890</p>
+      </div>
+      
+      <div class="receipt-details" id="receiptDetails">
+        <!-- Receipt details will be inserted here by JavaScript -->
+      </div>
+      
+      <div class="receipt-footer">
+        <p class="validity-notice">This package is valid for three hours from the time of purchase</p>
+        <p>Thank you for your business!</p>
+      </div>
+    </div>
+    
+    <div class="print-actions">
+      <button class="btn-print-receipt" id="printReceiptBtn">
+        <i class="fas fa-print"></i> Print Receipt
+      </button>
+      <button class="btn-close-receipt" id="closeReceiptBtn">
+        <i class="fas fa-times"></i> Close
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+// Wait for the external files to load
+window.addEventListener('load', function() {
+  // Set current date
+  const now = new Date();
+  const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+  document.getElementById('currentDate').textContent = now.toLocaleDateString('en-US', options);
+  
+  // Check if user is logged in
+  const user = JSON.parse(localStorage.getItem("loggedInUser"));
+
+  if (user) {
+    document.getElementById("sidebarUsername").textContent = user.username;
+    document.getElementById("sidebarLevel").textContent = user.Level;
+  } else {
+    window.location.href = "login.html";
+  }
+
+  // Initialize Firebase with your configuration from fire2.js
+  if (typeof firebaseConfig !== 'undefined') {
+    try {
+      firebase.initializeApp(firebaseConfig);
+      console.log("Firebase initialized successfully");
+    } catch (error) {
+      console.error("Firebase initialization error:", error);
+    }
+  } else {
+    console.error("Firebase configuration not found in fire2.js");
+  }
+  
+  // Get company info from Co.js or use defaults
+  const companyName = typeof CompanyName !== 'undefined' ? CompanyName : "Koveli Lounge";
+  const companyAddress = typeof CompanyAddress !== 'undefined' ? CompanyAddress : "Velana International Airport";
+  const companyPhone = typeof CompanyPhone !== 'undefined' ? CompanyPhone : "+123 456 7890";
+  
+  // Update the receipt header with company name
+  document.getElementById('companyNameHeader').textContent = companyName.toUpperCase();
+  document.getElementById('companyAddress').textContent = companyAddress;
+  document.getElementById('companyPhone').textContent = companyPhone;
+  
+  const tableBody = document.querySelector("#paymentsTable tbody");
+  const searchInput = document.getElementById("searchInput");
+  const paymentTypeFilter = document.getElementById("paymentTypeFilter");
+  const statusFilter = document.getElementById("statusFilter");
+  const refreshBtn = document.getElementById("refreshBtn");
+  const paginationContainer = document.getElementById("pagination");
+  const printModal = document.getElementById("printModal");
+  const closeModal = document.getElementById("closeModal");
+  const closeReceiptBtn = document.getElementById("closeReceiptBtn");
+  const printReceiptBtn = document.getElementById("printReceiptBtn");
+  const receiptDetails = document.getElementById("receiptDetails");
+  const resultsCount = document.getElementById("resultsCount");
+
+  let allPayments = [];
+  let filteredPayments = [];
+  let currentPage = 1;
+  const itemsPerPage = 10;
+
+  // Load payments needing refinement
+  async function loadPayments() {
+    tableBody.innerHTML = `<tr><td colspan="9" class="loading"><i class="fas fa-spinner fa-spin"></i> Loading payments...</td></tr>`;
+    
+    try {
+      // Check if Firebase is properly initialized
+      if (typeof firebaseConfig === 'undefined' || !firebase.apps.length) {
+        throw new Error("Firebase not configured. Using demo data.");
+      }
+      
+      let results = [];
+
+      // Query 1: Card (generic quick entries)
+      const cardSnap = await firebase.firestore().collection("payments")
+        .where("paymentType", "==", "Card")
+        .get();
+      cardSnap.forEach(doc => results.push({ id: doc.id, ...doc.data() }));
+
+      // Query 2: Non-cash but incomplete
+      const nonCashSnap = await firebase.firestore().collection("payments")
+        .where("paymentType", "!=", "Cash")
+        .get();
+      nonCashSnap.forEach(doc => {
+        const d = doc.data();
+        if (!d.batchNo || !d.approvalCode) {
+          results.push({ id: doc.id, ...d });
+        }
+      });
+
+      // Deduplicate by receiptNo
+      const unique = {};
+      results.forEach(r => unique[r.receiptNo] = r);
+      allPayments = Object.values(unique);
+      
+      filterPayments();
+      
+    } catch (error) {
+      console.error("Error loading payments from Firebase:", error);
+      // Use demo data if Firebase fails
+      useDemoData();
+    }
+  }
+
+  // Use demo data if Firebase is not available
+  function useDemoData() {
+    console.log("Using demo data");
+    
+    // Mock data for demonstration
+    const mockData = [
+      { id: '1', receiptNo: '1001', name: 'John Doe', flight: 'TK123', total: 150.00, currency: 'USD', paymentType: 'Card', batchNo: '', approvalCode: '' },
+      { id: '2', receiptNo: '1002', name: 'Jane Smith', flight: 'QR456', total: 200.00, currency: 'USD', paymentType: 'Visa', batchNo: 'B123', approvalCode: 'A456' },
+      { id: '3', receiptNo: '1003', name: 'Robert Johnson', flight: 'EK789', total: 175.50, currency: 'USD', paymentType: 'Cash', batchNo: '', approvalCode: '' },
+      { id: '4', receiptNo: '1004', name: 'Sarah Williams', flight: 'SQ012', total: 225.75, currency: 'USD', paymentType: 'MasterCard', batchNo: 'B789', approvalCode: 'A012' },
+      { id: '5', receiptNo: '1005', name: 'Michael Brown', flight: 'CX345', total: 190.00, currency: 'USD', paymentType: 'Card', batchNo: '', approvalCode: '' },
+      { id: '6', receiptNo: '1006', name: 'Emily Davis', flight: 'LH678', total: 210.25, currency: 'USD', paymentType: 'Amex', batchNo: 'B345', approvalCode: 'A678' },
+      { id: '7', receiptNo: '1007', name: 'David Wilson', flight: 'BA901', total: 165.50, currency: 'USD', paymentType: 'Card', batchNo: '', approvalCode: '' },
+      { id: '8', receiptNo: '1008', name: 'Jessica Taylor', flight: 'AF234', total: 195.75, currency: 'USD', paymentType: 'UnionPay', batchNo: 'B901', approvalCode: 'A234' },
+      { id: '9', receiptNo: '1009', name: 'Daniel Anderson', flight: 'DL567', total: 180.00, currency: 'USD', paymentType: 'Card', batchNo: '', approvalCode: '' },
+      { id: '10', receiptNo: '1010', name: 'Olivia Martinez', flight: 'UA890', total: 230.50, currency: 'USD', paymentType: 'Other', batchNo: 'B567', approvalCode: 'A890' },
+      { id: '11', receiptNo: '1011', name: 'James Thomas', flight: 'TK123', total: 155.00, currency: 'USD', paymentType: 'Card', batchNo: '', approvalCode: '' },
+      { id: '12', receiptNo: '1012', name: 'Sophia Garcia', flight: 'QR456', total: 205.75, currency: 'USD', paymentType: 'Visa', batchNo: 'B123', approvalCode: 'A456' }
+    ];
+    
+    allPayments = mockData;
+    filterPayments();
+  }
+
+  // Filter payments based on search and filters
+  function filterPayments() {
+    const searchTerm = searchInput.value.toLowerCase();
+    const paymentType = paymentTypeFilter.value;
+    const status = statusFilter.value;
+    
+    filteredPayments = allPayments.filter(payment => {
+      // Search filter
+      const matchesSearch = !searchTerm || 
+        payment.receiptNo.toString().includes(searchTerm) ||
+        (payment.name && payment.name.toLowerCase().includes(searchTerm)) ||
+        (payment.flight && payment.flight.toLowerCase().includes(searchTerm));
+      
+      // Payment type filter
+      const matchesPaymentType = !paymentType || payment.paymentType === paymentType;
+      
+      // Status filter
+      let matchesStatus = true;
+      if (status === "complete") {
+        matchesStatus = payment.batchNo && payment.approvalCode;
+      } else if (status === "pending") {
+        matchesStatus = !payment.batchNo || !payment.approvalCode;
+      }
+      
+      return matchesSearch && matchesPaymentType && matchesStatus;
+    });
+    
+    // Update results count
+    resultsCount.textContent = `${filteredPayments.length} results`;
+    
+    currentPage = 1; // Reset to first page when filtering
+    renderPayments();
+  }
+
+  // Render payments to the table
+  function renderPayments() {
+    if (filteredPayments.length === 0) {
+      tableBody.innerHTML = `
+        <tr>
+          <td colspan="9" class="empty-state">
+            <i class="fas fa-receipt"></i>
+            <p>No payments found</p>
+            <p class="text-muted">Try adjusting your search or filters</p>
+          </td>
+      </tr>
+      `;
+      paginationContainer.style.display = 'none';
+      return;
+    }
+    
+    // Calculate pagination
+    const totalPages = Math.ceil(filteredPayments.length / itemsPerPage);
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = Math.min(startIndex + itemsPerPage, filteredPayments.length);
+    const pagePayments = filteredPayments.slice(startIndex, endIndex);
+    
+    // Update pagination buttons
+    updatePagination(totalPages);
+    
+    tableBody.innerHTML = "";
+    pagePayments.forEach(data => {
+      const isComplete = data.batchNo && data.approvalCode;
+      const statusClass = isComplete ? "status-complete" : "status-pending";
+      const statusText = isComplete ? "Complete" : "Pending";
+      
+      const row = document.createElement("tr");
+
+      row.innerHTML = `
+        <td>${data.receiptNo}</td>
+        <td>${data.name || "-"}</td>
+        <td>${data.flight || "-"}</td>
+        <td>${Number(data.total || 0).toFixed(2)} ${data.currency || ""}</td>
+        <td>
+          <select class="payType">
+            <option value="Cash" ${data.paymentType==="Cash"?"selected":""}>Cash</option>
+            <option value="Visa" ${data.paymentType==="Visa"?"selected":""}>Visa</option>
+            <option value="MasterCard" ${data.paymentType==="MasterCard"?"selected":""}>MasterCard</option>
+            <option value="Amex" ${data.paymentType==="Amex"?"selected":""}>Amex</option>
+            <option value="UnionPay" ${data.paymentType==="UnionPay"?"selected":""}>UnionPay</option>
+            <option value="Other" ${data.paymentType==="Other"?"selected":""}>Other</option>
+          </select>
+        </td>
+        <td><input type="text" class="batchNo" value="${data.batchNo || ""}" placeholder="Enter batch no"></td>
+        <td><input type="text" class="approvalCode" value="${data.approvalCode || ""}" placeholder="Enter approval code"></td>
+        <td><span class="status-badge ${statusClass}">${statusText}</span></td>
+        <td>
+          <div class="action-buttons">
+            <button class="btn btn-update" title="Update payment">
+              <i class="fas fa-save"></i> Update
+            </button>
+            <button class="btn btn-print" title="Print receipt">
+              <i class="fas fa-print"></i> Print
+            </button>
+          </div>
+        </td>
+      `;
+
+      // Update handler
+      row.querySelector(".btn-update").addEventListener("click", async () => {
+        const newPayType = row.querySelector(".payType").value;
+        const batchNo = row.querySelector(".batchNo").value.trim();
+        const approvalCode = row.querySelector(".approvalCode").value.trim();
+
+        if (newPayType === "Cash") {
+          if (batchNo || approvalCode) {
+            alert("Cash payments must not have Batch No or Approval Code.");
+            return;
+          }
+        } else {
+          if (!batchNo || !approvalCode) {
+            alert("Non-cash payments require Batch No and Approval Code.");
+            return;
+          }
+        }
+
+        try {
+          // If Firebase is configured, update the database
+          if (typeof firebaseConfig !== 'undefined' && firebase.apps.length) {
+            await firebase.firestore().collection("bookings").doc(data.id).update({
+              paymentType: newPayType,
+              batchNo: newPayType === "Cash" ? null : batchNo,
+              approvalCode: newPayType === "Cash" ? null : approvalCode
+            });
+          }
+          
+          // Update UI regardless of Firebase connection
+          const statusBadge = row.querySelector(".status-badge");
+          statusBadge.textContent = "Complete";
+          statusBadge.className = "status-badge status-complete";
+          
+          alert("Payment updated successfully!");
+        } catch (error) {
+          alert("Error updating payment: " + error.message);
+        }
+      });
+
+      // Print handler -> shows receipt in modal
+      row.querySelector(".btn-print").addEventListener("click", () => {
+        const updated = {
+          ...data,
+          paymentType: row.querySelector(".payType").value,
+          batchNo: row.querySelector(".batchNo").value.trim(),
+          approvalCode: row.querySelector(".approvalCode").value.trim()
+        };
+
+        showReceipt(updated);
+      });
+
+      tableBody.appendChild(row);
+    });
+    
+    paginationContainer.style.display = 'flex';
+  }
+
+  // Show receipt in modal (using the new design)
+  function showReceipt(data) {
+    const now = new Date();
+    const date = now.toLocaleDateString();
+    const time = now.toLocaleTimeString();
+    
+    // Create receipt content
+    receiptDetails.innerHTML = `
+      <div class="receipt-line">
+        <span>Receipt #: <span>${data.receiptNo.toString().padStart(6, '0')}</span></span>
+      </div>
+      <div class="receipt-line">
+        <span>Date: <span>${date}</span></span>
+      </div>
+      <div class="receipt-line">
+        <span>Time: <span>${time}</span></span>
+      </div>
+      
+      <div class="receipt-divider"></div>
+      
+      <div class="receipt-line">
+        <span>Passenger: <span>${data.name || "-"}</span></span>
+      </div>
+      <div class="receipt-line">
+        <span>Flight: <span>${data.flight || "-"}</span></span>
+      </div>
+      <div class="receipt-line">
+        <span>Seat: <span>${data.seat || "-"}</span></span>
+      </div>
+      
+      <div class="receipt-divider"></div>
+      
+      <div class="receipt-line">
+        <span>Subtotal:</span>
+        <span>${Number(data.total || 0).toFixed(2)} ${data.currency || ""}</span>
+      </div>
+      <div class="receipt-line">
+        <span>GST:</span>
+        <span>${(Number(data.total || 0) * 0.1).toFixed(2)} ${data.currency || ""}</span>
+      </div>
+      <div class="receipt-line receipt-total">
+        <span>TOTAL:</span>
+        <span>${(Number(data.total || 0) * 1.1).toFixed(2)} ${data.currency || ""}</span>
+      </div>
+      
+      <div class="receipt-divider"></div>
+      
+      <div class="receipt-line">
+        <span>Payment Method:</span>
+        <span>${data.paymentType}</span>
+      </div>
+      <div class="receipt-line">
+        <span>Batch No:</span>
+        <span>${data.batchNo || "-"}</span>
+      </div>
+      <div class="receipt-line">
+        <span>Approval Code:</span>
+        <span>${data.approvalCode || "-"}</span>
+      </div>
+    `;
+    
+    printModal.style.display = "flex";
+  }
+
+  // Update pagination controls
+  function updatePagination(totalPages) {
+    // Clear existing pagination buttons
+    paginationContainer.innerHTML = '';
+    
+    if (totalPages <= 1) {
+      paginationContainer.style.display = 'none';
+      return;
+    }
+    
+    // Create previous button
+    const prevBtn = document.createElement('button');
+    prevBtn.innerHTML = '<i class="fas fa-chevron-left"></i>';
+    prevBtn.id = 'prevBtn';
+    prevBtn.disabled = currentPage === 1;
+    prevBtn.addEventListener('click', () => {
+      if (currentPage > 1) {
+        currentPage--;
+        renderPayments();
+      }
+    });
+    paginationContainer.appendChild(prevBtn);
+    
+    // Create page number buttons
+    for (let i = 1; i <= totalPages; i++) {
+      const pageBtn = document.createElement('button');
+      pageBtn.textContent = i;
+      pageBtn.className = i === currentPage ? 'active' : '';
+      pageBtn.addEventListener('click', () => {
+        currentPage = i;
+        renderPayments();
+      });
+      paginationContainer.appendChild(pageBtn);
+    }
+    
+    // Create next button
+    const nextBtn = document.createElement('button');
+    nextBtn.innerHTML = '<i class="fas fa-chevron-right"></i>';
+    nextBtn.id = 'nextBtn';
+    nextBtn.disabled = currentPage === totalPages;
+    nextBtn.addEventListener('click', () => {
+      if (currentPage < totalPages) {
+        currentPage++;
+        renderPayments();
+      }
+    });
+    paginationContainer.appendChild(nextBtn);
+  }
+
+  // Event listeners
+  searchInput.addEventListener("input", filterPayments);
+  paymentTypeFilter.addEventListener("change", filterPayments);
+  statusFilter.addEventListener("change", filterPayments);
+  refreshBtn.addEventListener("click", loadPayments);
+  
+  // Modal event listeners
+  closeModal.addEventListener("click", () => {
+    printModal.style.display = "none";
+  });
+  
+  closeReceiptBtn.addEventListener("click", () => {
+    printModal.style.display = "none";
+  });
+  
+  printReceiptBtn.addEventListener("click", () => {
+    window.print();
+  });
+
+  // Close modal when clicking outside
+  window.addEventListener("click", (event) => {
+    if (event.target === printModal) {
+      printModal.style.display = "none";
+    }
+  });
+
+  function logout() {
+    localStorage.removeItem("loggedInUser");
+    window.location.href = "login.html";
+  }
+
+  // Initialize
+  loadPayments();
+});
+</script>
+
+</body>
+</html>

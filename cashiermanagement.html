@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Cash & Petty Cash Management</title>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+<script src="fire2.js"></script> <!-- Firebase config -->
+<style>
+body { font-family: Arial, sans-serif; padding: 20px; }
+h2 { margin-bottom: 10px; }
+.tables { display: flex; gap: 40px; margin-bottom: 30px; flex-wrap: wrap; }
+table { border-collapse: collapse; width: 250px; margin-bottom: 20px; }
+th, td { border: 1px solid #ccc; padding: 8px; text-align: center; }
+th { background-color: #f2f2f2; }
+input[type=number] { width: 60px; text-align: center; }
+.total-row { font-weight: bold; }
+.card { border: 1px solid #ccc; padding: 20px; border-radius: 10px; margin-bottom: 20px; max-width: 400px; }
+.summary { border: 1px solid #999; padding: 15px; margin-top: 20px; max-width: 500px; }
+</style>
+</head>
+<body>
+
+<h2>Shift & Date Info</h2>
+<p>Current Date: <span id="currentDate">Loading...</span></p>
+<p>Current Shift No: <span id="shiftNo">Loading...</span></p>
+
+<h2>Cash Payments from Firebase</h2>
+<p>Total USD Cash: <span id="totalUSD">Loading...</span></p>
+<p>Total MVR Cash: <span id="totalMVR">Loading...</span></p>
+
+<div class="tables">
+  <table id="usdTable">
+    <thead><tr><th>Denomination USD</th><th>Count</th><th>Total</th></tr></thead>
+    <tbody></tbody>
+    <tfoot><tr class="total-row"><td colspan="2">Grand Total</td><td id="usdGrandTotal">0.00</td></tr></tfoot>
+  </table>
+  <table id="mvrTable">
+    <thead><tr><th>Denomination MVR</th><th>Count</th><th>Total</th></tr></thead>
+    <tbody></tbody>
+    <tfoot><tr class="total-row"><td colspan="2">Grand Total</td><td id="mvrGrandTotal">0.00</td></tr></tfoot>
+  </table>
+</div>
+
+<div class="card">
+  <h2>Petty Cash</h2>
+  <p>USD: <span id="pettyUSD">Loading...</span></p>
+  <p>MVR: <span id="pettyMVR">Loading...</span></p>
+</div>
+
+<div class="tables">
+  <table id="pettyUSDTable">
+    <thead><tr><th>Denomination USD</th><th>Count</th><th>Total</th></tr></thead>
+    <tbody></tbody>
+    <tfoot><tr class="total-row"><td colspan="2">Grand Total</td><td id="pettyUSDGrandTotal">0.00</td></tr></tfoot>
+  </table>
+  <table id="pettyMVRTable">
+    <thead><tr><th>Denomination MVR</th><th>Count</th><th>Total</th></tr></thead>
+    <tbody></tbody>
+    <tfoot><tr class="total-row"><td colspan="2">Grand Total</td><td id="pettyMVRGrandTotal">0.00</td></tr></tfoot>
+  </table>
+</div>
+
+<div class="summary">
+  <h2>Reconciliation Summary</h2>
+  <p>Total Cash USD: <span id="totalCashUSD">0.00</span></p>
+  <p>Total Cash MVR: <span id="totalCashMVR">0.00</span></p>
+  <p>Total Petty Cash USD: <span id="totalPettyUSD">0.00</span></p>
+  <p>Total Petty Cash MVR: <span id="totalPettyMVR">0.00</span></p>
+  <p>Grand Total USD: <span id="grandTotalUSD">0.00</span></p>
+  <p>Grand Total MVR: <span id="grandTotalMVR">0.00</span></p>
+</div>
+
+<script>
+// Denominations
+const usdDenoms = [100,50,20,10,5,1];
+const mvrDenoms = [1000,500,100,50,20,5,1];
+
+function createDenominationTable(denoms, tbodySelector, grandTotalSelector){
+  const tbody = document.querySelector(tbodySelector);
+  const grandEl = document.querySelector(grandTotalSelector);
+  function updateGrandTotal(){
+    let total=0;
+    document.querySelectorAll(`${tbodySelector} .row-total`).forEach(c=>{total+=Number(c.textContent)});
+    grandEl.textContent = total.toFixed(2);
+    updateSummary();
+  }
+  denoms.forEach(v=>{
+    const row = document.createElement("tr");
+    const tdDenom=document.createElement("td"); tdDenom.textContent=v; row.appendChild(tdDenom);
+    const tdCount=document.createElement("td"); const input=document.createElement("input"); input.type="number"; input.min=0; input.value=0; tdCount.appendChild(input); row.appendChild(tdCount);
+    const tdTotal=document.createElement("td"); tdTotal.classList.add("row-total"); tdTotal.textContent="0.00"; row.appendChild(tdTotal);
+    input.addEventListener("input",()=>{tdTotal.textContent=((Number(input.value)||0)*v).toFixed(2); updateGrandTotal();});
+    tbody.appendChild(row);
+  });
+}
+
+createDenominationTable(usdDenoms,"#usdTable tbody","#usdGrandTotal");
+createDenominationTable(mvrDenoms,"#mvrTable tbody","#mvrGrandTotal");
+createDenominationTable(usdDenoms,"#pettyUSDTable tbody","#pettyUSDGrandTotal");
+createDenominationTable(mvrDenoms,"#pettyMVRTable tbody","#pettyMVRGrandTotal");
+
+// Current date
+const today=new Date();
+const yyyy=today.getFullYear(), mm=String(today.getMonth()+1).padStart(2,'0'), dd=String(today.getDate()).padStart(2,'0');
+const currentDate=`${yyyy}-${mm}-${dd}`;
+document.getElementById("currentDate").textContent=currentDate;
+
+// Firebase shift
+const shiftNoSpan = document.getElementById("shiftNo");
+const totalUSDEl = document.getElementById("totalUSD");
+const totalMVREl = document.getElementById("totalMVR");
+
+db.collection("shifts").where("status","==","open").limit(1).onSnapshot(snap=>{
+  if(snap.empty){ shiftNoSpan.textContent="No shift"; totalUSDEl.textContent="0.00"; totalMVREl.textContent="0.00"; return;}
+  const shiftData=snap.docs[0].data();
+  const shiftNo = shiftData.shiftNo;
+  const shiftName = shiftNo===1?"Morning":"Evening";
+  shiftNoSpan.textContent=shiftNo;
+
+  // Fetch cash USD
+  db.collection("payments").where("date","==",currentDate).where("shift","==",shiftName).where("paymentType","==","Cash").where("currency","==","USD")
+    .onSnapshot(paySnap=>{let t=0;paySnap.forEach(d=>{const p=d.data(); if(!p.voided) t+=Number(p.total||0)}); totalUSDEl.textContent=t.toFixed(2); updateSummary();});
+
+  // Fetch cash MVR
+  db.collection("payments").where("date","==",currentDate).where("shift","==",shiftName).where("paymentType","==","Cash").where("currency","==","MVR")
+    .onSnapshot(paySnap=>{let t=0;paySnap.forEach(d=>{const p=d.data(); if(!p.voided) t+=Number(p.total||0)}); totalMVREl.textContent=t.toFixed(2); updateSummary();});
+});
+
+// Petty cash live fetch
+const pettyUSDEl = document.getElementById("pettyUSD");
+const pettyMVREl = document.getElementById("pettyMVR");
+db.collection("pettyCash").limit(1).onSnapshot(snap=>{
+  if(!snap.empty){
+    const data = snap.docs[0].data();
+    pettyUSDEl.textContent = Number(data.USD||0).toFixed(2);
+    pettyMVREl.textContent = Number(data.MVR||0).toFixed(2);
+    updateSummary();
+  }
+});
+
+// Reconciliation summary
+function updateSummary(){
+  const totalCashUSD = Number(totalUSDEl.textContent) + Number(document.getElementById("usdGrandTotal").textContent);
+  const totalCashMVR = Number(totalMVREl.textContent) + Number(document.getElementById("mvrGrandTotal").textContent);
+  const totalPettyUSD = Number(pettyUSDEl.textContent) + Number(document.getElementById("pettyUSDGrandTotal").textContent);
+  const totalPettyMVR = Number(pettyMVREl.textContent) + Number(document.getElementById("pettyMVRGrandTotal").textContent);
+
+  document.getElementById("totalCashUSD").textContent = totalCashUSD.toFixed(2);
+  document.getElementById("totalCashMVR").textContent = totalCashMVR.toFixed(2);
+  document.getElementById("totalPettyUSD").textContent = totalPettyUSD.toFixed(2);
+  document.getElementById("totalPettyMVR").textContent = totalPettyMVR.toFixed(2);
+  document.getElementById("grandTotalUSD").textContent = (totalCashUSD + totalPettyUSD).toFixed(2);
+  document.getElementById("grandTotalMVR").textContent = (totalCashMVR + totalPettyMVR).toFixed(2);
+}
+</script>
+</body>
+</html>

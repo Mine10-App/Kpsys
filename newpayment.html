@@ -1,0 +1,677 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Payment Entry</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    
+    body {
+      background: linear-gradient(135deg, #f5f7fa 0%, #e4e8f0 100%);
+      color: #333;
+      min-height: 100vh;
+    }
+    
+    .dashboard-container {
+      display: flex;
+      min-height: 100vh;
+    }
+    
+    /* Sidebar Styles */
+    .sidebar {
+      width: 250px;
+      background: linear-gradient(to bottom, #2c3e50, #34495e);
+      color: white;
+      padding: 20px 0;
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .logo {
+      padding: 0 20px 20px;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+      margin-bottom: 20px;
+    }
+    
+    .logo h2 {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    .logo h2 i {
+      color: #3498db;
+    }
+    
+    .user-info {
+      padding: 0 20px;
+      margin-bottom: 30px;
+    }
+    
+    .user-info p {
+      margin: 5px 0;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    .level-badge {
+      background: #3498db;
+      padding: 3px 8px;
+      border-radius: 20px;
+      font-size: 12px;
+    }
+    
+    .nav-links {
+      flex-grow: 1;
+    }
+    
+    .nav-item {
+      display: flex;
+      align-items: center;
+      padding: 12px 20px;
+      color: #ecf0f1;
+      text-decoration: none;
+      transition: all 0.3s;
+      gap: 12px;
+    }
+    
+    .nav-item:hover, .nav-item.active {
+      background: rgba(52, 152, 219, 0.2);
+      border-left: 4px solid #3498db;
+    }
+    
+    .logout-btn {
+      margin-top: auto;
+      padding: 15px 20px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      cursor: pointer;
+      color: #e74c3c;
+      border-top: 1px solid rgba(255,255,255,0.1);
+    }
+    
+    .logout-btn:hover {
+      background: rgba(231, 76, 60, 0.1);
+    }
+    
+    /* Main Content Styles */
+    .main-content {
+      flex: 1;
+      padding: 30px;
+      overflow-y: auto;
+    }
+    
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 30px;
+    }
+    
+    .header h1 {
+      color: #2c3e50;
+      font-weight: 600;
+    }
+    
+    .date-display {
+      color: #7f8c8d;
+      font-size: 14px;
+    }
+    
+    /* Payment Form Styles */
+    .payment-form {
+      background: white;
+      border-radius: 12px;
+      padding: 25px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+      margin-bottom: 25px;
+    }
+    
+    .form-section {
+      margin-bottom: 25px;
+    }
+    
+    .section-title {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: #2c3e50;
+      margin-bottom: 20px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid #eee;
+    }
+    
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 20px;
+    }
+    
+    .form-group {
+      margin-bottom: 18px;
+    }
+    
+    .form-group label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 600;
+      color: #2c3e50;
+      font-size: 14px;
+    }
+    
+    .form-control {
+      width: 100%;
+      padding: 12px 15px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      font-size: 15px;
+      transition: all 0.3s ease;
+    }
+    
+    .form-control:focus {
+      outline: none;
+      border-color: #3498db;
+      box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+    }
+    
+    .input-with-icon {
+      position: relative;
+    }
+    
+    .input-icon {
+      position: absolute;
+      left: 15px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #7f8c8d;
+    }
+    
+    .input-with-icon .form-control {
+      padding-left: 45px;
+    }
+    
+    .info-badge {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: #f8f9fa;
+      padding: 12px 15px;
+      border-radius: 8px;
+      font-size: 15px;
+    }
+    
+    .info-badge i {
+      color: #3498db;
+    }
+    
+    .totals-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 15px;
+      background: #f8f9fc;
+      padding: 20px;
+      border-radius: 8px;
+      margin-top: 20px;
+    }
+    
+    .total-item {
+      text-align: center;
+    }
+    
+    .total-item label {
+      display: block;
+      font-weight: 600;
+      margin-bottom: 8px;
+      color: #7f8c8d;
+      font-size: 14px;
+    }
+    
+    .total-value {
+      font-size: 20px;
+      font-weight: 700;
+      color: #3498db;
+    }
+    
+    .btn {
+      display: inline-block;
+      padding: 12px 20px;
+      background: #3498db;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-align: center;
+    }
+    
+    .btn:hover {
+      background: #2980b9;
+      transform: translateY(-2px);
+    }
+    
+    .btn-full {
+      display: block;
+      width: 100%;
+      padding: 16px;
+    }
+    
+    .btn-success {
+      background: #27ae60;
+    }
+    
+    .btn-success:hover {
+      background: #219653;
+    }
+    
+    .btn-secondary {
+      background: #7f8c8d;
+    }
+    
+    .btn-secondary:hover {
+      background: #6c7a7d;
+    }
+    
+    /* Receipt Styles */
+    #receiptContainer {
+      display: none;
+      margin-top: 30px;
+    }
+    
+    .receipt {
+      width: 80mm;
+      padding: 10px;
+      font-family: 'Courier New', monospace;
+      font-size: 14px;
+      background: white;
+      margin: 0 auto;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+      border-radius: 8px;
+    }
+    
+    .receipt-header {
+      text-align: center;
+      margin-bottom: 15px;
+      border-bottom: 1px dashed #ccc;
+      padding-bottom: 10px;
+    }
+    
+    .receipt-divider {
+      border-top: 1px dashed #ccc;
+      margin: 10px 0;
+    }
+    
+    .receipt-total {
+      font-weight: bold;
+      text-transform: uppercase;
+    }
+    
+    .receipt-footer {
+      text-align: center;
+      margin-top: 15px;
+      font-size: 12px;
+      border-top: 1px dashed #ccc;
+      padding-top: 10px;
+    }
+    
+    .receipt-controls {
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+      margin-top: 20px;
+    }
+    
+    @media (max-width: 992px) {
+      .dashboard-container {
+        flex-direction: column;
+      }
+      
+      .sidebar {
+        width: 100%;
+        padding: 15px;
+      }
+      
+      .nav-links {
+        display: flex;
+        overflow-x: auto;
+        gap: 5px;
+        margin-bottom: 15px;
+      }
+      
+      .nav-item {
+        padding: 10px 15px;
+        border-radius: 8px;
+        white-space: nowrap;
+      }
+      
+      .logout-btn {
+        margin-top: 0;
+        border-top: none;
+        border-left: 1px solid rgba(255,255,255,0.1);
+        justify-content: center;
+      }
+    }
+    
+    @media (max-width: 768px) {
+      .main-content {
+        padding: 20px 15px;
+      }
+      
+      .form-grid,
+      .totals-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .receipt {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="dashboard-container">
+    <!-- Sidebar -->
+    <div class="sidebar">
+      <div class="logo">
+        <h2><i class="fas fa-money-bill-wave"></i> Payments</h2>
+      </div>
+      
+      <div class="user-info">
+        <p><i class="fas fa-user"></i> <span id="sidebarUsername">Username</span></p>
+        <p><i class="fas fa-clock"></i> Shift: <span class="level-badge" id="sidebarShift">Shift</span></p>
+      </div>
+      
+      <div class="nav-links">
+        <a href="dashboard.html" class="nav-item">
+          <i class="fas fa-home"></i> Dashboard
+        </a>
+        <a href="#" class="nav-item active">
+          <i class="fas fa-plus-circle"></i> New Payment
+        </a>
+        <a href="updatePayments.html" class="nav-item">
+          <i class="fas fa-edit"></i> Update Payment
+        </a>
+        <a href="edit_payments.html" class="nav-item">
+          <i class="fas fa-ban"></i> Void
+        </a>
+        <a href="shiftmanagement.html" class="nav-item">
+          <i class="fas fa-clock"></i> Shift Management
+        </a>
+        <a href="cashiermanagement.html" class="nav-item">
+          <i class="fas fa-users"></i> Cashier Management
+        </a>
+      </div>
+      
+      <div class="logout-btn" onclick="logout()">
+        <i class="fas fa-sign-out-alt"></i> Logout
+      </div>
+    </div>
+    
+    <!-- Main Content -->
+    <div class="main-content">
+      <div class="header">
+        <h1>Payment Entry</h1>
+        <div class="date-display" id="currentDate"></div>
+      </div>
+      
+      <!-- Payment Form -->
+      <form id="paymentForm" class="payment-form">
+        <!-- Payment Info Section -->
+        <div class="form-section">
+          <div class="section-title">
+            <i class="fas fa-info-circle"></i>
+            <h2>Payment Information</h2>
+          </div>
+          
+          <div class="form-grid">
+            <div class="form-group">
+              <label>Date</label>
+              <input type="date" id="date" class="form-control">
+            </div>
+            <div class="form-group">
+              <label>Login User</label>
+              <div class="info-badge">
+                <i class="fas fa-user"></i>
+                <span id="loginUser">-</span>
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Selected Shift</label>
+              <div class="info-badge">
+                <i class="fas fa-clock"></i>
+                <span id="shift">-</span>
+              </div>
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <label>QR Code</label>
+            <div class="input-with-icon">
+              <i class="fas fa-qrcode input-icon"></i>
+              <input type="text" id="qrCode" class="form-control" placeholder="Scan QR code">
+            </div>
+          </div>
+        </div>
+        
+        <!-- Passenger Info Section -->
+        <div class="form-section">
+          <div class="section-title">
+            <i class="fas fa-users"></i>
+            <h2>Passenger Information</h2>
+          </div>
+          
+          <div class="form-grid">
+            <div class="form-group">
+              <label>Name</label>
+              <input type="text" id="name" class="form-control" placeholder="Passenger name">
+            </div>
+            <div class="form-group">
+              <label>Flight</label>
+              <input type="text" id="flight" class="form-control" placeholder="Flight number">
+            </div>
+            <div class="form-group">
+              <label>Seat</label>
+              <input type="text" id="seat" class="form-control" placeholder="Seat number">
+            </div>
+          </div>
+          
+          <div class="form-grid">
+            <div class="form-group">
+              <label>Adults</label>
+              <input type="number" id="adultCount" class="form-control" value="0" min="0">
+            </div>
+            <div class="form-group">
+              <label>Kids</label>
+              <input type="number" id="kidCount" class="form-control" value="0" min="0">
+            </div>
+          </div>
+        </div>
+        
+        <!-- Payment Details Section -->
+        <div class="form-section">
+          <div class="section-title">
+            <i class="fas fa-credit-card"></i>
+            <h2>Payment Details</h2>
+          </div>
+          
+          <div class="form-grid">
+            <div class="form-group">
+              <label>Payment Type</label>
+              <select id="paymentType" class="form-control">
+                <option value="Card">Card</option>
+                <option value="Cash">Cash</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Currency</label>
+              <select id="currency" class="form-control">
+                <option value="USD">USD</option>
+                <option value="MVR">MVR</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Rate</label>
+              <select id="rate" class="form-control">
+                <option value="A">Rate A</option>
+                <option value="B">Rate B</option>
+              </select>
+            </div>
+          </div>
+          
+          <div id="cashPaymentFields" style="display:none;">
+            <div class="form-group">
+              <label>Paid Amount</label>
+              <input type="number" id="paidAmount" class="form-control" placeholder="Enter amount">
+            </div>
+            <div class="form-group">
+              <label>Balance</label>
+              <input type="text" id="balanceAmount" class="form-control" readonly>
+            </div>
+          </div>
+          
+          <div class="totals-grid">
+            <div class="total-item">
+              <label>Subtotal</label>
+              <div id="rateField" class="total-value">$0.00</div>
+            </div>
+            <div class="total-item">
+              <label>GST</label>
+              <div id="gstField" class="total-value">$0.00</div>
+            </div>
+            <div class="total-item">
+              <label>Total</label>
+              <div id="totalField" class="total-value">$0.00</div>
+            </div>
+          </div>
+        </div>
+        
+        <button type="button" id="saveBtn" class="btn btn-full">
+          <i class="fas fa-check-circle"></i> Process Payment
+        </button>
+      </form>
+      
+      <!-- Receipt Section -->
+      <div id="receiptContainer">
+        <div class="receipt" id="receipt">
+          <div class="receipt-header">
+            <h2 id="company-name">Airport Services</h2>
+            <p id="company-address">123 Airport Road, City</p>
+            <p id="company-phone">+123 456 7890</p>
+          </div>
+          <div id="receipt-body"></div>
+          <div class="receipt-footer">
+            <p>Valid for 3 hours</p>
+            <p>Thank you for your business!</p>
+          </div>
+        </div>
+        <div class="receipt-controls">
+          <button id="printBtn" class="btn btn-success">
+            <i class="fas fa-print"></i> Print Receipt
+          </button>
+          <button id="newPaymentBtn" class="btn btn-secondary">
+            <i class="fas fa-plus-circle"></i> New Payment
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Set current date
+    const now = new Date();
+    const options = { year: 'numeric', month: 'long', day: 'numeric' };
+    document.getElementById('currentDate').textContent = now.toLocaleDateString('en-US', options);
+    document.getElementById('date').valueAsDate = now;
+    
+    // Get user data from localStorage (passed from dashboard)
+    const user = JSON.parse(localStorage.getItem("loggedInUser"));
+    
+    if (user) {
+      // Set user info in the form
+      document.getElementById('loginUser').textContent = user.username;
+      document.getElementById('sidebarUsername').textContent = user.username;
+      document.getElementById('sidebarShift').textContent = user.Level;
+      document.getElementById('shift').textContent = user.Level;
+    } else {
+      // Redirect to login if no user data
+      window.location.href = "login.html";
+    }
+    
+    // Payment type toggle
+    document.getElementById('paymentType').addEventListener('change', function() {
+      const cashFields = document.getElementById('cashPaymentFields');
+      cashFields.style.display = this.value === 'Cash' ? 'block' : 'none';
+    });
+    
+    // Print receipt
+    document.getElementById('printBtn').addEventListener('click', function() {
+      window.print();
+    });
+    
+    // New payment button
+    document.getElementById('newPaymentBtn').addEventListener('click', function() {
+      document.getElementById('paymentForm').reset();
+      document.getElementById('receiptContainer').style.display = 'none';
+      document.getElementById('cashPaymentFields').style.display = 'none';
+      document.getElementById('date').valueAsDate = new Date();
+    });
+    
+    // Process payment
+    document.getElementById('saveBtn').addEventListener('click', function() {
+      // Basic validation
+      const name = document.getElementById('name').value;
+      const flight = document.getElementById('flight').value;
+      
+      if (!name || !flight) {
+        alert('Please enter passenger name and flight details');
+        return;
+      }
+      
+    // Generate receipt number
+let lastReceiptNo = parseInt(localStorage.getItem("lastReceiptNo")) || 0;
+const newReceiptNo = lastReceiptNo + 1;
+localStorage.setItem("lastReceiptNo", newReceiptNo);
+
+// Include in receipt
+receiptBody.innerHTML = `
+  <p>Receipt No: ${newReceiptNo}</p>
+  <p>Date: ${new Date().toLocaleDateString()}</p>
+  <p>Passenger: ${name}</p>
+  <p>Flight: ${flight}</p>
+  <p>Seat: ${document.getElementById('seat').value || 'N/A'}</p>
+  <p>Adults: ${document.getElementById('adultCount').value}</p>
+  <p>Kids: ${document.getElementById('kidCount').value}</p>
+  <div class="receipt-divider"></div>
+  <p>Payment Type: ${document.getElementById('paymentType').value}</p>
+  <p>Currency: ${document.getElementById('currency').value}</p>
+  <p class="receipt-total">Total: $50.00</p>
+  <div class="receipt-divider"></div>
+  <p>Processed by: ${user.username}</p>
+  <p>Shift: ${user.Level}</p>
+`;
+      
+      // Show receipt
+      document.getElementById('receiptContainer').style.display = 'block';
+      
+      // Scroll to receipt
+      document.getElementById('receiptContainer').scrollIntoView({ behavior: 'smooth' });
+    });
+    
+    function logout() {
+      localStorage.removeItem("loggedInUser");
+      window.location.href = "login.html";
+    }
+  </script>
+</body>
+</html>
+

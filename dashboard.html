@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard - Payment System</title>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+  <script src="fire2.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --primary: #4361ee;
+      --secondary: #3f37c9;
+      --success: #4cc9f0;
+      --light: #f8f9fa;
+      --dark: #212529;
+      --gray: #6c757d;
+      --danger: #e63946;
+      --warning: #fca311;
+      --info: #48cae4;
+      --border-radius: 10px;
+      --box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+      --transition: all 0.3s ease;
+    }
+    
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f5f7fb;
+      color: var(--dark);
+      line-height: 1.6;
+      padding: 0;
+    }
+    
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    
+    /* Header */
+    header {
+      background: linear-gradient(120deg, var(--primary), var(--secondary));
+      color: white;
+      padding: 15px 20px;
+      border-radius: 0 0 var(--border-radius) var(--border-radius);
+      margin-bottom: 20px;
+      box-shadow: var(--box-shadow);
+    }
+    
+    .header-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 15px;
+    }
+    
+    .logo {
+      font-size: 22px;
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+    }
+    
+    .logo i {
+      margin-right: 10px;
+    }
+    
+    .header-info {
+      display: flex;
+      gap: 20px;
+      font-size: 14px;
+    }
+    
+    .info-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    /* User info */
+    .user-info {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    
+    .user-avatar {
+      width: 40px;
+      height: 40px;
+      background-color: rgba(255, 255, 255, 0.2);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+    }
+    
+    .user-details {
+      text-align: right;
+    }
+    
+    .user-name {
+      font-weight: 600;
+      font-size: 14px;
+    }
+    
+    .user-level {
+      font-size: 12px;
+      opacity: 0.9;
+    }
+    
+    /* Main content */
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 20px;
+      margin-bottom: 25px;
+    }
+    
+    .card {
+      background: white;
+      border-radius: var(--border-radius);
+      padding: 20px;
+      box-shadow: var(--box-shadow);
+      transition: var(--transition);
+    }
+    
+    .card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 6px 16px rgba(0,0,0,0.12);
+    }
+    
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 15px;
+    }
+    
+    .card-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--dark);
+    }
+    
+    .card-icon {
+      width: 40px;
+      height: 40px;
+      background: rgba(67, 97, 238, 0.1);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--primary);
+      font-size: 16px;
+    }
+    
+    .stat {
+      font-size: 28px;
+      font-weight: 700;
+      color: var(--primary);
+      margin-bottom: 5px;
+    }
+    
+    .stat-label {
+      color: var(--gray);
+      font-size: 13px;
+    }
+    
+    /* Buttons */
+    .action-buttons {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 15px;
+      margin-bottom: 25px;
+    }
+    
+    .btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      padding: 18px 15px;
+      border: none;
+      border-radius: var(--border-radius);
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: var(--transition);
+      background: white;
+      color: var(--primary);
+      box-shadow: var(--box-shadow);
+      height: 70px;
+    }
+    
+    .btn-primary {
+      background: var(--primary);
+      color: white;
+    }
+    
+    .btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 6px 16px rgba(0,0,0,0.15);
+    }
+    
+    .btn i {
+      font-size: 20px;
+    }
+    
+    /* Notification */
+    .notification {
+      padding: 14px;
+      border-radius: var(--border-radius);
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: #fff9db;
+      color: #e67700;
+      border-left: 4px solid #ffd43b;
+      box-shadow: var(--box-shadow);
+      cursor: pointer;
+      transition: var(--transition);
+    }
+    
+    .notification:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(0,0,0,0.15);
+    }
+    
+    .notification-icon {
+      font-size: 20px;
+    }
+    
+    .notification-content {
+      flex: 1;
+      font-size: 14px;
+    }
+    
+    .notification.hidden {
+      display: none;
+    }
+    
+    /* Footer */
+    footer {
+      text-align: center;
+      margin-top: 30px;
+      padding: 15px;
+      color: var(--gray);
+      font-size: 12px;
+    }
+    
+    /* Responsive */
+    @media (max-width: 768px) {
+      .header-top {
+        flex-direction: column;
+        text-align: center;
+        gap: 10px;
+      }
+      
+      .header-info {
+        justify-content: center;
+      }
+      
+      .user-info {
+        flex-direction: column;
+        text-align: center;
+      }
+      
+      .user-details {
+        text-align: center;
+      }
+      
+      .dashboard-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .action-buttons {
+        grid-template-columns: 1fr;
+      }
+      
+      .btn {
+        height: auto;
+        padding: 15px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="container">
+      <div class="header-top">
+        <div class="logo">
+          <i class="fas fa-money-check-alt"></i>
+          <span>Payment System</span>
+        </div>
+        <div class="header-info">
+          <div class="info-item">
+            <i class="fas fa-calendar-alt"></i>
+            <span id="currentDate">Loading...</span>
+          </div>
+          <div class="info-item">
+            <i class="fas fa-clock"></i>
+            <span id="shiftName">Loading...</span>
+          </div>
+        </div>
+        <div class="user-info">
+          <div class="user-avatar">
+            <i class="fas fa-user"></i>
+          </div>
+          <div class="user-details">
+            <div class="user-name" id="sidebarName">User Name</div>
+            <div class="user-level" id="sidebarLevel">Level</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <div class="container">
+    <div class="notification hidden" id="pendingNotice" onclick="location.href='updatePayments.html'">
+      <div class="notification-icon">
+        <i class="fas fa-exclamation-circle"></i>
+      </div>
+      <div class="notification-content" id="notificationText"></div>
+      <div class="notification-arrow">
+        <i class="fas fa-chevron-right"></i>
+      </div>
+    </div>
+
+    <div class="action-buttons">
+      <button class="btn btn-primary" onclick="location.href='newpayment.html'">
+        <i class="fas fa-plus-circle"></i>
+        New Payment
+      </button>
+      <button class="btn" onclick="location.href='DReport.html'">
+        <i class="fas fa-chart-bar"></i>
+        Report
+      </button>
+      <button class="btn" onclick="location.href='updatePayments.html'">
+        <i class="fas fa-edit"></i>
+        Update Payments
+      </button>
+      <button class="btn" onclick="location.href='edit_payments.html'">
+        <i class="fas fa-ban"></i>
+        Void
+      </button>
+      <button class="btn" onclick="location.href='shiftmanagement.html'">
+        <i class="fas fa-cogs"></i>
+        Shift Management
+      </button>
+      <button class="btn" onclick="location.href='cashiermanagement.html'">
+        <i class="fas fa-users-cog"></i>
+        Cashier Management
+      </button>
+      <button class="btn" onclick="logout()">
+        <i class="fas fa-sign-out-alt"></i>
+        Logout
+      </button>
+    </div>
+
+    <div class="dashboard-grid">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">Current Shift</div>
+          <div class="card-icon">
+            <i class="fas fa-business-time"></i>
+          </div>
+        </div>
+        <div class="stat" id="shiftNo">Loading...</div>
+        <div class="stat-label">Shift Number</div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">Total Adults</div>
+          <div class="card-icon">
+            <i class="fas fa-user-friends"></i>
+          </div>
+        </div>
+        <div class="stat" id="totalAdults">Loading...</div>
+        <div class="stat-label">This Shift</div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">Total Kids</div>
+          <div class="card-icon">
+            <i class="fas fa-child"></i>
+          </div>
+        </div>
+        <div class="stat" id="totalKids">Loading...</div>
+        <div class="stat-label">This Shift</div>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <div class="container">
+      <p>© 2023 Payment System | Secure Payment Processing</p>
+    </div>
+  </footer>
+
+  <script>
+    // Load logged in user
+    const loggedInUser = JSON.parse(localStorage.getItem("loggedInUser"));
+    if (!loggedInUser) {
+      window.location.href = "login.html";
+    } else {
+      document.getElementById("sidebarName").textContent = loggedInUser.name;
+      document.getElementById("sidebarLevel").textContent = loggedInUser.Level;
+    }
+
+    function logout() {
+      localStorage.removeItem("loggedInUser");
+      window.location.href = "login.html";
+    }
+
+    // Date
+    const today = new Date();
+    const yyyy = today.getFullYear();
+    const mm = String(today.getMonth() + 1).padStart(2, '0');
+    const dd = String(today.getDate()).padStart(2, '0');
+    const currentDate = `${yyyy}-${mm}-${dd}`;
+    document.getElementById("currentDate").textContent = currentDate;
+
+    const shiftNoSpan = document.getElementById("shiftNo");
+    const shiftNameSpan = document.getElementById("shiftName");
+    const adultsSpan = document.getElementById("totalAdults");
+    const kidsSpan = document.getElementById("totalKids");
+    const pendingNotice = document.getElementById("pendingNotice");
+    const notificationText = document.getElementById("notificationText");
+
+    // Fetch current shift
+    db.collection("shifts")
+      .where("status", "==", "open")
+      .limit(1)
+      .onSnapshot(snapshot => {
+        if (snapshot.empty) {
+          shiftNoSpan.textContent = "None";
+          shiftNameSpan.textContent = "No open shift";
+          adultsSpan.textContent = "0";
+          kidsSpan.textContent = "0";
+          pendingNotice.classList.add("hidden");
+          return;
+        }
+
+        const shiftData = snapshot.docs[0].data();
+        const shiftNo = shiftData.shiftNo;
+        const shiftName = shiftNo === 1 ? "Morning" : "Evening";
+
+        shiftNoSpan.textContent = shiftNo;
+        shiftNameSpan.textContent = shiftName;
+
+        // Fetch payments by date + shift
+        db.collection("payments")
+          .where("date", "==", currentDate)
+          .where("shift", "==", shiftName)
+          .onSnapshot(paySnapshot => {
+            let totalAdults = 0;
+            let totalKids = 0;
+            let pendingCount = 0;
+
+            paySnapshot.forEach(doc => {
+              const payment = doc.data();
+              if (!payment.voided) {
+                totalAdults += Number(payment.adults || 0);
+                totalKids += Number(payment.kids || 0);
+
+                // Pending update check
+                if (payment.paymentType !== "Cash" &&
+                   (!payment.approvalCode || !payment.batchNo)) {
+                  pendingCount++;
+                }
+              }
+            });
+
+            adultsSpan.textContent = totalAdults;
+            kidsSpan.textContent = totalKids;
+
+            if (pendingCount > 0) {
+              pendingNotice.classList.remove("hidden");
+              notificationText.textContent = `You have ${pendingCount} pending payment update(s) that require approval code and batch number. Click to update.`;
+            } else {
+              pendingNotice.classList.add("hidden");
+            }
+          }, err => {
+            console.error(err);
+            adultsSpan.textContent = "Error";
+            kidsSpan.textContent = "Error";
+            pendingNotice.classList.add("hidden");
+          });
+
+      }, err => {
+        console.error(err);
+        shiftNoSpan.textContent = "Error";
+        shiftNameSpan.textContent = "Error fetching shift";
+        pendingNotice.classList.add("hidden");
+      });
+  </script>
+</body>
+</html>
