@@ -675,42 +675,51 @@
 
 <script>
 
-  // Load login user
-  // Load logged in user
-    const loggedInUser = JSON.parse(localStorage.getItem("loggedInUser"));
-    if (!loggedInUser) {
-      window.location.href = "login.html";
-    } else {
-      document.getElementById("sidebarName").textContent = loggedInUser.name;
-      document.getElementById("sidebarLevel").textContent = loggedInUser.Level;
-    }
+  // --- Load logged in user ---
+  const loggedInUser = JSON.parse(localStorage.getItem("loggedInUser"));
+  if (!loggedInUser) {
+    window.location.href = "login.html";
+  } else {
+    document.getElementById("sidebarName").textContent = loggedInUser.name;
+    document.getElementById("sidebarLevel").textContent = loggedInUser.Level;
+  }
+
   function logout() {
-      localStorage.removeItem("loggedInUser");
-      window.location.href = "login.html";
-    }
+    localStorage.removeItem("loggedInUser");
+    window.location.href = "login.html";
+  }
 
-   // Fetch current shift
-    db.collection("shifts")
-      .where("status", "==", "open")
-      .limit(1)
-      .onSnapshot(snapshot => {
-        if (snapshot.empty) {
-          shiftNoSpan.textContent = "None";
-          shiftNameSpan.textContent = "No open shift";
-          adultsSpan.textContent = "0";
-          kidsSpan.textContent = "0";
-          pendingNotice.classList.add("hidden");
-          return;
-        }
+  // --- Shift elements ---
+  const shiftNoSpan = document.getElementById("shiftNo");
+  const shiftNameSpan = document.getElementById("shiftName");
+  const adultsSpan = document.getElementById("adults");
+  const kidsSpan = document.getElementById("kids");
+  const pendingNotice = document.getElementById("pendingNotice");
 
-        const shiftData = snapshot.docs[0].data();
-        const shiftNo = shiftData.shiftNo;
-        const shiftName = shiftNo === 1 ? "Morning" : "Evening";
+  // --- Fetch current shift ---
+  db.collection("shifts")
+    .where("status", "==", "open")
+    .limit(1)
+    .onSnapshot(snapshot => {
+      if (snapshot.empty) {
+        shiftNoSpan.textContent = "None";
+        shiftNameSpan.textContent = "No open shift";
+        adultsSpan.textContent = "0";
+        kidsSpan.textContent = "0";
+        pendingNotice.classList.add("hidden");
+        return;
+      }
 
-        shiftNoSpan.textContent = shiftNo;
-        shiftNameSpan.textContent = shiftName;
-  
+      const shiftData = snapshot.docs[0].data();
+      const shiftNo = shiftData.shiftNo;
+      const shiftName = shiftNo === 1 ? "Morning" : "Evening";
 
+      shiftNoSpan.textContent = shiftNo;
+      shiftNameSpan.textContent = shiftName;
+      adultsSpan.textContent = shiftData.adults || 0;
+      kidsSpan.textContent = shiftData.kids || 0;
+      pendingNotice.classList.remove("hidden");
+    });
   // Set current date
   const dateField = document.getElementById("date");
   dateField.value = new Date().toISOString().split('T')[0];
@@ -1050,6 +1059,7 @@
 
 </body>
 </html>
+
 
 
 
