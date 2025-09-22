@@ -758,7 +758,7 @@ tbody tr:hover {
       <div class="receipt-header">
         <h2 id="companyNameHeader">Koveli Lounge</h2>
         <p id="companyAddress">Velana International Airport</p>
-        <p id="companyPhone">+123 456 7890</p>
+        <p id="companyPhone">+960 304 6677</p>
       </div>
       
       <div class="receipt-details" id="receiptDetails"></div>
@@ -875,6 +875,7 @@ window.addEventListener('load', function() {
             <option value="MasterCard" ${data.paymentType==="MasterCard"?"selected":""}>MasterCard</option>
             <option value="Amex" ${data.paymentType==="Amex"?"selected":""}>Amex</option>
             <option value="UnionPay" ${data.paymentType==="UnionPay"?"selected":""}>UnionPay</option>
+            <option value="QR Sale" ${data.paymentType==="QR Sale"?"selected":""}>QR Sale</option>
             <option value="Other" ${data.paymentType==="Other"?"selected":""}>Other</option>
           </select>
         </td>
