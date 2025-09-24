@@ -1,158 +1,841 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>Cash & Petty Cash Management</title>
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
-<script src="fire2.js"></script> <!-- Firebase config -->
-<style>
-body { font-family: Arial, sans-serif; padding: 20px; }
-h2 { margin-bottom: 10px; }
-.tables { display: flex; gap: 40px; margin-bottom: 30px; flex-wrap: wrap; }
-table { border-collapse: collapse; width: 250px; margin-bottom: 20px; }
-th, td { border: 1px solid #ccc; padding: 8px; text-align: center; }
-th { background-color: #f2f2f2; }
-input[type=number] { width: 60px; text-align: center; }
-.total-row { font-weight: bold; }
-.card { border: 1px solid #ccc; padding: 20px; border-radius: 10px; margin-bottom: 20px; max-width: 400px; }
-.summary { border: 1px solid #999; padding: 15px; margin-top: 20px; max-width: 500px; }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cash & Petty Cash Management</title>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+    <script src="fire2.js"></script>
+    <script src="user.js"></script>
+    <style>
+    :root {
+        --primary: #8c6d1f;
+        --primary-light: #a6852d;
+        --secondary: #d4af37;
+        --accent: #c19a1b;
+        --success: #27ae60;
+        --warning: #f39c12;
+        --light: #ffffff;
+        --dark: #5d4d0f;
+        --gray: #8a7c4a;
+        --border: #e0d6b3;
+        --shadow: 0 4px 6px rgba(140, 109, 31, 0.1);
+        --radius: 8px;
+    }
+    
+    * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+    }
+    
+    body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        line-height: 1.6;
+        color: var(--dark);
+        background: linear-gradient(135deg, #ffffff 0%, #fefefe 100%);
+        min-height: 100vh;
+        padding: 20px;
+        overflow-x: auto;
+    }
+    
+    .container {
+        max-width: 1500px;
+        margin: 0 auto;
+        min-width: 1300px;
+    }
+    
+    header {
+        text-align: center;
+        margin-bottom: 30px;
+        padding: 20px;
+        background: white;
+        border-radius: var(--radius);
+        box-shadow: var(--shadow);
+        border: 1px solid var(--border);
+    }
+    
+    h1 {
+        color: var(--primary);
+        margin-bottom: 10px;
+        font-size: 2.2rem;
+    }
+    
+    h2 {
+        color: var(--primary);
+        margin-bottom: 15px;
+        font-size: 1.5rem;
+        border-bottom: 2px solid var(--secondary);
+        padding-bottom: 8px;
+    }
+    
+    h3 {
+        color: var(--primary-light);
+        margin-bottom: 10px;
+        font-size: 1.1rem;
+        text-align: center;
+    }
+    
+    /* Cash Payments and Petty Cash in one row */
+    .info-cards-row {
+        display: flex;
+        gap: 20px;
+        margin-bottom: 30px;
+    }
+    
+    .info-card {
+        background: white;
+        border-radius: var(--radius);
+        box-shadow: var(--shadow);
+        padding: 20px;
+        flex: 1;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        border: 1px solid var(--border);
+    }
+    
+    .info-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 6px 12px rgba(212, 175, 55, 0.15);
+    }
+    
+    .info-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 15px;
+        margin-bottom: 10px;
+    }
+    
+    .info-item {
+        background: #fefcf5;
+        border-radius: var(--radius);
+        padding: 15px;
+        text-align: center;
+        border: 1px solid var(--border);
+    }
+    
+    .info-label {
+        font-weight: 600;
+        color: var(--gray);
+        margin-bottom: 5px;
+        font-size: 0.9rem;
+    }
+    
+    .info-value {
+        font-size: 1.4rem;
+        font-weight: 700;
+        color: var(--dark);
+    }
+    
+    /* All tables in one row - more compact */
+    .all-tables-row {
+        display: flex;
+        gap: 12px;
+        margin-bottom: 30px;
+        overflow-x: auto;
+        padding-bottom: 10px;
+    }
+    
+    .table-section {
+        background: white;
+        border-radius: var(--radius);
+        padding: 12px;
+        box-shadow: var(--shadow);
+        min-width: 220px;
+        flex: 1;
+        border: 1px solid var(--border);
+    }
+    
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 8px;
+    }
+    
+    th, td {
+        padding: 6px 4px;
+        text-align: center;
+        border-bottom: 1px solid var(--border);
+        font-size: 0.8rem;
+    }
+    
+    th {
+        background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+        color: white;
+        font-weight: 600;
+        padding: 8px 4px;
+    }
+    
+    tr:nth-child(even) {
+        background-color: #fefcf5;
+    }
+    
+    input[type="number"] {
+        width: 50px;
+        padding: 4px;
+        border: 1px solid var(--border);
+        border-radius: 4px;
+        text-align: center;
+        font-weight: 600;
+        font-size: 0.8rem;
+        transition: border 0.3s ease;
+        background-color: white;
+    }
+    
+    input[type="number"]:focus {
+        border-color: var(--secondary);
+        outline: none;
+        box-shadow: 0 0 0 2px rgba(212, 175, 55, 0.2);
+    }
+    
+    .total-row {
+        background-color: #fef8e7;
+        font-weight: bold;
+    }
+    
+    .total-row td {
+        border-top: 2px solid var(--border);
+        font-size: 0.85rem;
+        color: var(--primary);
+        padding: 8px 4px;
+    }
+    
+    .summary {
+        background: white;
+        border-radius: var(--radius);
+        padding: 25px;
+        box-shadow: var(--shadow);
+        margin-top: 20px;
+        border: 1px solid var(--border);
+    }
+    
+    .summary-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 15px;
+        margin-top: 15px;
+    }
+    
+    .summary-item {
+        display: flex;
+        justify-content: space-between;
+        padding: 10px 0;
+        border-bottom: 1px dashed var(--border);
+    }
+    
+    .summary-label {
+        font-weight: 600;
+        color: var(--gray);
+        font-size: 0.9rem;
+    }
+    
+    .summary-value {
+        font-weight: 700;
+        color: var(--dark);
+        font-size: 0.9rem;
+    }
+    
+    .grand-total {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 15px;
+        padding-top: 15px;
+        border-top: 2px solid var(--secondary);
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: var(--primary);
+    }
+    
+    .buttons {
+        display: flex;
+        justify-content: center;
+        gap: 20px;
+        margin-top: 30px;
+    }
+    
+    button {
+        padding: 10px 25px;
+        border: none;
+        border-radius: var(--radius);
+        cursor: pointer;
+        font-weight: 600;
+        font-size: 0.9rem;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+    }
+    
+    button:disabled {
+        background: var(--gray) !important;
+        cursor: not-allowed;
+        opacity: 0.6;
+    }
+    
+    .open-btn {
+        background: var(--success);
+        color: white;
+    }
+    
+    .open-btn:hover:not(:disabled) {
+        background: #219653;
+        transform: translateY(-2px);
+    }
+    
+    .close-btn {
+        background: var(--primary);
+        color: white;
+    }
+    
+    .close-btn:hover:not(:disabled) {
+        background: var(--accent);
+        transform: translateY(-2px);
+    }
+    
+    /* Popup */
+    .popup {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(255, 255, 255, 0.95);
+        justify-content: center;
+        align-items: center;
+        z-index: 1000;
+    }
+    
+    .popup-content {
+        background: white;
+        padding: 25px;
+        border-radius: var(--radius);
+        width: 90%;
+        max-width: 350px;
+        box-shadow: 0 10px 25px rgba(140, 109, 31, 0.15);
+        border: 2px solid var(--secondary);
+    }
+    
+    .popup-content h3 {
+        margin-bottom: 15px;
+        text-align: center;
+        color: var(--primary);
+        font-size: 1.2rem;
+    }
+    
+    .popup-content input {
+        width: 100%;
+        margin-bottom: 12px;
+        padding: 10px;
+        border: 1px solid var(--border);
+        border-radius: 4px;
+        font-size: 0.9rem;
+        background-color: white;
+    }
+    
+    .popup-content input:focus {
+        border-color: var(--secondary);
+        outline: none;
+        box-shadow: 0 0 0 2px rgba(212, 175, 55, 0.2);
+    }
+    
+    .popup-content button {
+        width: 100%;
+        padding: 10px;
+        background: var(--primary);
+        color: white;
+        margin-top: 10px;
+        font-size: 0.9rem;
+    }
+    
+    .popup-content button:hover {
+        background: var(--accent);
+    }
+    
+    .status-indicator {
+        display: inline-block;
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        margin-right: 6px;
+    }
+    
+    .status-active {
+        background-color: var(--success);
+    }
+    
+    .status-inactive {
+        background-color: var(--accent);
+    }
+    
+    @media (max-width: 1300px) {
+        body {
+            overflow-x: auto;
+        }
+        
+        .container {
+            min-width: 1200px;
+        }
+        
+        .all-tables-row {
+            gap: 10px;
+        }
+        
+        .table-section {
+            min-width: 200px;
+        }
+    }
+    
+    @media (max-width: 768px) {
+        body {
+            padding: 10px;
+            overflow-x: auto;
+        }
+        
+        .container {
+            min-width: 1100px;
+        }
+        
+        .info-cards-row {
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .all-tables-row {
+            gap: 8px;
+        }
+        
+        .table-section {
+            min-width: 190px;
+        }
+        
+        .buttons {
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        button {
+            width: 100%;
+            max-width: 280px;
+        }
+    }
 </style>
 </head>
 <body>
+    <div class="container">
+        <header>
+            <h1>Cash & Petty Cash Management</h1>
+            <p>Professional cash reconciliation system</p>
+        </header>
+        
+        <section class="info-cards-row">
+            <div class="info-card">
+                <h2>Shift & Date Information</h2>
+                <div class="info-grid">
+                    <div class="info-item">
+                        <div class="info-label">Current Date</div>
+                        <div class="info-value" id="currentDate">Loading...</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Cashier Status</div>
+                        <div class="info-value">
+                            <span class="status-indicator" id="statusIndicator"></span>
+                            <span id="cashierStatus">Checking...</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="info-card">
+                <h2>Cash Payments from Firebase</h2>
+                <div class="info-grid">
+                    <div class="info-item">
+                        <div class="info-label">Total USD Cash</div>
+                        <div class="info-value" id="totalUSD">Loading...</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Total MVR Cash</div>
+                        <div class="info-value" id="totalMVR">Loading...</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="info-card">
+                <h2>Petty Cash</h2>
+                <div class="info-grid">
+                    <div class="info-item">
+                        <div class="info-label">USD Petty Cash</div>
+                        <div class="info-value" id="pettyUSD">Loading...</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">MVR Petty Cash</div>
+                        <div class="info-value" id="pettyMVR">Loading...</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <section>
+            <h2>All Denomination Counts</h2>
+            <div class="all-tables-row">
+                <div class="table-section">
+                    <h3>USD Cash Count</h3>
+                    <table id="usdTable">
+                        <thead>
+                            <tr>
+                                <th>USD</th>
+                                <th>Count</th>
+                                <th>Total</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                        <tfoot>
+                            <tr class="total-row">
+                                <td colspan="2">Total</td>
+                                <td id="usdGrandTotal">0.00</td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+                
+                <div class="table-section">
+                    <h3>MVR Cash Count</h3>
+                    <table id="mvrTable">
+                        <thead>
+                            <tr>
+                                <th>MVR</th>
+                                <th>Count</th>
+                                <th>Total</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                        <tfoot>
+                            <tr class="total-row">
+                                <td colspan="2">Total</td>
+                                <td id="mvrGrandTotal">0.00</td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+                
+                <div class="table-section">
+                    <h3>USD Petty Cash</h3>
+                    <table id="pettyUSDTable">
+                        <thead>
+                            <tr>
+                                <th>USD</th>
+                                <th>Count</th>
+                                <th>Total</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                        <tfoot>
+                            <tr class="total-row">
+                                <td colspan="2">Total</td>
+                                <td id="pettyUSDGrandTotal">0.00</td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+                
+                <div class="table-section">
+                    <h3>MVR Petty Cash</h3>
+                    <table id="pettyMVRTable">
+                        <thead>
+                            <tr>
+                                <th>MVR</th>
+                                <th>Count</th>
+                                <th>Total</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                        <tfoot>
+                            <tr class="total-row">
+                                <td colspan="2">Total</td>
+                                <td id="pettyMVRGrandTotal">0.00</td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </section>
+        
+        <section class="summary">
+            <h2>Reconciliation Summary</h2>
+            <div class="summary-grid">
+                <div class="summary-item">
+                    <span class="summary-label">Total Cash USD:</span>
+                    <span class="summary-value" id="totalCashUSD">0.00</span>
+                </div>
+                <div class="summary-item">
+                    <span class="summary-label">Total Cash MVR:</span>
+                    <span class="summary-value" id="totalCashMVR">0.00</span>
+                </div>
+                <div class="summary-item">
+                    <span class="summary-label">Total Petty Cash USD:</span>
+                    <span class="summary-value" id="totalPettyUSD">0.00</span>
+                </div>
+                <div class="summary-item">
+                    <span class="summary-label">Total Petty Cash MVR:</span>
+                    <span class="summary-value" id="totalPettyMVR">0.00</span>
+                </div>
+            </div>
+            <div class="grand-total">
+                <span>Grand Total USD:</span>
+                <span id="grandTotalUSD">0.00</span>
+            </div>
+            <div class="grand-total">
+                <span>Grand Total MVR:</span>
+                <span id="grandTotalMVR">0.00</span>
+            </div>
+        </section>
+        
+        <div class="buttons">
+            <button id="openShiftBtn" class="open-btn" disabled>
+                <span>Open Cashier</span>
+            </button>
+            <button id="closeShiftBtn" class="close-btn" disabled>
+                <span>Close Cashier</span>
+            </button>
+        </div>
+    </div>
 
-<h2>Shift & Date Info</h2>
-<p>Current Date: <span id="currentDate">Loading...</span></p>
-<p>Current Shift No: <span id="shiftNo">Loading...</span></p>
+    <!-- Popup for username/password -->
+    <div id="authPopup" class="popup">
+        <div class="popup-content">
+            <h3>Enter Username & Password</h3>
+            <input type="text" id="popupUsername" placeholder="Username">
+            <input type="password" id="popupPassword" placeholder="Password">
+            <button id="popupSubmit">Submit</button>
+        </div>
+    </div>
 
-<h2>Cash Payments from Firebase</h2>
-<p>Total USD Cash: <span id="totalUSD">Loading...</span></p>
-<p>Total MVR Cash: <span id="totalMVR">Loading...</span></p>
+    <script>
+        // Denominations
+        const usdDenoms = [100,50,20,10,5,1];
+        const mvrDenoms = [1000,500,100,50,20,5,1];
 
-<div class="tables">
-  <table id="usdTable">
-    <thead><tr><th>Denomination USD</th><th>Count</th><th>Total</th></tr></thead>
-    <tbody></tbody>
-    <tfoot><tr class="total-row"><td colspan="2">Grand Total</td><td id="usdGrandTotal">0.00</td></tr></tfoot>
-  </table>
-  <table id="mvrTable">
-    <thead><tr><th>Denomination MVR</th><th>Count</th><th>Total</th></tr></thead>
-    <tbody></tbody>
-    <tfoot><tr class="total-row"><td colspan="2">Grand Total</td><td id="mvrGrandTotal">0.00</td></tr></tfoot>
-  </table>
-</div>
+        // Firebase elements
+        const totalUSDEl = document.getElementById("totalUSD");
+        const totalMVREl = document.getElementById("totalMVR");
+        const pettyUSDEl = document.getElementById("pettyUSD");
+        const pettyMVREl = document.getElementById("pettyMVR");
+        const statusIndicator = document.getElementById("statusIndicator");
+        const cashierStatus = document.getElementById("cashierStatus");
 
-<div class="card">
-  <h2>Petty Cash</h2>
-  <p>USD: <span id="pettyUSD">Loading...</span></p>
-  <p>MVR: <span id="pettyMVR">Loading...</span></p>
-</div>
+        const openBtn=document.getElementById("openShiftBtn");
+        const closeBtn=document.getElementById("closeShiftBtn");
 
-<div class="tables">
-  <table id="pettyUSDTable">
-    <thead><tr><th>Denomination USD</th><th>Count</th><th>Total</th></tr></thead>
-    <tbody></tbody>
-    <tfoot><tr class="total-row"><td colspan="2">Grand Total</td><td id="pettyUSDGrandTotal">0.00</td></tr></tfoot>
-  </table>
-  <table id="pettyMVRTable">
-    <thead><tr><th>Denomination MVR</th><th>Count</th><th>Total</th></tr></thead>
-    <tbody></tbody>
-    <tfoot><tr class="total-row"><td colspan="2">Grand Total</td><td id="pettyMVRGrandTotal">0.00</td></tr></tfoot>
-  </table>
-</div>
+        // Current date
+        const today=new Date();
+        document.getElementById("currentDate").textContent = today.toISOString().split('T')[0];
 
-<div class="summary">
-  <h2>Reconciliation Summary</h2>
-  <p>Total Cash USD: <span id="totalCashUSD">0.00</span></p>
-  <p>Total Cash MVR: <span id="totalCashMVR">0.00</span></p>
-  <p>Total Petty Cash USD: <span id="totalPettyUSD">0.00</span></p>
-  <p>Total Petty Cash MVR: <span id="totalPettyMVR">0.00</span></p>
-  <p>Grand Total USD: <span id="grandTotalUSD">0.00</span></p>
-  <p>Grand Total MVR: <span id="grandTotalMVR">0.00</span></p>
-</div>
+        // Create denomination tables
+        function createDenominationTable(denoms, tbodySelector, grandTotalSelector){
+            const tbody = document.querySelector(tbodySelector);
+            const grandEl = document.querySelector(grandTotalSelector);
+            
+            function updateGrandTotal(){
+                let total=0;
+                document.querySelectorAll(`${tbodySelector} .row-total`).forEach(c=>{total+=Number(c.textContent)});
+                grandEl.textContent = total.toFixed(2);
+                updateSummary();
+            }
+            
+            denoms.forEach(v=>{
+                const row = document.createElement("tr");
+                const tdDenom = document.createElement("td"); 
+                tdDenom.textContent = v; 
+                row.appendChild(tdDenom);
+                
+                const tdCount = document.createElement("td"); 
+                const input = document.createElement("input"); 
+                input.type="number"; 
+                input.min=0; 
+                input.value=0; 
+                tdCount.appendChild(input); 
+                row.appendChild(tdCount);
+                
+                const tdTotal = document.createElement("td"); 
+                tdTotal.classList.add("row-total"); 
+                tdTotal.textContent="0.00"; 
+                row.appendChild(tdTotal);
+                
+                input.addEventListener("input",()=>{
+                    tdTotal.textContent=((Number(input.value)||0)*v).toFixed(2); 
+                    updateGrandTotal();
+                });
+                
+                tbody.appendChild(row);
+            });
+        }
 
-<script>
-// Denominations
-const usdDenoms = [100,50,20,10,5,1];
-const mvrDenoms = [1000,500,100,50,20,5,1];
+        createDenominationTable(usdDenoms,"#usdTable tbody","#usdGrandTotal");
+        createDenominationTable(mvrDenoms,"#mvrTable tbody","#mvrGrandTotal");
+        createDenominationTable(usdDenoms,"#pettyUSDTable tbody","#pettyUSDGrandTotal");
+        createDenominationTable(mvrDenoms,"#pettyMVRTable tbody","#pettyMVRGrandTotal");
 
-function createDenominationTable(denoms, tbodySelector, grandTotalSelector){
-  const tbody = document.querySelector(tbodySelector);
-  const grandEl = document.querySelector(grandTotalSelector);
-  function updateGrandTotal(){
-    let total=0;
-    document.querySelectorAll(`${tbodySelector} .row-total`).forEach(c=>{total+=Number(c.textContent)});
-    grandEl.textContent = total.toFixed(2);
-    updateSummary();
-  }
-  denoms.forEach(v=>{
-    const row = document.createElement("tr");
-    const tdDenom=document.createElement("td"); tdDenom.textContent=v; row.appendChild(tdDenom);
-    const tdCount=document.createElement("td"); const input=document.createElement("input"); input.type="number"; input.min=0; input.value=0; tdCount.appendChild(input); row.appendChild(tdCount);
-    const tdTotal=document.createElement("td"); tdTotal.classList.add("row-total"); tdTotal.textContent="0.00"; row.appendChild(tdTotal);
-    input.addEventListener("input",()=>{tdTotal.textContent=((Number(input.value)||0)*v).toFixed(2); updateGrandTotal();});
-    tbody.appendChild(row);
-  });
-}
+        // Fetch totals from Firebase
+        function fetchCashTotals(){
+            db.collection("payments").where("date","==",document.getElementById("currentDate").textContent).where("paymentType","==","Cash").where("currency","==","USD")
+                .onSnapshot(snap=>{
+                    let t=0; 
+                    snap.forEach(d=>{
+                        const p=d.data(); 
+                        if(!p.voided) t+=Number(p.total||0)
+                    }); 
+                    totalUSDEl.textContent=t.toFixed(2); 
+                    updateSummary();
+                });
+            
+            db.collection("payments").where("date","==",document.getElementById("currentDate").textContent).where("paymentType","==","Cash").where("currency","==","MVR")
+                .onSnapshot(snap=>{
+                    let t=0; 
+                    snap.forEach(d=>{
+                        const p=d.data(); 
+                        if(!p.voided) t+=Number(p.total||0)
+                    }); 
+                    totalMVREl.textContent=t.toFixed(2); 
+                    updateSummary();
+                });
+            
+            db.collection("pettyCash").limit(1).onSnapshot(snap=>{
+                if(!snap.empty){
+                    const data = snap.docs[0].data();
+                    pettyUSDEl.textContent = Number(data.USD||0).toFixed(2);
+                    pettyMVREl.textContent = Number(data.MVR||0).toFixed(2);
+                    updateSummary();
+                }
+            });
+        }
+        fetchCashTotals();
 
-createDenominationTable(usdDenoms,"#usdTable tbody","#usdGrandTotal");
-createDenominationTable(mvrDenoms,"#mvrTable tbody","#mvrGrandTotal");
-createDenominationTable(usdDenoms,"#pettyUSDTable tbody","#pettyUSDGrandTotal");
-createDenominationTable(mvrDenoms,"#pettyMVRTable tbody","#pettyMVRGrandTotal");
+        // Update summary and check buttons
+        function updateSummary(){
+            const cUSD = Number(document.getElementById("usdGrandTotal").textContent);
+            const cMVR = Number(document.getElementById("mvrGrandTotal").textContent);
+            const cPettyUSD = Number(document.getElementById("pettyUSDGrandTotal").textContent);
+            const cPettyMVR = Number(document.getElementById("pettyMVRGrandTotal").textContent);
 
-// Current date
-const today=new Date();
-const yyyy=today.getFullYear(), mm=String(today.getMonth()+1).padStart(2,'0'), dd=String(today.getDate()).padStart(2,'0');
-const currentDate=`${yyyy}-${mm}-${dd}`;
-document.getElementById("currentDate").textContent=currentDate;
+            const sUSD = Number(totalUSDEl.textContent);
+            const sMVR = Number(totalMVREl.textContent);
+            const pUSD = Number(pettyUSDEl.textContent);
+            const pMVR = Number(pettyMVREl.textContent);
 
-// Firebase shift
-const shiftNoSpan = document.getElementById("shiftNo");
-const totalUSDEl = document.getElementById("totalUSD");
-const totalMVREl = document.getElementById("totalMVR");
+            document.getElementById("totalCashUSD").textContent = (sUSD + cUSD).toFixed(2);
+            document.getElementById("totalCashMVR").textContent = (sMVR + cMVR).toFixed(2);
+            document.getElementById("totalPettyUSD").textContent = (pUSD + cPettyUSD).toFixed(2);
+            document.getElementById("totalPettyMVR").textContent = (pMVR + cPettyMVR).toFixed(2);
+            document.getElementById("grandTotalUSD").textContent = (sUSD + cUSD + pUSD + cPettyUSD).toFixed(2);
+            document.getElementById("grandTotalMVR").textContent = (sMVR + cMVR + pMVR + cPettyMVR).toFixed(2);
 
-db.collection("shifts").where("status","==","open").limit(1).onSnapshot(snap=>{
-  if(snap.empty){ shiftNoSpan.textContent="No shift"; totalUSDEl.textContent="0.00"; totalMVREl.textContent="0.00"; return;}
-  const shiftData=snap.docs[0].data();
-  const shiftNo = shiftData.shiftNo;
-  const shiftName = shiftNo===1?"Morning":"Evening";
-  shiftNoSpan.textContent=shiftNo;
+            checkButtonStatus(cUSD,cMVR,cPettyUSD,cPettyMVR,sUSD,sMVR,pUSD,pMVR);
+        }
 
-  // Fetch cash USD
-  db.collection("payments").where("date","==",currentDate).where("shift","==",shiftName).where("paymentType","==","Cash").where("currency","==","USD")
-    .onSnapshot(paySnap=>{let t=0;paySnap.forEach(d=>{const p=d.data(); if(!p.voided) t+=Number(p.total||0)}); totalUSDEl.textContent=t.toFixed(2); updateSummary();});
+        // Live cashier status
+        let activeCashierId = null;
+        db.collection("cashier").limit(1).onSnapshot(snap=>{
+            if(snap.empty || !snap.docs[0].data().activeCashier){
+                activeCashierId = null;
+                statusIndicator.className = "status-indicator status-inactive";
+                cashierStatus.textContent = "Inactive";
+            } else {
+                activeCashierId = snap.docs[0].id;
+                statusIndicator.className = "status-indicator status-active";
+                cashierStatus.textContent = "Active";
+            }
+            updateSummary();
+        });
 
-  // Fetch cash MVR
-  db.collection("payments").where("date","==",currentDate).where("shift","==",shiftName).where("paymentType","==","Cash").where("currency","==","MVR")
-    .onSnapshot(paySnap=>{let t=0;paySnap.forEach(d=>{const p=d.data(); if(!p.voided) t+=Number(p.total||0)}); totalMVREl.textContent=t.toFixed(2); updateSummary();});
-});
+        // Enable/disable buttons based on counts and active cashier
+        function checkButtonStatus(cUSD,cMVR,cPettyUSD,cPettyMVR,sUSD,sMVR,pUSD,pMVR){
+            // Check if counts are valid (counted amount >= fetched amount)
+            const cashCountsValid = cUSD >= sUSD && cMVR >= sMVR;
+            const pettyCountsValid = cPettyUSD >= pUSD && cPettyMVR >= pMVR;
+            
+            // Both cash and petty cash counts should be valid
+            const countsValid = cashCountsValid && pettyCountsValid;
 
-// Petty cash live fetch
-const pettyUSDEl = document.getElementById("pettyUSD");
-const pettyMVREl = document.getElementById("pettyMVR");
-db.collection("pettyCash").limit(1).onSnapshot(snap=>{
-  if(!snap.empty){
-    const data = snap.docs[0].data();
-    pettyUSDEl.textContent = Number(data.USD||0).toFixed(2);
-    pettyMVREl.textContent = Number(data.MVR||0).toFixed(2);
-    updateSummary();
-  }
-});
+            if(!countsValid){
+                openBtn.disabled = true;
+                closeBtn.disabled = true;
+                return;
+            }
 
-// Reconciliation summary
-function updateSummary(){
-  const totalCashUSD = Number(totalUSDEl.textContent) + Number(document.getElementById("usdGrandTotal").textContent);
-  const totalCashMVR = Number(totalMVREl.textContent) + Number(document.getElementById("mvrGrandTotal").textContent);
-  const totalPettyUSD = Number(pettyUSDEl.textContent) + Number(document.getElementById("pettyUSDGrandTotal").textContent);
-  const totalPettyMVR = Number(pettyMVREl.textContent) + Number(document.getElementById("pettyMVRGrandTotal").textContent);
+            // If counts are valid, enable appropriate button based on cashier status
+            if(activeCashierId){
+                openBtn.disabled = true;
+                closeBtn.disabled = false;
+            } else {
+                openBtn.disabled = false;
+                closeBtn.disabled = true;
+            }
+        }
 
-  document.getElementById("totalCashUSD").textContent = totalCashUSD.toFixed(2);
-  document.getElementById("totalCashMVR").textContent = totalCashMVR.toFixed(2);
-  document.getElementById("totalPettyUSD").textContent = totalPettyUSD.toFixed(2);
-  document.getElementById("totalPettyMVR").textContent = totalPettyMVR.toFixed(2);
-  document.getElementById("grandTotalUSD").textContent = (totalCashUSD + totalPettyUSD).toFixed(2);
-  document.getElementById("grandTotalMVR").textContent = (totalCashMVR + totalPettyMVR).toFixed(2);
-}
-</script>
+        // Popup logic
+        let actionType = null; // "open" or "close"
+        function showAuthPopup(type){ 
+            actionType = type; 
+            document.getElementById("authPopup").style.display="flex"; 
+            document.getElementById("popupUsername").value = "";
+            document.getElementById("popupPassword").value = "";
+            document.getElementById("popupUsername").focus();
+        }
+        
+        function hideAuthPopup(){ 
+            document.getElementById("authPopup").style.display="none"; 
+        }
+
+        // Button events
+        openBtn.addEventListener("click", ()=>showAuthPopup("open"));
+        closeBtn.addEventListener("click", ()=>showAuthPopup("close"));
+
+        document.getElementById("popupSubmit").addEventListener("click", ()=>{
+            const username = document.getElementById("popupUsername").value;
+            const password = document.getElementById("popupPassword").value;
+
+            const user = users.find(u => u.username===username && u.password===password);
+            if(!user){ 
+                alert("Invalid credentials"); 
+                return; 
+            }
+
+            if(actionType==="open"){
+                if(activeCashierId){
+                    alert("Cashier already active");
+                    hideAuthPopup();
+                    return;
+                }
+                db.collection("cashier").add({
+                    activeCashier: username,
+                    openedAt: firebase.firestore.FieldValue.serverTimestamp()
+                }).then(()=>{
+                    alert("Cashier opened successfully"); 
+                    hideAuthPopup();
+                });
+            } else if(actionType==="close"){
+                if(!activeCashierId){
+                    alert("No active cashier");
+                    hideAuthPopup();
+                    return;
+                }
+                db.collection("cashier").doc(activeCashierId).update({
+                    activeCashier: "",
+                    closedAt: firebase.firestore.FieldValue.serverTimestamp()
+                }).then(()=>{
+                    alert("Cashier closed successfully"); 
+                    hideAuthPopup();
+                });
+            }
+        });
+
+        // Close popup when clicking outside
+        document.getElementById("authPopup").addEventListener("click", function(e) {
+            if (e.target === this) {
+                hideAuthPopup();
+            }
+        });
+    </script>
 </body>
 </html>
