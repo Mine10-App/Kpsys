@@ -3,1042 +3,774 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Payment Entry</title>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<title>New Payment</title>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+<script src="fire2.js"></script>
+<script src="rate.js"></script>
+<script src="Co.js"></script>
+<script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
 <style>
-  :root {
-    --primary: #4361ee;
-    --secondary: #3f37c9;
-    --success: #4cc9f0;
-    --light: #f8f9fa;
-    --dark: #212529;
-    --gray: #6c757d;
-    --border: #dee2e6;
-    --shadow: 0 4px 20px rgba(0,0,0,0.08);
-    --radius: 12px;
-    --transition: all 0.3s ease;
-  }
+:root {
+  --gold: #D4AF37;
+  --gold-light: #F5E8C8;
+  --gold-dark: #B8860B;
+  --white: #FFFFFF;
+  --light-gray: #F8F9FA;
+  --medium-gray: #E9ECEF;
+  --dark-gray: #495057;
+  --text-color: #333333;
+  --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  --border-radius: 8px;
+  --error-color: #dc3545;
+  --success-color: #28a745;
+}
 
-  * {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-  }
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
 
-  body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background: linear-gradient(135deg, #f5f7fa 0%, #e4e8f0 100%);
-    color: var(--dark);
-    line-height: 1.6;
-    padding: 20px;
-    min-height: 100vh;
-  }
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: var(--light-gray);
+  color: var(--text-color);
+  line-height: 1.6;
+  padding: 20px;
+  min-height: 100vh;
+}
 
-  .container {
-    max-width: 900px;
-    margin: 0 auto;
-  }
+.container {
+  max-width: 1000px;
+  margin: 0 auto;
+}
 
-  .header {
-    text-align: center;
-    margin-bottom: 30px;
-  }
+h2 {
+  color: var(--gold-dark);
+  font-size: 2.2rem;
+  margin-bottom: 20px;
+  text-align: center;
+}
 
-  .header h1 {
-    color: var(--primary);
-    font-weight: 700;
-    margin-bottom: 8px;
-    font-size: 28px;
-  }
+.card {
+  background: var(--white);
+  padding: 25px;
+  border-radius: var(--border-radius);
+  margin-bottom: 25px;
+  box-shadow: var(--shadow);
+  border-top: 3px solid var(--gold);
+}
 
-  .header p {
-    color: var(--gray);
-    font-size: 16px;
-  }
+.card-header {
+  font-weight: bold;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--gold-dark);
+  font-size: 1.2rem;
+}
 
-  .card {
-    background: white;
-    border-radius: var(--radius);
-    box-shadow: var(--shadow);
-    overflow: hidden;
-    margin-bottom: 25px;
-  }
+.card-header i {
+  color: var(--gold);
+}
 
-  .card-header {
-    background: var(--primary);
-    color: white;
-    padding: 16px 20px;
-    font-weight: 600;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
+.form-group {
+  margin-bottom: 20px;
+}
 
-  .card-body {
-    padding: 25px;
-  }
+.form-label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 600;
+  color: var(--dark-gray);
+}
 
+input, select {
+  width: 100%;
+  padding: 12px 15px;
+  border: 1px solid var(--medium-gray);
+  border-radius: var(--border-radius);
+  font-size: 1rem;
+  transition: all 0.3s ease;
+  background-color: var(--light-gray);
+}
+
+input:focus, select:focus {
+  outline: none;
+  border-color: var(--gold);
+  box-shadow: 0 0 0 2px rgba(212, 175, 55, 0.2);
+  background-color: var(--white);
+}
+
+input[readonly] {
+  background-color: var(--medium-gray);
+  color: var(--dark-gray);
+}
+
+.btn {
+  background: var(--gold);
+  color: var(--white);
+  padding: 14px 20px;
+  border: none;
+  border-radius: var(--border-radius);
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  margin-top: 10px;
+}
+
+.btn:hover {
+  background: var(--gold-dark);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.btn:active {
+  transform: translateY(0);
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 20px;
+}
+
+.input-icon {
+  position: relative;
+}
+
+.input-icon i {
+  position: absolute;
+  left: 15px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--dark-gray);
+}
+
+.input-icon input {
+  padding-left: 45px;
+}
+
+.section-title {
+  margin-top: 25px;
+  margin-bottom: 15px;
+  font-weight: bold;
+  color: var(--gold-dark);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.totals-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 15px;
+  margin-top: 15px;
+}
+
+.total-item {
+  display: flex;
+  justify-content: space-between;
+  font-weight: bold;
+  padding: 10px 15px;
+  background-color: var(--gold-light);
+  border-radius: var(--border-radius);
+  border-left: 3px solid var(--gold);
+}
+
+.user-info {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 15px;
+  margin-bottom: 10px;
+  background-color: var(--gold-light);
+  padding: 15px;
+  border-radius: var(--border-radius);
+  border-left: 4px solid var(--gold);
+}
+
+.user-info p {
+  margin: 0;
+  padding: 8px 12px;
+  font-weight: 500;
+}
+
+.user-info strong {
+  color: var(--gold-dark);
+}
+
+.passenger-count {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+.hidden {
+  display: none !important;
+}
+
+#receiptContainer {
+  display: none;
+  background: var(--white);
+  padding: 25px;
+  border-radius: var(--border-radius);
+  margin-top: 25px;
+  box-shadow: var(--shadow);
+  border-top: 3px solid var(--gold);
+}
+
+.receipt {
+  width: 100%;
+  max-width: 350px;
+  margin: 0 auto;
+  background: white;
+  border: 1px solid var(--medium-gray);
+  border-radius: var(--border-radius);
+  padding: 20px;
+  font-family: 'Courier New', monospace;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.receipt-header {
+  text-align: center;
+  margin-bottom: 15px;
+  padding-bottom: 10px;
+  border-bottom: 1px dashed var(--medium-gray);
+}
+
+.receipt-header .company {
+  font-weight: bold;
+  font-size: 18px;
+  margin-bottom: 5px;
+}
+
+.receipt-header .details {
+  font-size: 12px;
+  color: var(--dark-gray);
+}
+
+.receipt-body {
+  margin-bottom: 15px;
+  padding-bottom: 10px;
+  border-bottom: 1px dashed var(--medium-gray);
+}
+
+.receipt-line {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 5px;
+  font-size: 14px;
+}
+
+.receipt-line.label {
+  font-weight: bold;
+  margin-top: 8px;
+}
+
+.receipt-footer {
+  text-align: center;
+  font-size: 11px;
+  color: var(--dark-gray);
+  margin-top: 15px;
+}
+
+.receipt-buttons {
+  display: flex;
+  gap: 15px;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+.receipt-buttons .btn {
+  width: auto;
+  min-width: 140px;
+  margin-top: 0;
+}
+
+@media (max-width: 768px) {
   .form-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 20px;
+    grid-template-columns: 1fr;
   }
-
-  .form-group {
-    margin-bottom: 18px;
+  
+  .user-info {
+    grid-template-columns: 1fr;
   }
-
-  .form-group label {
-    display: block;
-    margin-bottom: 8px;
-    font-weight: 600;
-    color: var(--dark);
-    font-size: 14px;
+  
+  .passenger-count {
+    grid-template-columns: 1fr;
   }
-
-  .form-control {
+  
+  .receipt-buttons {
+    flex-direction: column;
+  }
+  
+  .receipt-buttons .btn {
     width: 100%;
-    padding: 12px 15px;
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    font-size: 15px;
-    transition: var(--transition);
-    background-color: var(--light);
   }
+}
 
-  .form-control:focus {
-    outline: none;
-    border-color: var(--primary);
-    box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.15);
-  }
+.balance-positive {
+  color: var(--success-color);
+}
 
-  .form-control[readonly] {
-    background-color: #f1f3f9;
-    color: var(--gray);
-  }
+.balance-negative {
+  color: var(--error-color);
+}
 
-  .info-badge {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    background: #f1f3f9;
-    padding: 12px 15px;
-    border-radius: 8px;
-    font-size: 15px;
-  }
-
-  .info-badge i {
-    color: var(--primary);
-  }
-
-  .divider {
-    height: 1px;
-    background: var(--border);
-    margin: 20px 0;
-  }
-
-  .section-title {
-    font-weight: 700;
-    margin: 25px 0 15px 0;
-    color: var(--primary);
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    font-size: 18px;
-  }
-
-  .totals-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 15px;
-    background: #f8f9fc;
-    padding: 20px;
-    border-radius: var(--radius);
-    margin-top: 10px;
-  }
-
-  .total-item {
-    text-align: center;
-  }
-
-  .total-item label {
-    display: block;
-    font-weight: 600;
-    margin-bottom: 8px;
-    color: var(--gray);
-    font-size: 14px;
-  }
-
-  .total-value {
-    font-size: 20px;
-    font-weight: 700;
-    color: var(--primary);
-  }
-
-  .btn {
-    display: inline-block;
-    padding: 12px 20px;
-    background: var(--primary);
-    color: white;
-    border: none;
-    border-radius: 8px;
-    font-size: 15px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: var(--transition);
-    text-align: center;
-  }
-
-  .btn:hover {
-    background: var(--secondary);
-    transform: translateY(-2px);
-    box-shadow: 0 6px 12px rgba(0,0,0,0.15);
-  }
-
-  .btn i {
-    margin-right: 8px;
-  }
-
-  .btn-full {
-    display: block;
-    width: 100%;
-    padding: 16px;
-  }
-
-  .btn-success {
-    background: #28a745;
-  }
-
-  .btn-success:hover {
-    background: #218838;
-  }
-
-  .btn-secondary {
-    background: #6c757d;
-  }
-
-  .btn-secondary:hover {
-    background: #5a6268;
-  }
-
-  .input-icon {
-    position: relative;
-  }
-
-  .input-icon i {
-    position: absolute;
-    left: 15px;
-    top: 50%;
-    transform: translateY(-50%);
-    color: var(--gray);
-  }
-
-  .input-icon .form-control {
-    padding-left: 45px;
-  }
-
-  /* Cash payment fields */
-  .cash-payment-fields {
-    display: none;
-    grid-template-columns: 1fr 1fr;
-    gap: 15px;
-    margin-top: 15px;
-    padding: 15px;
-    background: #f8f9fc;
-    border-radius: var(--radius);
-    border-left: 4px solid #28a745;
-  }
-
-  .cash-payment-fields.visible {
-    display: grid;
-  }
-
-  /* Receipt styles */
-  #receiptContainer {
-    display: none;
-    margin-top: 30px;
-  }
-
-  .receipt {
-    width: 80mm;
-    padding: 10px;
-    font-family: 'Courier New', monospace;
-    font-size: 14px;
-    background: white;
-    margin: 0 auto;
-  }
-
-  .receipt-header {
-    text-align: center;
-    margin-bottom: 15px;
-    border-bottom: 1px dashed #000;
-    padding-bottom: 10px;
-  }
-
-  .receipt-header h2 {
-    font-size: 18px;
-    margin-bottom: 5px;
-    text-transform: uppercase;
-  }
-
-  .receipt-details {
-    margin-bottom: 15px;
-  }
-
-  .receipt-line {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 3px;
-  }
-
-  .receipt-divider {
-    border-top: 1px dashed #000;
-    margin: 10px 0;
-  }
-
-  .receipt-total {
-    font-weight: bold;
-    text-transform: uppercase;
-  }
-
-  .receipt-footer {
-    text-align: center;
-    margin-top: 15px;
-    font-size: 12px;
-    border-top: 1px dashed #000;
-    padding-top: 10px;
-  }
-
-  .receipt-controls {
-    display: flex;
-    justify-content: center;
-    gap: 15px;
-    margin-top: 20px;
-  }
-
-  .validity-notice {
-    font-size: 11px;
-    margin-top: 10px;
-    font-style: italic;
-    color: #666;
-  }
-
-  @media (max-width: 768px) {
-    .form-grid {
-      grid-template-columns: 1fr;
-    }
-    
-    .totals-grid {
-      grid-template-columns: 1fr;
-    }
-    
-    .cash-payment-fields {
-      grid-template-columns: 1fr;
-    }
-    
-    .card-body {
-      padding: 20px 15px;
-    }
-    
-    .receipt-controls {
-      flex-direction: column;
-    }
-  }
-
-  @media print {
-    body, html {
-      height: auto;
-      margin: 0;
-      padding: 0;
-    }
-    
-    body * {
-      visibility: hidden;
-    }
-    
-    #receiptContainer, #receiptContainer * {
-      visibility: visible;
-    }
-    
-    #receiptContainer {
-      display: block !important;
-      position: absolute;
-      left: 0;
-      top: 0;
-      width: 100%;
-      height: 100%;
-      background: white;
-      margin: 0;
-      padding: 0;
-    }
-    
-    .no-print {
-      display: none !important;
-    }
-    
-    .receipt-controls {
-      display: none !important;
-    }
-    
-    .receipt {
-      box-shadow: none;
-      margin: 0;
-      width: 100%;
-      max-width: 80mm;
-    }
-  }
+.balance-zero {
+  color: var(--gold-dark);
+}
 </style>
 </head>
 <body>
 
 <div class="container">
-  <div class="header">
-    <h1>Payment Entry</h1>
-    <p>Enter passenger details and process payments</p>
+  <h2>New Payment</h2>
+
+  <!-- User / Shift Info -->
+  <div class="card">
+    <div class="user-info">
+      <p><strong>User:</strong> <span id="userNameField"></span> (<span id="userLevelField"></span>)</p>
+      <p><strong>Date:</strong> <span id="dateField"></span></p>
+      <p><strong>Current Shift:</strong> <span id="shiftField"></span></p>
+    </div>
   </div>
 
   <form id="paymentForm">
-    <!-- Header Info Card -->
-    <div class="card">
-      <div class="card-header">
-        <i class="fas fa-info-circle"></i>
-        <span>Payment Information</span>
+
+  <!-- QR Code Card -->
+  <div class="card">
+    <div class="card-header"><i class="fas fa-qrcode"></i> QR Code</div>
+    <div class="form-group">
+      <div class="input-icon">
+        <i class="fas fa-qrcode"></i>
+        <input type="text" id="qrCode" placeholder="Scan or paste QR code">
       </div>
-      <div class="card-body">
-        <div class="form-grid">
-          <div class="form-group">
-            <label for="date">Date</label>
-            <input type="date" id="date" class="form-control">
-          </div>
-          
-          <div class="form-group">
-            <label>Login User</label>
-            <div class="info-badge">
-              <i class="fas fa-user"></i>
-              <span id="loginUser">Abdulla</span>
-            </div>
-          </div>
-          
-          <div class="form-group">
-            <label>Selected Shift</label>
-            <div class="info-badge">
-              <i class="fas fa-clock"></i>
-              <span id="shift">Morning</span>
-            </div>
-          </div>
+    </div>
+  </div>
+
+  <!-- Passenger Info Card -->
+  <div class="card">
+    <div class="card-header"><i class="fas fa-users"></i> Passenger Information</div>
+    <div class="form-grid">
+      <div class="form-group">
+        <label for="name" class="form-label">Passenger Name</label>
+        <div class="input-icon">
+          <i class="fas fa-user"></i>
+          <input type="text" id="name" placeholder="Full name">
         </div>
-        
-        <div class="form-group">
-          <label for="qrCode">QR Code</label>
-          <div class="input-icon">
-            <i class="fas fa-qrcode"></i>
-            <input type="text" id="qrCode" class="form-control" placeholder="Scan or paste QR code">
-          </div>
+      </div>
+      <div class="form-group">
+        <label for="flight" class="form-label">Flight Number</label>
+        <div class="input-icon">
+          <i class="fas fa-plane"></i>
+          <input type="text" id="flight" placeholder="Flight number">
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="seat" class="form-label">Seat Number</label>
+        <div class="input-icon">
+          <i class="fas fa-chair"></i>
+          <input type="text" id="seat" placeholder="Seat number">
+        </div>
+      </div>
+      <div class="form-group passenger-count">
+        <div>
+          <label for="adultCount" class="form-label">Adults</label>
+          <input type="number" id="adultCount" value="0" min="0">
+        </div>
+        <div>
+          <label for="kidCount" class="form-label">Kids</label>
+          <input type="number" id="kidCount" value="0" min="0">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Payment Info Card -->
+  <div class="card">
+    <div class="card-header"><i class="fas fa-credit-card"></i> Payment Details</div>
+    <div class="form-grid">
+      <div class="form-group">
+        <label for="paymentType" class="form-label">Payment Type</label>
+        <select id="paymentType">
+          <option value="Card">Credit/Debit Card</option>
+          <option value="Cash">Cash</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="currency" class="form-label">Currency</label>
+        <select id="currency">
+          <option value="USD">USD ($)</option>
+          <option value="MVR">MVR</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="rate" class="form-label">Rate Type</label>
+        <select id="rate">
+          <option value="A">Rate A</option>
+          <option value="B">Rate B</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Cash Payment Fields - Hidden by default -->
+    <div id="cashPaymentFields" class="hidden">
+      <div class="form-group">
+        <label for="paidAmount" class="form-label">Paid Amount</label>
+        <div class="input-icon">
+          <i class="fas fa-money-bill-wave"></i>
+          <input type="number" id="paidAmount" placeholder="0.00" min="0" step="0.01">
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="balanceAmount" class="form-label">Balance</label>
+        <div class="input-icon">
+          <i class="fas fa-coins"></i>
+          <input type="text" id="balanceAmount" readonly>
         </div>
       </div>
     </div>
 
-    <!-- Passenger Info Card -->
-    <div class="card">
-      <div class="card-header">
-        <i class="fas fa-users"></i>
-        <span>Passenger Information</span>
-      </div>
-      <div class="card-body">
-        <div class="form-grid">
-          <div class="form-group">
-            <label for="name">Passenger Name</label>
-            <div class="input-icon">
-              <i class="fas fa-user"></i>
-              <input type="text" id="name" class="form-control" placeholder="Full name">
-            </div>
-          </div>
-          
-          <div class="form-group">
-            <label for="flight">Flight Number</label>
-            <div class="input-icon">
-              <i class="fas fa-plane"></i>
-              <input type="text" id="flight" class="form-control" placeholder="Flight number">
-            </div>
-          </div>
-          
-          <div class="form-group">
-            <label for="seat">Seat Number</label>
-            <div class="input-icon">
-              <i class="fas fa-chair"></i>
-              <input type="text" id="seat" class="form-control" placeholder="Seat number">
-            </div>
-          </div>
-        </div>
-        
-        <div class="form-grid">
-          <div class="form-group">
-            <label for="adultCount">Number of Adults</label>
-            <input type="number" id="adultCount" class="form-control" value="0" min="0">
-          </div>
-          
-          <div class="form-group">
-            <label for="kidCount">Number of Kids</label>
-            <input type="number" id="kidCount" class="form-control" value="0" min="0">
-          </div>
-        </div>
-      </div>
+    <h3 class="section-title"><i class="fas fa-calculator"></i> Payment Summary</h3>
+    <div class="totals-grid">
+      <div class="total-item"><label>Subtotal</label><span id="rateField">$0.00</span></div>
+      <div class="total-item"><label>GST</label><span id="gstField">$0.00</span></div>
+      <div class="total-item"><label>Total Amount</label><span id="totalField">$0.00</span></div>
     </div>
+  </div>
 
-    <!-- Payment Info Card -->
-    <div class="card">
-      <div class="card-header">
-        <i class="fas fa-credit-card"></i>
-        <span>Payment Details</span>
-      </div>
-      <div class="card-body">
-        <div class="form-grid">
-          <div class="form-group">
-            <label for="paymentType">Payment Type</label>
-            <select id="paymentType" class="form-control">
-              <option value="Card">Credit/Debit Card</option>
-              <option value="Cash">Cash</option>
-            </select>
-          </div>
-          
-          <div class="form-group">
-            <label for="currency">Currency</label>
-            <select id="currency" class="form-control">
-              <option value="USD">USD ($)</option>
-              <option value="MVR">MVR</option>
-            </select>
-          </div>
-          
-          <div class="form-group">
-            <label for="rate">Rate Type</label>
-            <select id="rate" class="form-control">
-              <option value="A">Rate A</option>
-              <option value="B">Rate B</option>
-            </select>
-          </div>
-        </div>
-        
-        <!-- Cash Payment Fields -->
-        <div id="cashPaymentFields" class="cash-payment-fields">
-          <div class="form-group">
-            <label for="paidAmount">Paid Amount</label>
-            <div class="input-icon">
-              <i class="fas fa-money-bill-wave"></i>
-              <input type="number" id="paidAmount" class="form-control" placeholder="0.00" min="0" step="0.01">
-            </div>
-          </div>
-          
-          <div class="form-group">
-            <label for="balanceAmount">Balance</label>
-            <div class="input-icon">
-              <i class="fas fa-coins"></i>
-              <input type="text" id="balanceAmount" class="form-control" readonly>
-            </div>
-          </div>
-        </div>
-        
-        <div class="divider"></div>
-        
-        <h3 class="section-title">
-          <i class="fas fa-calculator"></i>
-          Payment Summary
-        </h3>
-        
-        <div class="totals-grid">
-          <div class="total-item">
-            <label>Subtotal</label>
-            <div class="total-value" id="rateField">$0.00</div>
-          </div>
-          
-          <div class="total-item">
-            <label>GST</label>
-            <div class="total-value" id="gstField">$0.00</div>
-          </div>
-          
-          <div class="total-item">
-            <label>Total Amount</label>
-            <div class="total-value" id="totalField">$0.00</div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <button type="button" id="saveBtn" class="btn btn-full">
-      <i class="fas fa-check-circle"></i>
-      Process Payment
-    </button>
+  <button type="button" id="saveBtn" class="btn"><i class="fas fa-check-circle"></i> Process Payment</button>
   </form>
 
-  <!-- Receipt Container (Hidden until payment is processed) -->
-  <div id="receiptContainer" class="no-print">
-    <div class="receipt" id="receipt">
+  <div id="receiptContainer">
+    <div class="receipt" id="receiptContent">
       <div class="receipt-header">
-        <h2 id="company-name">Koveli Lounge</h2>
-        <p id="company-address">Velana International Airport</p>
-        <p id="company-phone">+123 456 7890</p>
+        <div class="company">${companyInfo.name}</div>
+        <div class="details">
+          <div>Receipt No: <span id="receiptNoField"></span></div>
+          <div>Date: <span id="receiptDateField"></span> | Shift: <span id="receiptShiftField"></span></div>
+          <div>User: <span id="receiptUserField"></span></div>
+        </div>
       </div>
       
-      <div class="receipt-details">
-        <div class="receipt-line">
-          <span>Receipt #: <span id="receipt-number"></span></span>
-        </div>
-        <div class="receipt-line">
-          <span>Date: <span id="receipt-date"></span></span>
-        </div>
-        <div class="receipt-line">
-          <span>Time: <span id="receipt-time"></span></span>
-        </div>
+      <div class="receipt-body">
+        <div class="receipt-line"><span>Passenger:</span> <span id="receiptPassengerField"></span></div>
+        <div class="receipt-line"><span>Flight:</span> <span id="receiptFlightField"></span></div>
+        <div class="receipt-line"><span>Seat:</span> <span id="receiptSeatField"></span></div>
+        <div class="receipt-line"><span>Adults:</span> <span id="receiptAdultsField"></span></div>
+        <div class="receipt-line"><span>Kids:</span> <span id="receiptKidsField"></span></div>
+        <div class="receipt-line"><span>Currency:</span> <span id="receiptCurrencyField"></span></div>
+        <div class="receipt-line"><span>Payment Type:</span> <span id="receiptPaymentTypeField"></span></div>
         
-        <div class="receipt-divider"></div>
-        
-        <div class="receipt-line">
-          <span>Passenger: <span id="receipt-name"></span></span>
+        <div class="receipt-line label"><span>Payment Details</span></div>
+        <div class="receipt-line"><span>Subtotal:</span> <span id="receiptSubtotalField"></span></div>
+        <div class="receipt-line"><span>GST:</span> <span id="receiptGstField"></span></div>
+        <div class="receipt-line" style="font-weight: bold; border-top: 1px dashed #ccc; padding-top: 5px;">
+          <span>Total:</span> <span id="receiptTotalField"></span>
         </div>
-        <div class="receipt-line">
-          <span>Flight: <span id="receipt-flight"></span></span>
-        </div>
-        <div class="receipt-line">
-          <span>Seat: <span id="receipt-seat"></span></span>
-        </div>
-        
-        <div class="receipt-divider"></div>
-        
-        <div class="receipt-line">
-          <span>Adults: <span id="receipt-adults"></span> x <span id="receipt-adult-rate"></span></span>
-        </div>
-        <div class="receipt-line">
-          <span>Children: <span id="receipt-kids"></span> x <span id="receipt-kid-rate"></span></span>
-        </div>
-        
-        <div class="receipt-divider"></div>
-        
-        <div class="receipt-line">
-          <span>Subtotal:</span>
-          <span id="receipt-subtotal"></span>
-        </div>
-        <div class="receipt-line">
-          <span>GST:</span>
-          <span id="receipt-gst"></span>
-        </div>
-        <div class="receipt-line receipt-total">
-          <span>TOTAL:</span>
-          <span id="receipt-total"></span>
-        </div>
-        
-        <div class="receipt-divider"></div>
-        
-        <div class="receipt-line">
-          <span>Payment Method:</span>
-          <span id="receipt-payment-type"></span>
-        </div>
-        <div id="receipt-cash-details">
-          <div class="receipt-line">
-            <span>Paid Amount:</span>
-            <span id="receipt-paid-amount"></span>
-          </div>
-          <div class="receipt-line">
-            <span>Balance:</span>
-            <span id="receipt-balance-amount"></span>
-          </div>
-        </div>
-        <div class="receipt-line">
-          <span>Currency:</span>
-          <span id="receipt-currency"></span>
-        </div>
+        <div class="receipt-line"><span>Paid:</span> <span id="receiptPaidField"></span></div>
+        <div class="receipt-line"><span>Balance:</span> <span id="receiptBalanceField"></span></div>
       </div>
       
       <div class="receipt-footer">
-        <p class="validity-notice">This package is valid for three hours from the time of purchase</p>
-        <p>Thank you for your business!</p>
+        This package is valid for three hours.
       </div>
     </div>
     
-    <div class="receipt-controls">
-      <button id="printBtn" class="btn btn-success">
-        <i class="fas fa-print"></i>
-        Print Receipt
-      </button>
-      <button id="newPaymentBtn" class="btn btn-secondary">
-        <i class="fas fa-plus-circle"></i>
-        New Payment
-      </button>
+    <div class="receipt-buttons">
+      <button id="printReceiptBtn" class="btn"><i class="fas fa-print"></i> Print Receipt</button>
+      <button id="newPaymentBtn" class="btn"><i class="fas fa-plus-circle"></i> New Payment</button>
     </div>
   </div>
 </div>
 
-<!-- Firebase and external scripts -->
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-<script src="fire2.js"></script> <!-- Your Firebase config -->
-<script src="rate.js"></script> <!-- Your rates data -->
-<script src="Co.js"></script> <!-- Your company info -->
-
 <script>
+// ---------- DOM & USER ----------
+const shiftsRef = window.db.collection("shifts");
+const loggedUser = JSON.parse(localStorage.getItem('loggedInUser'));
+const userNameField = document.getElementById('userNameField');
+const userLevelField = document.getElementById('userLevelField');
+const dateField = document.getElementById('dateField');
+const shiftField = document.getElementById('shiftField');
+const paidAmountInput = document.getElementById('paidAmount');
+const totalField = document.getElementById('totalField');
+const balanceField = document.getElementById('balanceAmount');
+const adultCountInput = document.getElementById("adultCount");
+const kidCountInput = document.getElementById("kidCount");
+const rateSelect = document.getElementById("rate");
+const currencySelect = document.getElementById("currency");
+const rateField = document.getElementById("rateField");
+const gstField = document.getElementById("gstField");
+const qrInput = document.getElementById("qrCode");
+const nameField = document.getElementById("name");
+const flightField = document.getElementById("flight");
+const seatField = document.getElementById("seat");
+const paymentTypeSelect = document.getElementById("paymentType");
+const cashPaymentFields = document.getElementById("cashPaymentFields");
 
-  // Load login user
-  const loginUserField = document.getElementById("loginUser");
-  const loginUser = localStorage.getItem("loginUser") || "Guest";
-  loginUserField.textContent = loginUser;
+// ---------- USER INFO ----------
+if(!loggedUser){
+  alert("No user logged in.");
+  window.location.href="login.html";
+}
+userNameField.textContent = loggedUser.name;
+userLevelField.textContent = loggedUser.Level;
+dateField.textContent = new Date().toISOString().split('T')[0];
 
-  // ---------- LIVE SHIFT LOAD ----------
-  const shiftField = document.getElementById("shift");
-  async function loadCurrentShift() {
-    try {
-      const shiftQuery = await db.collection("shift")
-        .where("status", "==", "open")
-        .limit(1)
-        .get();
-      if (!shiftQuery.empty) {
-        const shiftData = shiftQuery.docs[0].data();
-        shiftField.textContent = shiftData.name || "Unknown";
-      } else {
-        shiftField.textContent = "No Shift Open";
-      }
-    } catch (err) {
-      console.error("Error fetching shift:", err);
-      shiftField.textContent = "Error";
+// Disable rate field if not supervisor
+if(loggedUser.Level.toLowerCase() !== "supervisor"){
+    rateSelect.disabled = true;
+}
+
+// ---------- CURRENT SHIFT ----------
+async function fetchCurrentShift(){
+    const today = new Date().toISOString().split('T')[0];
+    const snapshot = await shiftsRef.where("currentDate","==",today).get();
+    let shiftName = "No shift open";
+    if(!snapshot.empty){
+        const data = snapshot.docs[0].data();
+        if(data.shift1status==="Open") shiftName = data.shift1name;
+        else if(data.shift2status==="Open") shiftName = data.shift2name;
     }
-  }
-  document.addEventListener("DOMContentLoaded", loadCurrentShift);
+    shiftField.textContent = shiftName;
+}
+fetchCurrentShift();
+setInterval(fetchCurrentShift,30000);
 
-  // Set current date
-  const dateField = document.getElementById("date");
-  dateField.value = new Date().toISOString().split('T')[0];
-
-  // Get all input fields
-  const qrInput = document.getElementById("qrCode");
-  const nameField = document.getElementById("name");
-  const flightField = document.getElementById("flight");
-  const seatField = document.getElementById("seat");
-  const currencyType = document.getElementById("currency");
-  const rateType = document.getElementById("rate");
-  const adultCount = document.getElementById("adultCount");
-  const kidCount = document.getElementById("kidCount");
-  const paymentTypeSelect = document.getElementById("paymentType");
-  const paidAmountField = document.getElementById("paidAmount");
-  const balanceAmountField = document.getElementById("balanceAmount");
-  const cashPaymentFields = document.getElementById("cashPaymentFields");
-  const totalAdultsField = document.getElementById("rateField");
-  const gstField = document.getElementById("gstField");
-  const totalField = document.getElementById("totalField");
-
-  // Receipt elements
-  const receiptContainer = document.getElementById("receiptContainer");
-  const receiptNumber = document.getElementById("receipt-number");
-  const receiptDate = document.getElementById("receipt-date");
-  const receiptTime = document.getElementById("receipt-time");
-  const receiptName = document.getElementById("receipt-name");
-  const receiptFlight = document.getElementById("receipt-flight");
-  const receiptSeat = document.getElementById("receipt-seat");
-  const receiptAdults = document.getElementById("receipt-adults");
-  const receiptKids = document.getElementById("receipt-kids");
-  const receiptAdultRate = document.getElementById("receipt-adult-rate");
-  const receiptKidRate = document.getElementById("receipt-kid-rate");
-  const receiptSubtotal = document.getElementById("receipt-subtotal");
-  const receiptGst = document.getElementById("receipt-gst");
-  const receiptTotal = document.getElementById("receipt-total");
-  const receiptPaymentType = document.getElementById("receipt-payment-type");
-  const receiptCurrency = document.getElementById("receipt-currency");
-  const receiptPaidAmount = document.getElementById("receipt-paid-amount");
-  const receiptBalanceAmount = document.getElementById("receipt-balance-amount");
-  const receiptCashDetails = document.getElementById("receipt-cash-details");
-  const printBtn = document.getElementById("printBtn");
-  const newPaymentBtn = document.getElementById("newPaymentBtn");
-  const companyName = document.getElementById("company-name");
-  const companyAddress = document.getElementById("company-address");
-  const companyPhone = document.getElementById("company-phone");
-
-  // Set company info if available
-  if (typeof companyInfo !== 'undefined') {
-    companyName.textContent = companyInfo.name;
-    companyAddress.textContent = companyInfo.address;
-    companyPhone.textContent = companyInfo.phone;
-  }
-
-  // Receipt counter using localStorage for persistence
-  let receiptCounter = parseInt(localStorage.getItem('receiptCounter')) || 1000;
-
-  // Convert inputs to uppercase
-  [nameField, flightField, seatField].forEach(input => {
-    input.addEventListener("input", () => {
-      input.value = input.value.toUpperCase();
-    });
-  });
-
-  // Toggle cash payment fields based on payment type
-  paymentTypeSelect.addEventListener("change", function() {
-    if (this.value === "Cash") {
-      cashPaymentFields.classList.add("visible");
-      receiptCashDetails.style.display = "block";
-    } else {
-      cashPaymentFields.classList.remove("visible");
-      receiptCashDetails.style.display = "none";
-      // Clear cash fields
-      paidAmountField.value = "";
-      balanceAmountField.value = "";
-    }
-  });
-
-  // Calculate balance when paid amount changes
-  paidAmountField.addEventListener("input", function() {
-    const total = parseFloat(totalField.textContent.replace(/[^\d.-]/g, '')) || 0;
-    const paidAmount = parseFloat(this.value) || 0;
-    const balance = paidAmount - total;
-    
-    const currencySymbol = currencyType.value === 'USD' ? '$' : 'MVR ';
-    balanceAmountField.value = balance >= 0 ? 
-      `${currencySymbol}${balance.toFixed(2)}` : 
-      `-${currencySymbol}${Math.abs(balance).toFixed(2)}`;
-    
-    // Color coding for balance
-    if (balance < 0) {
-      balanceAmountField.style.color = '#dc3545'; // Red for negative balance
-    } else if (balance === 0) {
-      balanceAmountField.style.color = '#28a745'; // Green for exact amount
-    } else {
-      balanceAmountField.style.color = '#17a2b8'; // Blue for positive balance
-    }
-  });
-
-  // QR Code Parser
-  function parseQR(code){
+// ---------- QR PARSER ----------
+function parseQR(code){
     code = code.trim().toUpperCase().replace(/\s+/g,' ');
     const allParts = code.split(' ');
     let name="", flightNo="", seatNo="";
     if(code.startsWith("TKVCPO")){
-      const tkIndex = code.indexOf("TK0");
-      if(tkIndex!=-1){ 
-        flightNo=code.substring(tkIndex,tkIndex+6); 
-        name=code.substring(6,tkIndex);
-      }
-      const mlePos = code.indexOf("MLE");
-      if(mlePos!=-1){ 
-        const afterMLE = code.substring(mlePos).split(' ')[0]; 
-        if(afterMLE.length>=11) seatNo=afterMLE.substring(8,11);
-      }
-    } else {
-      name = allParts[0].substring(2);
-      const mleIndex = allParts.findIndex(w=>w.includes("MLE"));
-      if(mleIndex!=-1){
-        const mleWord = allParts[mleIndex];
-        const nextWord = (mleIndex+1<allParts.length)?allParts[mleIndex+1]:"";
-        flightNo = mleWord.slice(-2)+nextWord;
-        const partsAfterMLE = allParts.slice(mleIndex+1);
-        for(let w of partsAfterMLE){
-          if(w.length>=9 && !w.includes("QR") && !w.includes("MLE")){ 
-            seatNo = w.substring(5,w.length-4); 
-            break; 
-          }
+        const tkIndex = code.indexOf("TK0");
+        if(tkIndex!=-1){ 
+            flightNo = code.substring(tkIndex, tkIndex+6); 
+            name = code.substring(6, tkIndex);
         }
-      }
+        const mlePos = code.indexOf("MLE");
+        if(mlePos!=-1){ 
+            const afterMLE = code.substring(mlePos).split(' ')[0]; 
+            if(afterMLE.length>=11) seatNo = afterMLE.substring(8,11);
+        }
+    } else {
+        name = allParts[0].substring(2);
+        const mleIndex = allParts.findIndex(w=>w.includes("MLE"));
+        if(mleIndex!=-1){
+            const mleWord = allParts[mleIndex];
+            const nextWord = (mleIndex+1<allParts.length)?allParts[mleIndex+1]:"";
+            flightNo = mleWord.slice(-2)+nextWord;
+            const partsAfterMLE = allParts.slice(mleIndex+1);
+            for(let w of partsAfterMLE){
+                if(w.length>=9 && !w.includes("QR") && !w.includes("MLE")){ 
+                    seatNo = w.substring(5,w.length-4); 
+                    break; 
+                }
+            }
+        }
     }
     return {name, flightNo, seatNo};
-  }
-
-  // QR Code input handler
-  qrInput.addEventListener("change", ()=>{
+}
+qrInput.addEventListener("change",()=>{
     const parsed = parseQR(qrInput.value);
     if(parsed.name) nameField.value = parsed.name;
     if(parsed.flightNo) flightField.value = parsed.flightNo;
     if(parsed.seatNo) seatField.value = parsed.seatNo;
     qrInput.value='';
-  });
+});
 
-  // Calculate function
-  function calculate() {
-    const curr = currencyType.value;
-    const rate = rateType.value;
-    const adults = parseInt(adultCount.value) || 0;
-    const kids = parseInt(kidCount.value) || 0;
-    
-    // Use the rates from your rate.js file
-    const adultRate = rates[`Adult${rate}${curr}`]?.price || 0;
-    const kidRate = rates[`Kids${rate}${curr}`]?.price || 0;
-    const gstPercent = rates[`Adult${rate}${curr}`]?.GST || 0;
-    
-    const subtotal = adults * adultRate + kids * kidRate;
-    const gstAmount = subtotal * (gstPercent / 100);
-    const total = subtotal + gstAmount;
+// ---------- UPPERCASE INPUT ----------
+[nameField, flightField, seatField].forEach(input=>{
+    input.addEventListener("input",()=>input.value=input.value.toUpperCase());
+});
 
-    // Format currency display
-    const currencySymbol = curr === 'USD' ? '$' : 'MVR ';
-    totalAdultsField.textContent = currencySymbol + subtotal.toFixed(2);
-    gstField.textContent = currencySymbol + gstAmount.toFixed(2);
-    totalField.textContent = currencySymbol + total.toFixed(2);
+// ---------- CALCULATION ----------
+function calculateTotals(){
+    if(typeof rates==="undefined") return;
 
-    // Recalculate balance if paid amount exists
-    if (paymentTypeSelect.value === "Cash" && paidAmountField.value) {
-      const paidAmount = parseFloat(paidAmountField.value) || 0;
-      const balance = paidAmount - total;
-      
-      balanceAmountField.value = balance >= 0 ? 
-        `${currencySymbol}${balance.toFixed(2)}` : 
-        `-${currencySymbol}${Math.abs(balance).toFixed(2)}`;
-      
-      // Color coding for balance
-      if (balance < 0) {
-        balanceAmountField.style.color = '#dc3545';
-      } else if (balance === 0) {
-        balanceAmountField.style.color = '#28a745';
-      } else {
-        balanceAmountField.style.color = '#17a2b8';
-      }
+    const adults = parseInt(adultCountInput.value)||0;
+    const kids = parseInt(kidCountInput.value)||0;
+    const currency = currencySelect.value;
+    const rateType = rateSelect.value;
+
+    const adultKey = `Adult${rateType}${currency}`;
+    const kidKey = `Kids${rateType}${currency}`;
+
+    const adultPrice = rates[adultKey]?.price||0;
+    const kidPrice = rates[kidKey]?.price||0;
+    const gstRate = rates[adultKey]?.GST||0;
+
+    const subtotal = adults*adultPrice + kids*kidPrice;
+    const gst = subtotal * (gstRate/100);
+    const total = subtotal + gst;
+
+    const symbol = currency==="USD"?"$":"MVR ";
+    rateField.textContent = `${symbol}${subtotal.toFixed(2)}`;
+    gstField.textContent = `${symbol}${gst.toFixed(2)}`;
+    totalField.textContent = `${symbol}${total.toFixed(2)}`;
+
+    updateBalance();
+}
+
+function updateBalance(){
+    const total = parseFloat(totalField.textContent.replace(/[^0-9.-]+/g,""))||0;
+
+    // If payment type is not cash, hide paid & balance and set balance to 0
+    if(paymentTypeSelect.value.toLowerCase()!=="cash"){
+        cashPaymentFields.classList.add("hidden");
+        balanceField.value = 0;
+    } else {
+        cashPaymentFields.classList.remove("hidden");
+        const paid = parseFloat(paidAmountInput.value)||0;
+        const balance = paid-total;
+        const symbol = currencySelect.value==="USD"?"$":"MVR ";
+        balanceField.value = `${symbol}${balance.toFixed(2)}`;
+        
+        // Apply color coding
+        balanceField.classList.remove("balance-positive", "balance-negative", "balance-zero");
+        if (balance < 0) {
+            balanceField.classList.add("balance-negative");
+        } else if (balance === 0) {
+            balanceField.classList.add("balance-zero");
+        } else {
+            balanceField.classList.add("balance-positive");
+        }
     }
+}
 
-    return {
-      total,
-      subtotal,
-      gstAmount,
-      adultRate,
-      kidRate,
-      currencySymbol
-    };
+// ---------- LISTENERS ----------
+[adultCountInput, kidCountInput, rateSelect, currencySelect, paidAmountInput, paymentTypeSelect].forEach(el=>{
+    el.addEventListener("input",calculateTotals);
+});
+paymentTypeSelect.addEventListener("change",calculateTotals);
+
+// INITIAL CALC
+window.addEventListener('load',()=>{
+    if(typeof rates!=="undefined") calculateTotals();
+    else setTimeout(calculateTotals,100);
+});
+
+const paymentsRef = window.db.collection("payments");
+let lastReceiptNo = 0;
+
+// ---------- GET LAST RECEIPT NO ----------
+async function getLastReceiptNo(){
+  const snapshot = await paymentsRef.orderBy("receiptNo","desc").limit(1).get();
+  if(!snapshot.empty){
+    lastReceiptNo = snapshot.docs[0].data().receiptNo;
+  }
+}
+getLastReceiptNo();
+
+// ---------- SAVE & SHOW RECEIPT ----------
+document.getElementById("saveBtn").addEventListener("click", async ()=>{
+  lastReceiptNo++;
+
+  // Collect data
+  const data = {
+    receiptNo: lastReceiptNo,
+    user: loggedUser.name,
+    level: loggedUser.Level,
+    date: dateField.textContent,
+    shift: shiftField.textContent,
+    passenger: nameField.value,
+    flight: flightField.value,
+    seat: seatField.value,
+    adults: parseInt(adultCountInput.value)||0,
+    kids: parseInt(kidCountInput.value)||0,
+    rateType: rateSelect.value,
+    currency: currencySelect.value,
+    paymentType: paymentTypeSelect.value,
+    subtotal: parseFloat(rateField.textContent.replace(/[^0-9.-]+/g,""))||0,
+    gst: parseFloat(gstField.textContent.replace(/[^0-9.-]+/g,""))||0,
+    total: parseFloat(totalField.textContent.replace(/[^0-9.-]+/g,""))||0,
+    paid: parseFloat(paidAmountInput.value)||0,
+    balance: parseFloat(balanceField.value.replace(/[^0-9.-]+/g,""))||0
+  };
+
+  // Save to Firestore
+  await paymentsRef.doc("receipt_"+lastReceiptNo).set(data);
+
+  // Build receipt
+  const symbol = data.currency==="USD"?"$":"MVR ";
+  
+  // Update receipt fields
+  document.getElementById("receiptNoField").textContent = data.receiptNo;
+  document.getElementById("receiptDateField").textContent = data.date;
+  document.getElementById("receiptShiftField").textContent = data.shift;
+  document.getElementById("receiptUserField").textContent = `${data.user} (${data.level})`;
+  document.getElementById("receiptPassengerField").textContent = data.passenger;
+  document.getElementById("receiptFlightField").textContent = data.flight;
+  document.getElementById("receiptSeatField").textContent = data.seat;
+  document.getElementById("receiptAdultsField").textContent = data.adults;
+  document.getElementById("receiptKidsField").textContent = data.kids;
+  document.getElementById("receiptCurrencyField").textContent = data.currency;
+  document.getElementById("receiptPaymentTypeField").textContent = data.paymentType;
+  document.getElementById("receiptSubtotalField").textContent = `${symbol}${data.subtotal.toFixed(2)}`;
+  document.getElementById("receiptGstField").textContent = `${symbol}${data.gst.toFixed(2)}`;
+  document.getElementById("receiptTotalField").textContent = `${symbol}${data.total.toFixed(2)}`;
+  document.getElementById("receiptPaidField").textContent = `${symbol}${data.paid.toFixed(2)}`;
+  document.getElementById("receiptBalanceField").textContent = `${symbol}${data.balance.toFixed(2)}`;
+
+  // Apply color to balance
+  const receiptBalanceField = document.getElementById("receiptBalanceField");
+  receiptBalanceField.className = "";
+  if (data.balance < 0) {
+    receiptBalanceField.classList.add("balance-negative");
+  } else if (data.balance === 0) {
+    receiptBalanceField.classList.add("balance-zero");
+  } else {
+    receiptBalanceField.classList.add("balance-positive");
   }
 
-  // Add event listeners for calculation
-  [currencyType, rateType, adultCount, kidCount].forEach(el => {
-    el.addEventListener("input", calculate);
-    el.addEventListener("change", calculate);
-  });
+  document.getElementById("receiptContainer").style.display = "block";
+});
 
-  // Calculate on page load
-  window.addEventListener("DOMContentLoaded", calculate);
+// ---------- PRINT RECEIPT ----------
+document.getElementById("printReceiptBtn").addEventListener("click",()=>{
+  const content = document.getElementById("receiptContent").innerHTML;
+  const win = window.open("","PRINT","width=400,height=600");
+  win.document.write(`
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <title>Receipt</title>
+      <style>
+        body { font-family: 'Courier New', monospace; margin: 0; padding: 20px; }
+        .receipt { max-width: 300px; margin: 0 auto; }
+        .receipt-header { text-align: center; margin-bottom: 15px; padding-bottom: 10px; border-bottom: 1px dashed #ccc; }
+        .receipt-body { margin-bottom: 15px; padding-bottom: 10px; border-bottom: 1px dashed #ccc; }
+        .receipt-line { display: flex; justify-content: space-between; margin-bottom: 5px; font-size: 14px; }
+        .receipt-line.label { font-weight: bold; margin-top: 8px; }
+        .receipt-footer { text-align: center; font-size: 11px; color: #666; margin-top: 15px; }
+      </style>
+    </head>
+    <body>
+      ${content}
+    </body>
+    </html>
+  `);
+  win.document.close();
+  win.focus();
+  win.print();
+  win.close();
+});
 
-  // Print receipt function
-  printBtn.addEventListener("click", () => {
-    // First make sure the receipt container is visible
-    receiptContainer.style.display = 'block';
-    
-    // Use a small timeout to ensure the DOM is updated before printing
-    setTimeout(() => {
-      window.print();
-    }, 100);
-  });
+// ---------- NEW PAYMENT ----------
+document.getElementById("newPaymentBtn").addEventListener("click",()=>{
+  location.reload();
+});
 
-  // New Payment function
-  newPaymentBtn.addEventListener("click", () => {
-    // Reset form
-    document.getElementById("paymentForm").reset();
-    
-    // Hide cash fields
-    cashPaymentFields.classList.remove("visible");
-    
-    // Hide receipt
-    receiptContainer.style.display = 'none';
-    
-    // Reset date to today
-    dateField.value = new Date().toISOString().split('T')[0];
-    
-    // Reset balance field color
-    balanceAmountField.style.color = '';
-    
-    // Recalculate totals
-    calculate();
-    
-    // Scroll to top
-    window.scrollTo(0, 0);
-  });
-
-  // Save button functionality
-  document.getElementById("saveBtn").addEventListener("click", async () => {
-    const calculation = calculate();
-    
-    // Validate cash payment
-    if (paymentTypeSelect.value === "Cash") {
-      const paidAmount = parseFloat(paidAmountField.value) || 0;
-      if (paidAmount <= 0) {
-        alert("Please enter a valid paid amount for cash payment");
-        paidAmountField.focus();
-        return;
-      }
-      
-      const balance = paidAmount - calculation.total;
-      if (balance < 0) {
-        const confirmPayment = confirm(`The paid amount is less than the total. The balance is negative: ${calculation.currencySymbol}${Math.abs(balance).toFixed(2)}\nDo you want to proceed?`);
-        if (!confirmPayment) {
-          paidAmountField.focus();
-          return;
-        }
-      }
-    }
-    
-    try {
-      // Increment receipt counter and save to localStorage
-      receiptCounter++;
-      localStorage.setItem('receiptCounter', receiptCounter.toString());
-      const nextReceiptNo = receiptCounter;
-
-      const now = new Date();
-      const data = {
-        date: dateField.value,
-        qrCode: qrInput.value || null,
-        loginUser: document.getElementById("loginUser").textContent,
-        shift: document.getElementById("shift").textContent,
-        name: nameField.value,
-        flight: flightField.value,
-        seat: seatField.value,
-        currency: currencyType.value,
-        rate: rateType.value,
-        adults: parseInt(adultCount.value) || 0,
-        kids: parseInt(kidCount.value) || 0,
-        paymentType: paymentTypeSelect.value,
-        receiptNo: nextReceiptNo,
-        total: calculation.total,
-        timestamp: now
-      };
-
-    
-
-      // Add cash payment details if payment type is cash
-      if (paymentTypeSelect.value === "Cash") {
-        data.paidAmount = parseFloat(paidAmountField.value) || 0;
-        data.balance = data.paidAmount - calculation.total;
-      }
-
-      await db.collection("payments").add(data);
-      
-      // Update receipt with data
-      receiptNumber.textContent = nextReceiptNo.toString().padStart(6, '0');
-      receiptDate.textContent = dateField.value;
-      receiptTime.textContent = now.toLocaleTimeString();
-      receiptName.textContent = nameField.value || '-';
-      receiptFlight.textContent = flightField.value || '-';
-      receiptSeat.textContent = seatField.value || '-';
-      receiptAdults.textContent = data.adults;
-      receiptKids.textContent = data.kids;
-      receiptAdultRate.textContent = `${calculation.currencySymbol}${calculation.adultRate.toFixed(2)}`;
-      receiptKidRate.textContent = `${calculation.currencySymbol}${calculation.kidRate.toFixed(2)}`;
-      receiptSubtotal.textContent = `${calculation.currencySymbol}${calculation.subtotal.toFixed(2)}`;
-      receiptGst.textContent = `${calculation.currencySymbol}${calculation.gstAmount.toFixed(2)}`;
-      receiptTotal.textContent = `${calculation.currencySymbol}${calculation.total.toFixed(2)}`;
-      receiptPaymentType.textContent = paymentTypeSelect.value;
-      receiptCurrency.textContent = currencyType.value;
-      
-      // Update cash details on receipt if payment is cash
-      if (paymentTypeSelect.value === "Cash") {
-        const paidAmount = parseFloat(paidAmountField.value) || 0;
-        const balance = paidAmount - calculation.total;
-        receiptPaidAmount.textContent = `${calculation.currencySymbol}${paidAmount.toFixed(2)}`;
-        receiptBalanceAmount.textContent = `${calculation.currencySymbol}${balance.toFixed(2)}`;
-        receiptCashDetails.style.display = "block";
-      } else {
-        receiptCashDetails.style.display = "none";
-      }
-      
-      // Show receipt container
-      receiptContainer.style.display = 'block';
-      
-      // Scroll to receipt
-      receiptContainer.scrollIntoView({ behavior: 'smooth' });
-      
-    } catch (err) {
-      alert("Error saving: " + err.message);
-      console.error(err);
-    }
-  });
 </script>
 
 </body>
 </html>
-
-
