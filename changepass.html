@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Change Password</title>
+<script src="user.js"></script> <!-- your users array with passwordHash -->
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+<script src="fire2.js"></script>
+<style>
+body { font-family: Arial, sans-serif; background-color: #f8f9fa; display: flex; justify-content: center; align-items: center; height: 100vh; }
+.container { background-color: #fff; padding: 30px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); width: 350px; }
+h2 { text-align: center; margin-bottom: 20px; color: #333; }
+form input, form button { width: 100%; padding: 10px; margin-bottom: 15px; border-radius: 6px; border: 1px solid #ccc; font-size: 1rem; }
+form button { background-color: #D4AF37; color: #fff; border: none; font-weight: bold; cursor: pointer; }
+form button:hover { background-color: #B8860B; }
+#message { text-align: center; margin-top: 15px; font-weight: bold; color: green; }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <h2>Change Password</h2>
+  <form id="changePasswordForm">
+    <input type="text" id="username" placeholder="Username" required>
+    <input type="password" id="oldPassword" placeholder="Old Password" required>
+    <input type="password" id="newPassword" placeholder="New Password" required>
+    <button type="submit">Submit Password Change</button>
+  </form>
+  <div id="message"></div>
+</div>
+
+<script>
+const passwordChangeRef = window.db.collection("passwordChanges"); // Firebase for admin approval
+
+// SHA-256 hash
+async function hashPassword(password) {
+  const msgUint8 = new TextEncoder().encode(password);
+  const hashBuffer = await crypto.subtle.digest('SHA-256', msgUint8);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
+document.getElementById("changePasswordForm").addEventListener("submit", async function(e) {
+  e.preventDefault();
+
+  const username = document.getElementById("username").value.trim();
+  const oldPassword = document.getElementById("oldPassword").value;
+  const newPassword = document.getElementById("newPassword").value;
+  const messageDiv = document.getElementById("message");
+  messageDiv.textContent = "";
+
+  if (!username || !oldPassword || !newPassword) {
+    alert("All fields are required!");
+    return;
+  }
+
+  // Find user in user.js
+  const user = users.find(u => u.username === username);
+  if (!user) {
+    messageDiv.style.color = "red";
+    messageDiv.textContent = "Username not found!";
+    return;
+  }
+
+  const oldHash = await hashPassword(oldPassword);
+
+  if (oldHash !== user.passwordHash) {
+    messageDiv.style.color = "red";
+    messageDiv.textContent = "Old password is incorrect!";
+    return;
+  }
+
+  const newHash = await hashPassword(newPassword);
+
+  // Submit to Firebase for admin approval
+  await passwordChangeRef.add({
+    username: username,
+    newPasswordHash: newHash,
+    requestedAt: new Date(),
+    status: "Pending"
+  });
+
+  messageDiv.style.color = "green";
+  messageDiv.textContent = "Password change request submitted. Admin will approve it and update soon.";
+
+  document.getElementById("changePasswordForm").reset();
+});
+</script>
+
+</body>
+</html>
