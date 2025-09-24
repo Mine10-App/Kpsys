@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Register New User</title>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+<script src="fire2.js"></script> <!-- your firebase config -->
+<style>
+body { font-family: Arial, sans-serif; background-color: #f8f9fa; display: flex; justify-content: center; align-items: center; height: 100vh; }
+.container { background-color: #fff; padding: 30px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); width: 350px; }
+h2 { text-align: center; margin-bottom: 20px; color: #333; }
+form input, form select, form button { width: 100%; padding: 10px; margin-bottom: 15px; border-radius: 6px; border: 1px solid #ccc; font-size: 1rem; }
+form button { background-color: #D4AF37; color: #fff; border: none; font-weight: bold; cursor: pointer; }
+form button:hover { background-color: #B8860B; }
+#message { text-align: center; margin-top: 15px; font-weight: bold; color: green; }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <h2>Register New User</h2>
+  <form id="registerForm">
+    <input type="text" id="username" placeholder="Username" required>
+    <input type="text" id="name" placeholder="Full Name" required>
+    <input type="password" id="password" placeholder="Password" required>
+    <select id="level" required>
+      <option value="User">User</option>
+      <option value="Supervisor">Supervisor</option>
+    </select>
+    <button type="submit">Submit Request</button>
+  </form>
+  <div id="message"></div>
+</div>
+
+<script>
+// Reference to Firebase collection
+const newUsersRef = window.db.collection("newusers");
+
+// SHA-256 hash function
+async function hashPassword(password) {
+  const msgUint8 = new TextEncoder().encode(password);
+  const hashBuffer = await crypto.subtle.digest('SHA-256', msgUint8);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
+// Handle form submission
+document.getElementById("registerForm").addEventListener("submit", async function(e) {
+  e.preventDefault();
+
+  const username = document.getElementById("username").value.trim();
+  const name = document.getElementById("name").value.trim();
+  const password = document.getElementById("password").value;
+  const level = document.getElementById("level").value;
+
+  if (!username || !name || !password) {
+    alert("All fields are required!");
+    return;
+  }
+
+  const hashedPassword = await hashPassword(password);
+
+  // Add new user to Firebase
+  await newUsersRef.add({
+    username: username,
+    name: name,
+    passwordHash: hashedPassword,
+    level: level,
+    status: "Pending",
+    requestDate: new Date()
+  });
+
+  // Show confirmation message
+  document.getElementById("message").textContent = "We have received your request, we will update it soon.";
+
+  // Reset form
+  document.getElementById("registerForm").reset();
+});
+</script>
+
+</body>
+</html>
