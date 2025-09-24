@@ -1,778 +1,113 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Payment Management System</title>
-  <style>
-    :root {
-      --primary: #8c6d1f;
-      --secondary: #d4af37;
-      --success: #27ae60;
-      --warning: #f39c12;
-      --danger: #e63946;
-      --light: #ffffff;
-      --dark: #5d4d0f;
-      --gray: #8a7c4a;
-      --light-gray: #f9f5e7;
-      --border-radius: 8px;
-      --box-shadow: 0 4px 6px rgba(140, 109, 31, 0.1);
-      --transition: all 0.3s ease;
-    }
-
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-
-    body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      line-height: 1.6;
-      color: var(--dark);
-      background-color: #fefefe;
-      padding: 20px;
-    }
-
-    .container {
-      max-width: 1400px;
-      margin: 0 auto;
-    }
-
-    header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 30px;
-      padding-bottom: 15px;
-      border-bottom: 1px solid #e0d6b3;
-    }
-
-    h1 {
-      color: var(--primary);
-      font-size: 28px;
-      font-weight: 600;
-    }
-
-    .header-controls {
-      display: flex;
-      gap: 15px;
-    }
-
-    .btn {
-      padding: 10px 20px;
-      border: none;
-      border-radius: var(--border-radius);
-      cursor: pointer;
-      font-weight: 500;
-      transition: var(--transition);
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      border: 1px solid #e0d6b3;
-    }
-
-    .btn-primary {
-      background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
-      color: white;
-    }
-
-    .btn-primary:hover {
-      background: linear-gradient(135deg, var(--secondary) 0%, var(--primary) 100%);
-      transform: translateY(-2px);
-    }
-
-    .btn-success {
-      background-color: var(--success);
-      color: white;
-    }
-
-    .btn-success:hover {
-      opacity: 0.9;
-      transform: translateY(-2px);
-    }
-
-    .btn-outline {
-      background-color: transparent;
-      border: 1px solid var(--primary);
-      color: var(--primary);
-    }
-
-    .btn-outline:hover {
-      background-color: var(--primary);
-      color: white;
-    }
-
-    .card {
-      background-color: white;
-      border-radius: var(--border-radius);
-      box-shadow: var(--box-shadow);
-      margin-bottom: 30px;
-      overflow: hidden;
-      border: 1px solid #e0d6b3;
-    }
-
-    .card-header {
-      padding: 20px;
-      background-color: #fef8e7;
-      border-bottom: 1px solid #e0d6b3;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .card-title {
-      font-size: 20px;
-      font-weight: 600;
-      color: var(--dark);
-    }
-
-    .card-body {
-      padding: 0;
-      overflow-x: auto;
-    }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-    }
-
-    th, td {
-      padding: 15px;
-      text-align: left;
-      border-bottom: 1px solid #e0d6b3;
-    }
-
-    th {
-      background-color: #fef8e7;
-      font-weight: 600;
-      color: var(--gray);
-      position: sticky;
-      top: 0;
-    }
-
-    tr:hover {
-      background-color: rgba(212, 175, 55, 0.05);
-    }
-
-    .status-badge {
-      padding: 5px 12px;
-      border-radius: 20px;
-      font-size: 12px;
-      font-weight: 600;
-      display: inline-block;
-    }
-
-    .status-pending {
-      background-color: rgba(243, 156, 18, 0.1);
-      color: var(--warning);
-      border: 1px solid rgba(243, 156, 18, 0.3);
-    }
-
-    .status-complete {
-      background-color: rgba(39, 174, 96, 0.1);
-      color: var(--success);
-      border: 1px solid rgba(39, 174, 96, 0.3);
-    }
-
-    .form-control {
-      padding: 8px 12px;
-      border: 1px solid #e0d6b3;
-      border-radius: var(--border-radius);
-      width: 100%;
-      font-size: 14px;
-      background-color: #fefcf5;
-    }
-
-    .form-control:focus {
-      outline: none;
-      border-color: var(--secondary);
-      box-shadow: 0 0 0 2px rgba(212, 175, 55, 0.2);
-    }
-
-    .action-buttons {
-      display: flex;
-      gap: 8px;
-    }
-
-    .action-btn {
-      padding: 6px 12px;
-      border: none;
-      border-radius: var(--border-radius);
-      cursor: pointer;
-      font-size: 12px;
-      transition: var(--transition);
-    }
-
-    .action-btn.update {
-      background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
-      color: white;
-    }
-
-    .action-btn.update:hover {
-      background: linear-gradient(135deg, var(--secondary) 0%, var(--primary) 100%);
-    }
-
-    .action-btn.print {
-      background-color: #f9f5e7;
-      color: var(--dark);
-      border: 1px solid #e0d6b3;
-    }
-
-    .action-btn.print:hover {
-      background-color: var(--primary);
-      color: white;
-    }
-
-    /* Modal Styles */
-    .modal {
-      display: none;
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background-color: rgba(140, 109, 31, 0.5);
-      z-index: 1000;
-      justify-content: center;
-      align-items: center;
-    }
-
-    .modal-content {
-      background-color: white;
-      border-radius: var(--border-radius);
-      width: 90%;
-      max-width: 500px;
-      box-shadow: 0 10px 25px rgba(140, 109, 31, 0.2);
-      animation: modalFadeIn 0.3s;
-      border: 2px solid var(--secondary);
-    }
-
-    @keyframes modalFadeIn {
-      from { opacity: 0; transform: translateY(-20px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    .modal-header {
-      padding: 20px;
-      border-bottom: 1px solid #e0d6b3;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      background-color: #fef8e7;
-    }
-
-    .modal-title {
-      font-size: 20px;
-      font-weight: 600;
-      color: var(--primary);
-    }
-
-    .close-modal {
-      font-size: 24px;
-      cursor: pointer;
-      color: var(--gray);
-    }
-
-    .close-modal:hover {
-      color: var(--dark);
-    }
-
-    .modal-body {
-      padding: 20px;
-    }
-
-    .receipt {
-      font-family: 'Courier New', monospace;
-      background-color: white;
-      padding: 20px;
-      border: 1px dashed var(--secondary);
-      border-radius: var(--border-radius);
-    }
-
-    .receipt-header {
-      text-align: center;
-      margin-bottom: 15px;
-      padding-bottom: 10px;
-      border-bottom: 1px dashed var(--secondary);
-    }
-
-    .receipt-details {
-      margin-bottom: 15px;
-    }
-
-    .receipt-line {
-      display: flex;
-      justify-content: space-between;
-      margin-bottom: 5px;
-    }
-
-    .receipt-footer {
-      text-align: center;
-      margin-top: 15px;
-      padding-top: 10px;
-      border-top: 1px dashed var(--secondary);
-      font-size: 12px;
-      color: var(--gray);
-    }
-
-    .modal-footer {
-      padding: 20px;
-      border-top: 1px solid #e0d6b3;
-      display: flex;
-      justify-content: flex-end;
-      gap: 10px;
-      background-color: #fef8e7;
-    }
-
-    /* Notification */
-    .notification {
-      position: fixed;
-      top: 20px;
-      right: 20px;
-      padding: 15px 20px;
-      border-radius: var(--border-radius);
-      color: white;
-      z-index: 1100;
-      display: none;
-      box-shadow: var(--box-shadow);
-      animation: slideIn 0.3s;
-      border: 1px solid rgba(255, 255, 255, 0.2);
-    }
-
-    @keyframes slideIn {
-      from { transform: translateX(100%); opacity: 0; }
-      to { transform: translateX(0); opacity: 1; }
-    }
-
-    .notification.success {
-      background: linear-gradient(135deg, var(--success) 0%, #2ecc71 100%);
-    }
-
-    .notification.error {
-      background: linear-gradient(135deg, var(--danger) 0%, #c0392b 100%);
-    }
-
-    .badge {
-      background: var(--primary);
-      color: white;
-      padding: 5px 12px;
-      border-radius: 20px;
-      font-size: 14px;
-      font-weight: 600;
-    }
-
-    /* Responsive */
-    @media (max-width: 768px) {
-      .header {
-        flex-direction: column;
-        gap: 15px;
-        align-items: flex-start;
-      }
-
-      .header-controls {
-        width: 100%;
-        justify-content: space-between;
-      }
-
-      th, td {
-        padding: 10px 8px;
-        font-size: 14px;
-      }
-
-      .action-buttons {
-        flex-direction: column;
-      }
-    }
-  </style>
+<meta charset="UTF-8">
+<title>Inline Update Non-Cash Transactions</title>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+<script src="fire2.js"></script>
+<style>
+  body { font-family: 'Segoe UI', sans-serif; background: #F8F9FA; padding: 20px; color: #333; }
+  .container { max-width: 1000px; margin: auto; }
+  h2 { text-align:center; color: #B8860B; margin-bottom: 20px; }
+  table { width:100%; border-collapse: collapse; background:#FFF; border-radius:8px; overflow:hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+  th, td { padding: 10px; border-bottom: 1px solid #E9ECEF; text-align:left; }
+  th { background: #D4AF37; color:#fff; }
+  tr:hover { background:#F5E8C8; }
+  select, input { width:100%; padding:5px; border-radius: 5px; border:1px solid #CED4DA; }
+  button { padding:5px 10px; border:none; border-radius:5px; cursor:pointer; background:#28a745; color:#fff; }
+  button:hover { background:#218838; }
+</style>
 </head>
 <body>
-  <div class="container">
-    <header>
-      <h1>Payment Management System</h1>
-      <div class="header-controls">
-        <button class="btn btn-outline" onclick="refreshData()">
-          <span>🔄</span> Refresh Data
-        </button>
-        <button class="btn btn-primary" onclick="printAllReceipts()">
-          <span>🖨️</span> Print All Pending Receipts
-        </button>
-      </div>
-    </header>
+<div class="container">
+  <h2>Non-Cash Transactions Missing Approval/Batch</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Receipt</th>
+        <th>Passenger</th>
+        <th>Flight</th>
+        <th>Currency</th>
+        <th>Total</th>
+        <th>Payment Type</th>
+        <th>Approval Code</th>
+        <th>Batch No</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+    <tbody id="transactionBody">
+      <tr><td colspan="7">Loading...</td></tr>
+    </tbody>
+  </table>
+</div>
 
-    <main>
-      <section class="card">
-        <div class="card-header">
-          <h2 class="card-title">Payments Requiring Update</h2>
-          <span class="badge">Pending: <span id="pendingCount">0</span></span>
-        </div>
-        <div class="card-body">
-          <table id="paymentsTable">
-            <thead>
-              <tr>
-                <th>Receipt No</th>
-                <th>Name</th>
-                <th>Flight</th>
-                <th>Payment Type</th>
-                <th>Batch No</th>
-                <th>Approval Code</th>
-                <th>Status</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody></tbody>
-          </table>
-        </div>
-      </section>
+<script>
+const tbody = document.getElementById("transactionBody");
 
-      <section class="card">
-        <div class="card-header">
-          <h2 class="card-title">Voided Payments (Audit)</h2>
-        </div>
-        <div class="card-body">
-          <table id="voidedTable">
-            <thead>
-              <tr>
-                <th>Receipt No</th>
-                <th>Name</th>
-                <th>Flight</th>
-                <th>Payment Type</th>
-                <th>Total</th>
-                <th>Date</th>
-                <th>Reason</th>
-              </tr>
-            </thead>
-            <tbody></tbody>
-          </table>
-        </div>
-      </section>
-    </main>
-  </div>
+async function fetchTransactions() {
+  tbody.innerHTML = "<tr><td colspan='7'>Loading...</td></tr>";
+  const snapshot = await db.collection("payments").where("paymentType", "!=", "Cash").get();
+  tbody.innerHTML = "";
 
-  <!-- Receipt Modal -->
-  <div class="modal" id="receiptModal">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h3 class="modal-title">Payment Receipt</h3>
-        <span class="close-modal" onclick="closeReceiptModal()">&times;</span>
-      </div>
-      <div class="modal-body">
-        <div id="receiptDetails" class="receipt"></div>
-      </div>
-      <div class="modal-footer">
-        <button class="btn btn-outline" onclick="closeReceiptModal()">Close</button>
-        <button class="btn btn-primary" onclick="printReceipt()">Print Receipt</button>
-      </div>
-    </div>
-  </div>
+  if(snapshot.empty) {
+    tbody.innerHTML = "<tr><td colspan='7'>No transactions found.</td></tr>";
+    return;
+  }
 
-  <!-- Notification -->
-  <div id="notification" class="notification"></div>
+  snapshot.docs.forEach(doc => {
+    const data = doc.data();
+    if(!data.approvalCode || !data.batchNo) {
+      const tr = document.createElement("tr");
 
-  <!-- Firebase -->
-  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
-  <script src="fire2.js"></script>
-
-  <script>
-    const paymentsTable = document.getElementById("paymentsTable").querySelector("tbody");
-    const voidedTable = document.getElementById("voidedTable").querySelector("tbody");
-    const notification = document.getElementById("notification");
-    const receiptModal = document.getElementById("receiptModal");
-    const receiptDetails = document.getElementById("receiptDetails");
-    const pendingCount = document.getElementById("pendingCount");
-
-    let pendingPayments = [];
-
-    function showNotification(message, type="success") {
-      notification.textContent = message;
-      notification.className = `notification ${type}`;
-      notification.style.display = "block";
-      setTimeout(() => { notification.style.display = "none"; }, 3000);
-    }
-
-    function openReceiptModal(data) {
-      receiptDetails.innerHTML = `
-        <div class="receipt-header">
-          <h4>BOOKING RECEIPT</h4>
-        </div>
-        <div class="receipt-details">
-          <div class="receipt-line">
-            <span><b>Receipt No:</b></span>
-            <span>${data.receiptNo || ''}</span>
-          </div>
-          <div class="receipt-line">
-            <span><b>Date:</b></span>
-            <span>${data.date || ''}</span>
-          </div>
-          <div class="receipt-line">
-            <span><b>Name:</b></span>
-            <span>${data.name || ''}</span>
-          </div>
-          <div class="receipt-line">
-            <span><b>Flight:</b></span>
-            <span>${data.flight || ''}</span>
-          </div>
-          <div class="receipt-line">
-            <span><b>Seat:</b></span>
-            <span>${data.seat || ''}</span>
-          </div>
-          <div class="receipt-line">
-            <span><b>Adults:</b></span>
-            <span>${data.adults || 0}</span>
-          </div>
-          <div class="receipt-line">
-            <span><b>Kids:</b></span>
-            <span>${data.kids || 0}</span>
-          </div>
-          <div class="receipt-line">
-            <span><b>Total:</b></span>
-            <span>${data.total || '0.00'} ${data.currency || ''}</span>
-          </div>
-          <div class="receipt-line">
-            <span><b>Payment:</b></span>
-            <span>${data.paymentType || ''}</span>
-          </div>
-          <div class="receipt-line">
-            <span><b>Batch No:</b></span>
-            <span>${data.batchNo || '-'}</span>
-          </div>
-          <div class="receipt-line">
-            <span><b>Approval Code:</b></span>
-            <span>${data.approvalCode || '-'}</span>
-          </div>
-        </div>
-        <div class="receipt-footer">
-          Thank you for your booking!
-        </div>
+      tr.innerHTML = `
+        <td>${data.receiptNo}</td>
+        <td>${data.passenger || ""}</td>
+        <td>${data.flight || ""}</td>
+        <td>${data.currency || ""}</td>
+        <td>${data.currency === "USD" ? "$" : "MVR "}${(data.total||0).toFixed(2)}</td>
+        <td>
+          <select class="paymentType">
+            <option value="Cash">Cash</option>
+            <option value="Card">Card</option>
+            <option value="Amex">Amex</option>
+            <option value="Visa">Visa</option>
+            <option value="Master">Master</option>
+            <option value="Union Pay">Union Pay</option>
+            <option value="QR Sale">QR Sale</option>
+          </select>
+        </td>
+        <td><input type="text" class="approvalCode" value="${data.approvalCode || ""}"></td>
+        <td><input type="text" class="batchNo" value="${data.batchNo || ""}"></td>
+        <td><button class="updateBtn">Update</button></td>
       `;
-      receiptModal.style.display = "flex";
-    }
 
-    function closeReceiptModal() {
-      receiptModal.style.display = "none";
-    }
+      // Set current values
+      tr.querySelector(".paymentType").value = data.paymentType || "Card";
 
-    function printReceipt() {
-      const printContent = receiptDetails.innerHTML;
-      const printWindow = window.open('', '', 'width=600,height=700');
-      printWindow.document.write(`
-        <html>
-          <head>
-            <title>Receipt</title>
-            <style>
-              body { font-family: 'Courier New', monospace; padding: 20px; }
-              .receipt-header { text-align: center; margin-bottom: 15px; }
-              .receipt-line { display: flex; justify-content: space-between; margin-bottom: 5px; }
-              .receipt-footer { text-align: center; margin-top: 15px; font-size: 12px; }
-            </style>
-          </head>
-          <body>${printContent}</body>
-        </html>
-      `);
-      printWindow.document.close();
-      printWindow.print();
-    }
+      // Update button click
+      tr.querySelector(".updateBtn").addEventListener("click", async () => {
+        const newPaymentType = tr.querySelector(".paymentType").value;
+        const newApprovalCode = tr.querySelector(".approvalCode").value || null;
+        const newBatchNo = tr.querySelector(".batchNo").value || null;
 
-    function printAllReceipts() {
-      if (pendingPayments.length === 0) {
-        showNotification("No pending receipts to print.", "error");
-        return;
-      }
-      
-      let content = `
-        <html>
-          <head>
-            <title>All Pending Receipts</title>
-            <style>
-              body { font-family: 'Courier New', monospace; padding: 20px; }
-              .receipt { margin-bottom: 30px; border-bottom: 1px dashed #ccc; padding-bottom: 20px; }
-              .receipt-header { text-align: center; margin-bottom: 15px; }
-              .receipt-line { display: flex; justify-content: space-between; margin-bottom: 5px; }
-              .receipt-footer { text-align: center; margin-top: 15px; font-size: 12px; }
-            </style>
-          </head>
-          <body>
-            <h2 style="text-align: center; margin-bottom: 20px;">Pending Receipts</h2>
-      `;
-      
-      pendingPayments.forEach(d => {
-        content += `
-          <div class="receipt">
-            <div class="receipt-header">
-              <h4>BOOKING RECEIPT</h4>
-            </div>
-            <div class="receipt-details">
-              <div class="receipt-line">
-                <span><b>Receipt No:</b></span>
-                <span>${d.receiptNo || ''}</span>
-              </div>
-              <div class="receipt-line">
-                <span><b>Date:</b></span>
-                <span>${d.date || ''}</span>
-              </div>
-              <div class="receipt-line">
-                <span><b>Name:</b></span>
-                <span>${d.name || ''}</span>
-              </div>
-              <div class="receipt-line">
-                <span><b>Flight:</b></span>
-                <span>${d.flight || ''}</span>
-              </div>
-              <div class="receipt-line">
-                <span><b>Seat:</b></span>
-                <span>${d.seat || ''}</span>
-              </div>
-              <div class="receipt-line">
-                <span><b>Adults:</b></span>
-                <span>${d.adults || 0}</span>
-              </div>
-              <div class="receipt-line">
-                <span><b>Kids:</b></span>
-                <span>${d.kids || 0}</span>
-              </div>
-              <div class="receipt-line">
-                <span><b>Total:</b></span>
-                <span>${d.total || '0.00'} ${d.currency || ''}</span>
-              </div>
-              <div class="receipt-line">
-                <span><b>Payment:</b></span>
-                <span>${d.paymentType || ''}</span>
-              </div>
-              <div class="receipt-line">
-                <span><b>Batch No:</b></span>
-                <span>${d.batchNo || '-'}</span>
-              </div>
-              <div class="receipt-line">
-                <span><b>Approval Code:</b></span>
-                <span>${d.approvalCode || '-'}</span>
-              </div>
-            </div>
-            <div class="receipt-footer">
-              Thank you for your booking!
-            </div>
-          </div>
-        `;
-      });
-      
-      content += `</body></html>`;
-      
-      const printWindow = window.open('', '', 'width=600,height=700');
-      printWindow.document.write(content);
-      printWindow.document.close();
-      printWindow.print();
-    }
-
-    function refreshData() {
-      loadPayments();
-      showNotification("Data refreshed successfully!");
-    }
-
-    function loadPayments() {
-      db.collection("payments").onSnapshot(snapshot => {
-        paymentsTable.innerHTML = "";
-        voidedTable.innerHTML = "";
-        pendingPayments = [];
-        let pendingCountValue = 0;
-
-        snapshot.forEach(doc => {
-          const data = doc.data();
-          const id = doc.id;
-
-          // Voided payments
-          if (data.voided === true) {
-            const row = document.createElement("tr");
-            row.innerHTML = `
-              <td>${data.receiptNo || ''}</td>
-              <td>${data.name || ''}</td>
-              <td>${data.flight || ''}</td>
-              <td>${data.paymentType || ''}</td>
-              <td>${data.total || ''}</td>
-              <td>${data.date || ''}</td>
-              <td>${data.voidReason || '-'}</td>
-            `;
-            voidedTable.appendChild(row);
-            return;
-          }
-
-          // Non-cash pending payments
-          if (data.paymentType !== "Cash" && (!data.batchNo || !data.approvalCode)) {
-            pendingPayments.push(data);
-            pendingCountValue++;
-
-            const row = document.createElement("tr");
-            row.innerHTML = `
-              <td>${data.receiptNo || ""}</td>
-              <td>${data.name || ""}</td>
-              <td>${data.flight || ""}</td>
-              <td>
-                <select class="form-control payType">
-                  <option value="Card" ${data.paymentType==="Card"?"selected":""}>Card</option>
-                  <option value="Visa" ${data.paymentType==="Visa"?"selected":""}>Visa</option>
-                  <option value="MasterCard" ${data.paymentType==="MasterCard"?"selected":""}>MasterCard</option>
-                  <option value="Cash" ${data.paymentType==="Cash"?"selected":""}>Cash</option>
-                </select>
-              </td>
-              <td><input type="text" class="form-control batchNo" value="${data.batchNo||""}"></td>
-              <td><input type="text" class="form-control approvalCode" value="${data.approvalCode||""}"></td>
-              <td>
-                <span class="status-badge ${data.status==="complete"?"status-complete":"status-pending"}">
-                  ${data.status || "Pending"}
-                </span>
-              </td>
-              <td>
-                <div class="action-buttons">
-                  <button class="action-btn update">Update</button>
-                  <button class="action-btn print">Print</button>
-                </div>
-              </td>
-            `;
-
-            row.querySelector(".update").addEventListener("click", async () => {
-              const newPayType = row.querySelector(".payType").value;
-              const batchNo = row.querySelector(".batchNo").value.trim();
-              const approvalCode = row.querySelector(".approvalCode").value.trim();
-
-              if (newPayType==="Cash" && (batchNo || approvalCode)) {
-                showNotification("Cash payments must not have Batch No or Approval Code.", "error");
-                return;
-              }
-              if (newPayType!=="Cash" && (!batchNo || !approvalCode)) {
-                showNotification("Non-cash payments require Batch No and Approval Code.", "error");
-                return;
-              }
-
-              try {
-                await db.collection("payments").doc(id).update({
-                  paymentType: newPayType,
-                  batchNo: newPayType==="Cash"?null:batchNo,
-                  approvalCode: newPayType==="Cash"?null:approvalCode,
-                  status: "complete",
-                  updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-                });
-
-                const statusBadge = row.querySelector(".status-badge");
-                statusBadge.textContent = "Complete";
-                statusBadge.className = "status-badge status-complete";
-
-                showNotification("Payment updated successfully!");
-              } catch (err) {
-                showNotification("Error updating payment: "+err.message, "error");
-              }
-            });
-
-            row.querySelector(".print").addEventListener("click", () => openReceiptModal(data));
-
-            paymentsTable.appendChild(row);
-          }
+        await db.collection("payments").doc(doc.id).update({
+          paymentType: newPaymentType,
+          approvalCode: newApprovalCode,
+          batchNo: newBatchNo
         });
-
-        pendingCount.textContent = pendingCountValue;
+        alert(`Transaction ${data.receiptNo} updated!`);
       });
-    }
 
-    loadPayments();
-    window.onclick = e => { if (e.target === receiptModal) closeReceiptModal(); }
-  </script>
+      tbody.appendChild(tr);
+    }
+  });
+
+  if(tbody.innerHTML === "") tbody.innerHTML = "<tr><td colspan='7'>No transactions missing approval/batch.</td></tr>";
+}
+
+// Initial fetch
+fetchTransactions();
+</script>
 </body>
 </html>
