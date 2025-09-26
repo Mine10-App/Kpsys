@@ -244,13 +244,15 @@ document.getElementById('currentDate').textContent = getFormattedDate();
 // Load current shift
 async function loadCurrentShift() {
   const today = getFormattedDate();
-  const snapshot = await shiftsRef.where("date","==",today).get(); // make sure the field is 'date'
+  const snapshot = await shiftsRef.where("currentDate","==",today).get(); // use currentDate
   if(snapshot.empty) {
     document.getElementById('currentShift').textContent = "None";
     return "None";
   }
+
   const data = snapshot.docs[0].data();
   let shift = "None";
+
   if(data.shift1status === "Open") shift = data.shift1name || "Morning";
   else if(data.shift2status === "Open") shift = data.shift2name || "Evening";
 
@@ -279,8 +281,8 @@ async function loadTotals() {
 
   snapshot.forEach(doc => {
     const data = doc.data();
-    adults += Number(data.adults) || 0;
-    kids += Number(data.kids) || 0;
+    adults += Number(data.adults || 0);
+    kids += Number(data.kids || 0);
   });
 
   document.getElementById("totalAdults").textContent = adults;
