@@ -191,7 +191,6 @@ generateBtn.addEventListener("click", async () => {
       const currency = data.currency || '-';
       const seat = data.seat || '-';
       const user = data.user || data.loginUser || '-';
-    
       const voidedReason = data.voidReason || '';
 
       const tr = document.createElement("tr");
@@ -208,7 +207,6 @@ generateBtn.addEventListener("click", async () => {
         <td>${currency}</td>
         <td>${shift}</td>
         <td>${user}</td>
-        <td>${level}</td>
         <td>${voidedReason}</td>
       `;
       receiptsTableBody.appendChild(tr);
