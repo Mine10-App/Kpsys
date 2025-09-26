@@ -29,7 +29,6 @@ body {
 .container { max-width: 1200px; margin: 0 auto; }
 .header { text-align: center; margin-bottom: 30px; padding: 20px; background: white; border-radius: var(--radius); box-shadow: var(--shadow); border: 1px solid var(--border);}
 .header h1 { color: var(--primary); font-weight: 700; margin-bottom: 8px; font-size: 32px;}
-.header p { color: #8a7c4a; font-size: 16px;}
 .controls { display: flex; justify-content: center; align-items: center; gap: 15px; margin-bottom: 20px; padding: 20px; background: white; border-radius: var(--radius); box-shadow: var(--shadow); flex-wrap: wrap; border: 1px solid var(--border);}
 .date-control { display: flex; align-items: center; gap: 10px; }
 .date-control label { font-weight: 600; color: var(--dark);}
@@ -63,17 +62,66 @@ tr:hover { background: #fef8e7;}
 .empty-state { text-align: center; padding: 50px; color: #8a7c4a;}
 .empty-state i { font-size: 48px; margin-bottom: 15px; color: #e0d6b3;}
 .empty-state p { font-size: 18px;}
+
 @media print {
-  body { background: white; padding: 0;}
-  .container { max-width: 100%;}
-  .header, .controls { display: none;}
-  .report-container { display: block !important; box-shadow: none; margin: 0; width: 100%; border: none;}
-  .report-header { background: white !important; color: black; border-bottom: 2px solid #000;}
-  #printCompanyName { color: black !important; }
-  .report-header h2 { color: black;}
-  table { box-shadow: none;}
-  th { background: #f0f0f0 !important; -webkit-print-color-adjust: exact; color-adjust: exact;}
-  .summary { background: #f0f0f0 !important; border-left: 4px solid #000 !important;}
+  body {
+    background: white;
+    padding: 0;
+    margin: 0;
+    -webkit-print-color-adjust: exact;
+    color-adjust: exact;
+  }
+
+  .container { max-width: 100%; }
+  .header, .controls { display: none; }
+
+  .report-container {
+    display: block !important;
+    box-shadow: none;
+    margin: 0 auto;
+    width: 210mm; /* A4 Portrait */
+    padding: 10mm;
+    border: none;
+  }
+
+  .report-header {
+    background: white !important;
+    color: black;
+    border-bottom: 2px solid #000;
+    text-align: center;
+  }
+
+  #printCompanyName {
+    color: black !important;
+    font-size: 24px;
+    font-weight: 700;
+    margin-bottom: 5px;
+  }
+
+  .report-header h2 { color: black; font-size: 20px; margin-bottom: 5px; }
+  .report-header p { font-size: 14px; margin-bottom: 10px; }
+
+  table {
+    width: 100%;
+    box-shadow: none;
+    font-size: 12px;
+    page-break-inside: auto;
+  }
+
+  tr { page-break-inside: avoid; page-break-after: auto; }
+  th {
+    background: #f0f0f0 !important;
+    -webkit-print-color-adjust: exact;
+    color-adjust: exact;
+    font-size: 12px;
+  }
+
+  .summary {
+    background: #f0f0f0 !important;
+    border-left: 4px solid #000 !important;
+    font-size: 12px;
+    padding: 10px;
+  }
 }
 </style>
 </head>
@@ -117,9 +165,7 @@ tr:hover { background: #fef8e7;}
           <thead>
             <tr>
               <th>Receipt No</th>
-              <th>Passenger</th>
               <th>Flight</th>
-              <th>Seat</th>
               <th>Adults</th>
               <th>Kids</th>
               <th>Total</th>
@@ -170,7 +216,7 @@ generateBtn.addEventListener("click", async () => {
   reportTitle.innerText = `Sales Report for ${selectedDate}`;
   reportDateText.innerText = `Generated on: ${new Date().toLocaleDateString()}`;
 
-  receiptsTableBody.innerHTML = '<tr><td colspan="12" class="loading"><i class="fas fa-spinner fa-spin"></i> Loading data...</td></tr>';
+  receiptsTableBody.innerHTML = '<tr><td colspan="10" class="loading"><i class="fas fa-spinner fa-spin"></i> Loading data...</td></tr>';
   summaryDiv.innerHTML = '';
 
   try {
@@ -186,13 +232,11 @@ generateBtn.addEventListener("click", async () => {
       if(date !== selectedDate) return;
       if(selectedShift && shift !== selectedShift) return;
 
-      const passenger = data.passenger || data.name || '-';
       const adults = Number(data.adults) || 0;
       const kids = Number(data.kids) || 0;
       const total = Number(data.total || data.paidAmount || 0);
       const paymentType = data.paymentType || '-';
       const currency = data.currency || '-';
-      const seat = data.seat || '-';
       const user = data.user || data.loginUser || '-';
       const voidedReason = data.voidReason || '';
 
@@ -200,9 +244,7 @@ generateBtn.addEventListener("click", async () => {
       if(voidedReason) tr.classList.add("voided");
       tr.innerHTML = `
         <td>${data.receiptNo}</td>
-        <td>${passenger}</td>
         <td>${data.flight || '-'}</td>
-        <td>${seat}</td>
         <td>${adults}</td>
         <td>${kids}</td>
         <td>${total.toFixed(2)}</td>
@@ -226,12 +268,12 @@ generateBtn.addEventListener("click", async () => {
     }
 
     if(receiptsTableBody.children.length === 0){
-      receiptsTableBody.innerHTML = '<tr><td colspan="12" class="empty-state"><i class="fas fa-receipt"></i><p>No payments found for this date/shift</p></td></tr>';
+      receiptsTableBody.innerHTML = '<tr><td colspan="10" class="empty-state"><i class="fas fa-receipt"></i><p>No payments found for this date/shift</p></td></tr>';
     }
 
   } catch(err){
     console.error(err);
-    receiptsTableBody.innerHTML = `<tr><td colspan="12" style="color:red; text-align:center;">Error: ${err.message}</td></tr>`;
+    receiptsTableBody.innerHTML = `<tr><td colspan="10" style="color:red; text-align:center;">Error: ${err.message}</td></tr>`;
   }
 });
 
