@@ -451,7 +451,7 @@
           <table>
             <tr><th class="label">Receipt</th><td class="value">${escapeHtml(data.receiptNo)}</td></tr>
             <tr><th class="label">Date</th><td class="value">${escapeHtml(dateStr)}</td></tr>
-            <tr><th class="label">Name</th><td class="value">${escapeHtml(data.name || "")}</td></tr>
+            <tr><th class="label">Name</th><td class="value">${escapeHtml(data.passenger || "")}</td></tr>
             <tr><th class="label">Flight</th><td class="value">${escapeHtml(data.flight || "")}</td></tr>
             <tr><th class="label">Seat</th><td class="value">${escapeHtml(data.seat || "")}</td></tr>
             <tr><th class="label">Adults</th><td class="value">${escapeHtml(data.adults != null ? data.adults : 0)}</td></tr>
@@ -536,4 +536,5 @@
     }
   </script>
 </body>
+
 </html>
