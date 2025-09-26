@@ -236,22 +236,30 @@
     .report-header h2 { font-size: 22px; }
   }
   @media print {
-    body { background: white; padding: 0; }
-    .container { max-width: 100%; }
-    .header, .controls { display: none; }
-    .report-container { display: block !important; box-shadow: none; margin: 0; width: 100%; border: none; }
-    .report-header { 
-      background: white !important; 
-      color: black; 
-      border-bottom: 2px solid #000; 
-    }
-    .report-header h2 { color: black; }
-    table { box-shadow: none; }
-    th { 
-      background: #f0f0f0 !important; 
-      -webkit-print-color-adjust: exact; 
-      color-adjust: exact; 
-    }
+  body { background: white; padding: 0; }
+  .container { max-width: 100%; }
+  /* Show header in print */
+  .header { display: block !important; }
+  .controls { display: none; }
+  .report-container { display: block !important; box-shadow: none; margin: 0; width: 100%; border: none; }
+  .report-header { 
+    background: white !important; 
+    color: black; 
+    border-bottom: 2px solid #000; 
+  }
+  .report-header h2 { color: black; }
+  table { box-shadow: none; }
+  th { 
+    background: #f0f0f0 !important; 
+    -webkit-print-color-adjust: exact; 
+    color-adjust: exact; 
+  }
+  .summary {
+    background: #f0f0f0 !important;
+    border-left: 4px solid #000 !important;
+  }
+}
+
     .summary {
       background: #f0f0f0 !important;
       border-left: 4px solid #000 !important;
@@ -264,7 +272,7 @@
 <div class="container">
   <div class="header">
     <h1 id="companyName">Daily Sales Report</h1>
-    <p>Generate and analyze daily sales performance</p>
+  
   </div>
 
   <div class="controls">
@@ -283,13 +291,8 @@
     </div>
 
     <button id="generateBtn" class="btn"><i class="fas fa-chart-line"></i> Generate Report</button>
+    <button id="resetBtn" class="btn"><i class="fas fa-undo"></i> Reset</button>
     <button onclick="printReport()" class="btn btn-print"><i class="fas fa-print"></i> Print Report</button>
-
-          
-        <a href="dashboard.html" class="btn-dashboard">
-          <i class="fas fa-home"></i> Dashboard
-        </a>
-      </div>
   </div>
 
   <div class="report-container" id="reportContainer">
@@ -348,8 +351,10 @@ document.getElementById("companyName").innerText = companyInfo.name || "Company 
 <script src="fire2.js"></script>
 
 <script>
+// ---------- ELEMENTS ----------
 const reportDateInput = document.getElementById("reportDate");
 const generateBtn = document.getElementById("generateBtn");
+const resetBtn = document.getElementById("resetBtn");
 const shiftSelect = document.getElementById("shiftSelect");
 const reportContainer = document.getElementById("reportContainer");
 const reportTitle = document.getElementById("reportTitle");
@@ -358,11 +363,12 @@ const summaryDiv = document.getElementById("summaryDiv");
 const receiptsTableBody = document.querySelector("#receiptsTable tbody");
 const voidedTableBody = document.querySelector("#voidedTable tbody");
 
-// Set default date to today
+// ---------- DEFAULT DATE ----------
 const today = new Date();
 reportDateInput.value = today.toISOString().split('T')[0];
 
-generateBtn.addEventListener("click", async () => {
+// ---------- FETCH REPORT ----------
+async function fetchReport() {
   const selectedDate = reportDateInput.value;
   const selectedShift = shiftSelect.value;
 
@@ -372,14 +378,14 @@ generateBtn.addEventListener("click", async () => {
   reportTitle.innerText = `Sales Report for ${selectedDate}`;
   reportDateText.innerText = `Generated on: ${new Date().toLocaleDateString()}`;
 
+  receiptsTableBody.innerHTML = '<tr><td colspan="9" class="loading"><i class="fas fa-spinner fa-spin"></i> Loading data...</td></tr>';
+  voidedTableBody.innerHTML = '';
+  summaryDiv.innerHTML = '';
+
+  const start = new Date(selectedDate + "T00:00:00");
+  const end = new Date(selectedDate + "T23:59:59");
+
   try {
-    receiptsTableBody.innerHTML = '<tr><td colspan="9" class="loading"><i class="fas fa-spinner fa-spin"></i> Loading data...</td></tr>';
-    voidedTableBody.innerHTML = '';
-    summaryDiv.innerHTML = '';
-
-    const start = new Date(selectedDate + "T00:00:00");
-    const end = new Date(selectedDate + "T23:59:59");
-
     const snapshot = await db.collection("payments")
       .where("timestamp", ">=", start)
       .where("timestamp", "<=", end)
@@ -401,14 +407,6 @@ generateBtn.addEventListener("click", async () => {
       const key = `${data.paymentType} (${data.currency})`;
 
       if(data.voided){
-        if(data.paymentType.toLowerCase() === "cash"){
-          if(!voidedByTypeCurrency[data.currency]) voidedByTypeCurrency[data.currency] = 0;
-          voidedByTypeCurrency[data.currency] += data.total;
-        } else {
-          if(!voidedByTypeCurrency[key]) voidedByTypeCurrency[key] = 0;
-          voidedByTypeCurrency[key] += data.total;
-        }
-
         const tr = document.createElement("tr");
         tr.innerHTML = `
           <td>${data.receiptNo}</td>
@@ -418,6 +416,12 @@ generateBtn.addEventListener("click", async () => {
           <td class="voided">${data.total.toFixed(2)}</td>
         `;
         voidedTableBody.appendChild(tr);
+
+        if(data.paymentType.toLowerCase() === "cash"){
+          voidedByTypeCurrency[data.currency] = (voidedByTypeCurrency[data.currency] || 0) + data.total;
+        } else {
+          voidedByTypeCurrency[key] = (voidedByTypeCurrency[key] || 0) + data.total;
+        }
 
       } else {
         const tr = document.createElement("tr");
@@ -435,18 +439,18 @@ generateBtn.addEventListener("click", async () => {
         receiptsTableBody.appendChild(tr);
 
         if(data.paymentType.toLowerCase() === "cash"){
-          if(!totalsCashByCurrency[data.currency]) totalsCashByCurrency[data.currency] = 0;
-          totalsCashByCurrency[data.currency] += data.total;
+          totalsCashByCurrency[data.currency] = (totalsCashByCurrency[data.currency] || 0) + data.total;
         } else {
-          if(!totalsNonCashByTypeCurrency[key]) totalsNonCashByTypeCurrency[key] = 0;
-          totalsNonCashByTypeCurrency[key] += data.total;
+          totalsNonCashByTypeCurrency[key] = (totalsNonCashByTypeCurrency[key] || 0) + data.total;
         }
       }
     });
 
+    // Subtract voided amounts
     for(const curr in totalsCashByCurrency){ if(voidedByTypeCurrency[curr]) totalsCashByCurrency[curr] -= voidedByTypeCurrency[curr]; }
     for(const key in totalsNonCashByTypeCurrency){ if(voidedByTypeCurrency[key]) totalsNonCashByTypeCurrency[key] -= voidedByTypeCurrency[key]; }
 
+    // Summary
     summaryDiv.innerHTML = "<h3>Summary (Active Receipts Only, Voided Excluded)</h3>";
     for(const curr in totalsCashByCurrency){ if(totalsCashByCurrency[curr] > 0) summaryDiv.innerHTML += `<div>Total Cash in ${curr}: ${totalsCashByCurrency[curr].toFixed(2)}</div>`; }
     for(const key in totalsNonCashByTypeCurrency){ if(totalsNonCashByTypeCurrency[key] > 0) summaryDiv.innerHTML += `<div>Total by ${key}: ${totalsNonCashByTypeCurrency[key].toFixed(2)}</div>`; }
@@ -456,13 +460,25 @@ generateBtn.addEventListener("click", async () => {
     }
 
   } catch(err){
-    console.error("Error generating report:", err);
+    console.error("Error fetching report:", err);
     receiptsTableBody.innerHTML = '<tr><td colspan="9" style="color: #e74c3c; text-align: center; padding: 20px;">Error generating report: ' + err.message + '</td></tr>';
   }
+}
+
+generateBtn.addEventListener("click", fetchReport);
+
+// ---------- RESET ----------
+resetBtn.addEventListener("click", () => {
+  reportDateInput.value = today.toISOString().split('T')[0];
+  shiftSelect.value = "";
+  receiptsTableBody.innerHTML = "";
+  voidedTableBody.innerHTML = "";
+  summaryDiv.innerHTML = "";
+  reportContainer.style.display = "none";
 });
 
+// ---------- PRINT ----------
 function printReport(){ window.print(); }
 </script>
-
 </body>
 </html>
