@@ -125,7 +125,7 @@ tr:hover { background: #fef8e7;}
               <th>Currency</th>
               <th>Shift</th>
               <th>User</th>
-              <th>Level</th>
+          
               <th>Voided Reason</th>
             </tr>
           </thead>
@@ -191,7 +191,7 @@ generateBtn.addEventListener("click", async () => {
       const currency = data.currency || '-';
       const seat = data.seat || '-';
       const user = data.user || data.loginUser || '-';
-      const level = data.level || '-';
+    
       const voidedReason = data.voidReason || '';
 
       const tr = document.createElement("tr");
