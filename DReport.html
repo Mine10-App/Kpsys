@@ -125,7 +125,6 @@ tr:hover { background: #fef8e7;}
               <th>Currency</th>
               <th>Shift</th>
               <th>User</th>
-          
               <th>Voided Reason</th>
             </tr>
           </thead>
@@ -167,7 +166,7 @@ generateBtn.addEventListener("click", async () => {
   reportTitle.innerText = `Sales Report for ${selectedDate}`;
   reportDateText.innerText = `Generated on: ${new Date().toLocaleDateString()}`;
 
-  receiptsTableBody.innerHTML = '<tr><td colspan="13" class="loading"><i class="fas fa-spinner fa-spin"></i> Loading data...</td></tr>';
+  receiptsTableBody.innerHTML = '<tr><td colspan="12" class="loading"><i class="fas fa-spinner fa-spin"></i> Loading data...</td></tr>';
   summaryDiv.innerHTML = '';
 
   try {
@@ -224,12 +223,12 @@ generateBtn.addEventListener("click", async () => {
     }
 
     if(receiptsTableBody.children.length === 0){
-      receiptsTableBody.innerHTML = '<tr><td colspan="13" class="empty-state"><i class="fas fa-receipt"></i><p>No payments found for this date/shift</p></td></tr>';
+      receiptsTableBody.innerHTML = '<tr><td colspan="12" class="empty-state"><i class="fas fa-receipt"></i><p>No payments found for this date/shift</p></td></tr>';
     }
 
   } catch(err){
     console.error(err);
-    receiptsTableBody.innerHTML = `<tr><td colspan="13" style="color:red; text-align:center;">Error: ${err.message}</td></tr>`;
+    receiptsTableBody.innerHTML = `<tr><td colspan="12" style="color:red; text-align:center;">Error: ${err.message}</td></tr>`;
   }
 });
 
