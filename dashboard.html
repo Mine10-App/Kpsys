@@ -241,19 +241,23 @@ function getFormattedDate(d = new Date()) {
 }
 document.getElementById('currentDate').textContent = getFormattedDate();
 
-// Display current shift
+// Load current shift
 async function loadCurrentShift() {
   const today = getFormattedDate();
-  const snapshot = await shiftsRef.where("currentDate","==",today).get();
+  const snapshot = await shiftsRef.where("currentDate","==",today).get(); // use currentDate
   if(snapshot.empty) {
     document.getElementById('currentShift').textContent = "None";
-    return;
+    return "None";
   }
+
   const data = snapshot.docs[0].data();
   let shift = "None";
-  if(data.shift1status === "Open") shift = data.shift1name;
-  else if(data.shift2status === "Open") shift = data.shift2name;
+
+  if(data.shift1status === "Open") shift = data.shift1name || "Morning";
+  else if(data.shift2status === "Open") shift = data.shift2name || "Evening";
+
   document.getElementById('currentShift').textContent = shift;
+  return shift;
 }
 
 // Load totals for current date & shift
@@ -277,8 +281,8 @@ async function loadTotals() {
 
   snapshot.forEach(doc => {
     const data = doc.data();
-    adults += data.adults || 0;
-    kids += data.kids || 0;
+    adults += Number(data.adults || 0);
+    kids += Number(data.kids || 0);
   });
 
   document.getElementById("totalAdults").textContent = adults;
@@ -300,12 +304,8 @@ async function loadPendingUpdates() {
   document.getElementById("pendingUpdates").textContent = pendingCount;
 }
 
-// Navigate to Pending Updates page
-function goToPendingUpdates() {
-  window.location.href = 'updatePayments.html?pending=true';
-}
-
 // Navigation functions
+function goToPendingUpdates() { window.location.href = 'updatePayments.html?pending=true'; }
 function goToNewPayment() { window.location.href = 'newpayment.html'; }
 function goToReport() { window.location.href = 'DReport.html'; }
 function goToUpdatePayments() { window.location.href = 'updatePayments.html'; }
