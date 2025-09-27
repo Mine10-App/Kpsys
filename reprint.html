@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Reprint Receipts (80x297 mm)</title>
+  <title>Reprint Receipts (80mm)</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
   <style>
@@ -23,7 +23,6 @@
       --transition: all 0.3s ease;
     }
 
-    /* General UI (not printed) */
     body {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
@@ -37,7 +36,7 @@
     }
     
     .page-wrap {
-      max-width: 420px; /* preview width on screen; doesn't affect print */
+      max-width: 420px;
       margin: auto;
       background: white;
       border-radius: var(--border-radius);
@@ -147,7 +146,7 @@
       color: var(--success);
     }
 
-    /* Receipt (thermal roll) styling */
+    /* Receipt styling */
     .receipt-wrapper {
       margin-top: 10px;
       display: flex;
@@ -168,6 +167,7 @@
       line-height: 1.15;
       box-shadow: 0 2px 8px rgba(0,0,0,0.1);
       border-radius: 4px;
+      animation: fadeIn 0.3s ease-out;
     }
 
     .company-name {
@@ -246,36 +246,46 @@
       font-weight: 700; 
     }
 
-    /* Print-specific settings */
-    @page {
-      size: 80mm 297mm; 
-      margin: 0mm;      
-    }
-
+    /* Print-only styles */
     @media print {
-      body {
-        background: #fff;
+      body, html {
         margin: 0;
         padding: 0;
+        background: #fff;
       }
-      
-      .page-wrap { 
-        max-width: none; 
-        padding: 0; 
+
+      .page-wrap {
+        margin: 0;
+        padding: 0;
         box-shadow: none;
         border-radius: 0;
+        width: 80mm;
       }
-      
-      .search-bar, .header, .message, .btn-print { 
-        display: none !important; 
+
+      /* hide everything except receipt */
+      .header,
+      .search-section,
+      #printBtn,
+      .message {
+        display: none !important;
       }
-      
+
+      .receipt-wrapper {
+        padding: 0;
+      }
+
       .receipt {
         border: none;
-        padding: 4mm 4mm 6mm 4mm;
         box-shadow: none;
+        width: 100%;
+        padding: 4mm 2mm 4mm 2mm;
         margin: 0;
-        width: 80mm;
+        page-break-inside: avoid;
+      }
+
+      @page {
+        size: 80mm auto; /* auto height for continuous roll */
+        margin: 0;
       }
     }
 
@@ -300,10 +310,6 @@
     @keyframes fadeIn {
       from { opacity: 0; transform: translateY(10px); }
       to { opacity: 1; transform: translateY(0); }
-    }
-    
-    .receipt {
-      animation: fadeIn 0.3s ease-out;
     }
   </style>
 </head>
