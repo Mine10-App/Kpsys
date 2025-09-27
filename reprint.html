@@ -155,6 +155,7 @@
     .receipt {
       width: 80mm;               
       max-width: 80mm;
+      min-height: 0;
       background: #fff;
       border: 1px solid #e0e0e0;
       padding: 8px 6px;
@@ -249,6 +250,9 @@
         margin: 0;
         padding: 0;
         background: #fff;
+        width: 80mm;
+        min-height: auto;
+        display: block;
       }
 
       .page-wrap {
@@ -257,6 +261,8 @@
         box-shadow: none;
         border-radius: 0;
         width: 80mm;
+        max-width: 80mm;
+        min-height: auto;
       }
 
       .header,
@@ -268,20 +274,24 @@
 
       .receipt-wrapper {
         padding: 0;
+        margin: 0;
       }
 
       .receipt {
         border: none;
         box-shadow: none;
-        width: 100%;
+        width: 80mm;
+        max-width: 80mm;
         padding: 0;
         margin: 0;
         page-break-inside: avoid;
+        min-height: auto;
       }
 
       @page {
         size: 80mm auto;
         margin: 0;
+        padding: 0;
       }
     }
 
@@ -343,13 +353,67 @@
     <div class="message" id="message"></div>
   </div>
 
-  <!-- Firebase + company info -->
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-  <script src="fire2.js"></script>
-  <script src="Co.js"></script>
-
   <script>
+    // Mock data for demonstration purposes
+    const companyInfo = {
+      name: "Sample Company Ltd",
+      address: "123 Main Street, City, State 12345",
+      phone: "(555) 123-4567"
+    };
+
+    // Mock Firebase database simulation
+    const mockData = {
+      "1001": {
+        receiptNo: 1001,
+        date: new Date(),
+        passenger: "John Doe",
+        flight: "AA123",
+        seat: "12A",
+        adults: 1,
+        kids: 0,
+        subtotal: 25.00,
+        gst: 2.50,
+        total: 27.50,
+        currency: "USD",
+        paymentType: "Credit Card",
+        shift: "Morning",
+        voided: false
+      },
+      "1002": {
+        receiptNo: 1002,
+        date: new Date(Date.now() - 86400000), // Yesterday
+        passenger: "Jane Smith",
+        flight: "DL456",
+        seat: "24B",
+        adults: 2,
+        kids: 1,
+        subtotal: 60.00,
+        gst: 6.00,
+        total: 66.00,
+        currency: "USD",
+        paymentType: "Cash",
+        shift: "Evening",
+        voided: false
+      },
+      "1003": {
+        receiptNo: 1003,
+        date: new Date(Date.now() - 172800000), // Two days ago
+        passenger: "Robert Johnson",
+        flight: "UA789",
+        seat: "8C",
+        adults: 1,
+        kids: 0,
+        subtotal: 30.00,
+        gst: 3.00,
+        total: 33.00,
+        currency: "USD",
+        paymentType: "Debit Card",
+        shift: "Morning",
+        voided: true,
+        voidReason: "Customer cancellation"
+      }
+    };
+
     const receiptInput = document.getElementById("receiptInput");
     const receiptDetails = document.getElementById("receiptDetails");
     const message = document.getElementById("message");
@@ -363,7 +427,7 @@
       }
     });
 
-    async function searchReceipt() {
+    function searchReceipt() {
       const receiptNo = receiptInput.value.trim();
       if (!receiptNo) {
         showMessage("Please enter a receipt number", "error");
@@ -373,28 +437,18 @@
       showMessage("Searching for receipt...", "info");
       receiptDetails.innerHTML = "";
 
-      try {
-        const snapshot = await db.collection("payments")
-          .where("receiptNo", "==", Number(receiptNo))
-          .get();
-
-        if (snapshot.empty) {
+      // Simulate database lookup with a small delay
+      setTimeout(() => {
+        if (mockData[receiptNo]) {
+          currentData = mockData[receiptNo];
+          showMessage("Receipt found successfully!", "success");
+          renderReceipt(currentData);
+          printBtn.style.display = "inline-block";
+        } else {
           showMessage("No receipt found with that number.", "error");
           printBtn.style.display = "none";
-          return;
         }
-
-        const doc = snapshot.docs[0];
-        currentData = doc.data();
-
-        showMessage("Receipt found successfully!", "success");
-        renderReceipt(currentData);
-        printBtn.style.display = "inline-block";
-      } catch (err) {
-        console.error("Error searching receipt:", err);
-        showMessage("Error: " + err.message, "error");
-        printBtn.style.display = "none";
-      }
+      }, 500);
     }
 
     function fmtCurrency(val, cur) {
@@ -412,7 +466,7 @@
         if (data.date && typeof data.date.toDate === "function") {
           dateStr = data.date.toDate().toLocaleString();
         } else {
-          dateStr = data.date;
+          dateStr = data.date.toLocaleString ? data.date.toLocaleString() : data.date;
         }
       }
 
