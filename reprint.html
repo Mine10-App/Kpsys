@@ -7,6 +7,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
   <style>
+    /* CSS Variables for consistent theming */
     :root {
       --primary: #3498db;
       --primary-dark: #2980b9;
@@ -33,7 +34,7 @@
       justify-content: center;
       -webkit-print-color-adjust: exact;
     }
-
+    
     .page-wrap {
       max-width: 420px;
       margin: auto;
@@ -42,7 +43,7 @@
       box-shadow: var(--shadow);
       overflow: hidden;
     }
-
+    
     .header {
       display: flex;
       justify-content: space-between;
@@ -52,7 +53,7 @@
       background: var(--dark);
       color: white;
     }
-
+    
     h1.app-title {
       font-size: 20px;
       margin: 0;
@@ -66,13 +67,13 @@
       padding: 20px;
       background: var(--light);
     }
-
+    
     .search-bar {
       display: flex;
       gap: 8px;
       margin-bottom: 12px;
     }
-
+    
     .search-bar input[type="number"]{
       flex: 1;
       padding: 12px;
@@ -81,13 +82,13 @@
       border: 1px solid #ddd;
       transition: var(--transition);
     }
-
+    
     .search-bar input:focus {
       outline: none;
       border-color: var(--primary);
       box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
     }
-
+    
     .btn {
       padding: 12px 16px;
       font-size: 14px;
@@ -100,18 +101,18 @@
       align-items: center;
       gap: 6px;
     }
-
+    
     .btn-search { 
       background: var(--primary); 
       color: #fff; 
       min-width: 100px;
     }
-
+    
     .btn-search:hover { 
       background: var(--primary-dark);
       transform: translateY(-2px);
     }
-
+    
     .btn-print  { 
       background: var(--success); 
       color: #fff;
@@ -119,7 +120,7 @@
       justify-content: center;
       margin-top: 15px;
     }
-
+    
     .btn-print:hover {
       background: var(--success-dark);
       transform: translateY(-2px);
@@ -134,17 +135,18 @@
       background: #f8f9fa;
       display: none;
     }
-
+    
     .message.error {
       background: rgba(231, 76, 60, 0.1);
       color: var(--danger);
     }
-
+    
     .message.success {
       background: rgba(39, 174, 96, 0.1);
       color: var(--success);
     }
 
+    /* Receipt styling */
     .receipt-wrapper {
       margin-top: 10px;
       display: flex;
@@ -153,15 +155,14 @@
     }
 
     .receipt {
-      width: 80mm;
+      width: 80mm;               
       max-width: 80mm;
-      min-height: auto;
       background: #fff;
       border: 1px solid #e0e0e0;
       padding: 8px 6px;
       box-sizing: border-box;
       font-family: "Courier New", Courier, monospace; 
-      font-size: 12px;
+      font-size: 12px;          
       color: #111;
       line-height: 1.15;
       box-shadow: 0 2px 8px rgba(0,0,0,0.1);
@@ -177,7 +178,7 @@
       text-transform: uppercase;
       letter-spacing: 0.5px;
     }
-
+    
     .company-meta {
       text-align: center;
       font-size: 11px;
@@ -195,19 +196,19 @@
       border-collapse: collapse;
       margin-top: 2px;
     }
-
+    
     .receipt th, .receipt td {
       padding: 4px 0;
       text-align: left;
       vertical-align: top;
       font-size: 12px;
     }
-
+    
     .receipt .label { 
       width: 42%; 
       font-weight: 600; 
     }
-
+    
     .receipt .value { 
       width: 58%; 
       text-align: right; 
@@ -239,33 +240,29 @@
       color: var(--success); 
       font-weight: 700; 
     }
-
+    
     .status-voided { 
       color: var(--danger); 
       font-weight: 700; 
     }
 
+    /* Print-only styles */
     @media print {
       body, html {
-        margin: 0 !important;
-        padding: 0 !important;
+        margin: 0;
+        padding: 0;
         background: #fff;
-        width: 80mm !important;
-        min-height: auto !important;
-        display: block;
-        overflow: hidden;
       }
 
       .page-wrap {
-        margin: 0 !important;
-        padding: 0 !important;
-        box-shadow: none !important;
-        border-radius: 0 !important;
-        width: 80mm !important;
-        max-width: 80mm !important;
-        min-height: auto !important;
+        margin: 0;
+        padding: 0;
+        box-shadow: none;
+        border-radius: 0;
+        width: 80mm;
       }
 
+      /* hide everything except receipt */
       .header,
       .search-section,
       #printBtn,
@@ -274,27 +271,21 @@
       }
 
       .receipt-wrapper {
-        padding: 0 !important;
-        margin: 0 !important;
-        width: 80mm !important;
-        max-width: 80mm !important;
+        padding: 0;
       }
 
       .receipt {
-        border: none !important;
-        box-shadow: none !important;
-        width: 80mm !important;
-        max-width: 80mm !important;
-        padding: 0 !important;
-        margin: 0 !important;
+        border: none;
+        box-shadow: none;
+        width: 100%;
+        padding: 4mm 2mm 4mm 2mm;
+        margin: 0;
         page-break-inside: avoid;
-        min-height: auto !important;
       }
 
       @page {
-        size: 80mm auto;
-        margin: 0 !important;
-        padding: 0 !important;
+        size: 80mm auto; /* auto height for continuous roll */
+        margin: 0;
       }
     }
 
@@ -302,20 +293,20 @@
       body {
         padding: 10px;
       }
-
+      
       .page-wrap { 
         max-width: 100%; 
       }
-
+      
       .search-bar {
         flex-direction: column;
       }
-
+      
       .btn-search {
         width: 100%;
       }
     }
-
+    
     @keyframes fadeIn {
       from { opacity: 0; transform: translateY(10px); }
       to { opacity: 1; transform: translateY(0); }
@@ -356,67 +347,13 @@
     <div class="message" id="message"></div>
   </div>
 
+  <!-- Firebase + company info -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  <script src="fire2.js"></script>
+  <script src="Co.js"></script>
+
   <script>
-    // Mock data for demonstration purposes
-    const companyInfo = {
-      name: "Sample Company Ltd",
-      address: "123 Main Street, City, State 12345",
-      phone: "(555) 123-4567"
-    };
-
-    // Mock Firebase database simulation
-    const mockData = {
-      "1001": {
-        receiptNo: 1001,
-        date: new Date(),
-        passenger: "John Doe",
-        flight: "AA123",
-        seat: "12A",
-        adults: 1,
-        kids: 0,
-        subtotal: 25.00,
-        gst: 2.50,
-        total: 27.50,
-        currency: "USD",
-        paymentType: "Credit Card",
-        shift: "Morning",
-        voided: false
-      },
-      "1002": {
-        receiptNo: 1002,
-        date: new Date(Date.now() - 86400000), // Yesterday
-        passenger: "Jane Smith",
-        flight: "DL456",
-        seat: "24B",
-        adults: 2,
-        kids: 1,
-        subtotal: 60.00,
-        gst: 6.00,
-        total: 66.00,
-        currency: "USD",
-        paymentType: "Cash",
-        shift: "Evening",
-        voided: false
-      },
-      "1003": {
-        receiptNo: 1003,
-        date: new Date(Date.now() - 172800000), // Two days ago
-        passenger: "Robert Johnson",
-        flight: "UA789",
-        seat: "8C",
-        adults: 1,
-        kids: 0,
-        subtotal: 30.00,
-        gst: 3.00,
-        total: 33.00,
-        currency: "USD",
-        paymentType: "Debit Card",
-        shift: "Morning",
-        voided: true,
-        voidReason: "Customer cancellation"
-      }
-    };
-
     const receiptInput = document.getElementById("receiptInput");
     const receiptDetails = document.getElementById("receiptDetails");
     const message = document.getElementById("message");
@@ -430,7 +367,7 @@
       }
     });
 
-    function searchReceipt() {
+    async function searchReceipt() {
       const receiptNo = receiptInput.value.trim();
       if (!receiptNo) {
         showMessage("Please enter a receipt number", "error");
@@ -440,18 +377,28 @@
       showMessage("Searching for receipt...", "info");
       receiptDetails.innerHTML = "";
 
-      // Simulate database lookup with a small delay
-      setTimeout(() => {
-        if (mockData[receiptNo]) {
-          currentData = mockData[receiptNo];
-          showMessage("Receipt found successfully!", "success");
-          renderReceipt(currentData);
-          printBtn.style.display = "inline-block";
-        } else {
+      try {
+        const snapshot = await db.collection("payments")
+          .where("receiptNo", "==", Number(receiptNo))
+          .get();
+
+        if (snapshot.empty) {
           showMessage("No receipt found with that number.", "error");
           printBtn.style.display = "none";
+          return;
         }
-      }, 500);
+
+        const doc = snapshot.docs[0];
+        currentData = doc.data();
+
+        showMessage("Receipt found successfully!", "success");
+        renderReceipt(currentData);
+        printBtn.style.display = "inline-block";
+      } catch (err) {
+        console.error("Error searching receipt:", err);
+        showMessage("Error: " + err.message, "error");
+        printBtn.style.display = "none";
+      }
     }
 
     function fmtCurrency(val, cur) {
@@ -469,7 +416,7 @@
         if (data.date && typeof data.date.toDate === "function") {
           dateStr = data.date.toDate().toLocaleString();
         } else {
-          dateStr = data.date.toLocaleString ? data.date.toLocaleString() : data.date;
+          dateStr = data.date;
         }
       }
 
@@ -511,8 +458,11 @@
         <div class="company-name">${escapeHtml(companyInfo.name || "")}</div>
         <div class="company-meta">${escapeHtml(companyInfo.address || "")}</div>
         <div class="company-meta">Phone: ${escapeHtml(companyInfo.phone || "")}</div>
+
         <div class="divider"></div>
+
         ${itemsHtml}
+
         <div style="margin-top:6px;">
           <div style="display:flex; justify-content:space-between; font-weight:600;">
             <div>Sub Total</div>
@@ -526,20 +476,25 @@
             <div>Total</div>
             <div>${fmtCurrency(total, data.currency)}</div>
           </div>
+
           <div style="display:flex; justify-content:space-between; margin-top:6px;">
             <div>Payment</div>
             <div>${escapeHtml(data.paymentType || "")}</div>
           </div>
+
           <div style="display:flex; justify-content:space-between; margin-top:4px;">
             <div>Shift</div>
             <div>${escapeHtml(data.shift || "")}</div>
           </div>
+
           <div style="display:flex; justify-content:space-between; margin-top:4px;">
             <div>Status</div>
             <div class="${statusClass}">${statusText}</div>
           </div>
+
           ${data.voided && data.voidReason ? `<div style="margin-top:6px;"><strong>Void Reason:</strong> ${escapeHtml(data.voidReason)}</div>` : ""}
         </div>
+
         <div class="divider"></div>
         <div class="note">Thank you for choosing ${escapeHtml(companyInfo.name || "")}!</div>
         <div style="text-align:center; font-size:10px; margin-top:6px;">Powered by Koveli POS</div>
@@ -550,9 +505,12 @@
       message.innerText = text;
       message.className = "message";
       message.style.display = "block";
-
-      if (type === "error") message.classList.add("error");
-      else if (type === "success") message.classList.add("success");
+      
+      if (type === "error") {
+        message.classList.add("error");
+      } else if (type === "success") {
+        message.classList.add("success");
+      }
     }
 
     function escapeHtml(unsafe) {
@@ -567,4 +525,3 @@
   </script>
 </body>
 </html>
-
