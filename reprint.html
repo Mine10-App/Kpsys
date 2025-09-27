@@ -7,7 +7,6 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
   <style>
-    /* CSS Variables for consistent theming */
     :root {
       --primary: #3498db;
       --primary-dark: #2980b9;
@@ -34,7 +33,7 @@
       justify-content: center;
       -webkit-print-color-adjust: exact;
     }
-    
+
     .page-wrap {
       max-width: 420px;
       margin: auto;
@@ -43,7 +42,7 @@
       box-shadow: var(--shadow);
       overflow: hidden;
     }
-    
+
     .header {
       display: flex;
       justify-content: space-between;
@@ -53,7 +52,7 @@
       background: var(--dark);
       color: white;
     }
-    
+
     h1.app-title {
       font-size: 20px;
       margin: 0;
@@ -67,13 +66,13 @@
       padding: 20px;
       background: var(--light);
     }
-    
+
     .search-bar {
       display: flex;
       gap: 8px;
       margin-bottom: 12px;
     }
-    
+
     .search-bar input[type="number"]{
       flex: 1;
       padding: 12px;
@@ -82,13 +81,13 @@
       border: 1px solid #ddd;
       transition: var(--transition);
     }
-    
+
     .search-bar input:focus {
       outline: none;
       border-color: var(--primary);
       box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
     }
-    
+
     .btn {
       padding: 12px 16px;
       font-size: 14px;
@@ -101,18 +100,18 @@
       align-items: center;
       gap: 6px;
     }
-    
+
     .btn-search { 
       background: var(--primary); 
       color: #fff; 
       min-width: 100px;
     }
-    
+
     .btn-search:hover { 
       background: var(--primary-dark);
       transform: translateY(-2px);
     }
-    
+
     .btn-print  { 
       background: var(--success); 
       color: #fff;
@@ -120,7 +119,7 @@
       justify-content: center;
       margin-top: 15px;
     }
-    
+
     .btn-print:hover {
       background: var(--success-dark);
       transform: translateY(-2px);
@@ -135,18 +134,17 @@
       background: #f8f9fa;
       display: none;
     }
-    
+
     .message.error {
       background: rgba(231, 76, 60, 0.1);
       color: var(--danger);
     }
-    
+
     .message.success {
       background: rgba(39, 174, 96, 0.1);
       color: var(--success);
     }
 
-    /* Receipt styling */
     .receipt-wrapper {
       margin-top: 10px;
       display: flex;
@@ -178,7 +176,7 @@
       text-transform: uppercase;
       letter-spacing: 0.5px;
     }
-    
+
     .company-meta {
       text-align: center;
       font-size: 11px;
@@ -196,19 +194,19 @@
       border-collapse: collapse;
       margin-top: 2px;
     }
-    
+
     .receipt th, .receipt td {
       padding: 4px 0;
       text-align: left;
       vertical-align: top;
       font-size: 12px;
     }
-    
+
     .receipt .label { 
       width: 42%; 
       font-weight: 600; 
     }
-    
+
     .receipt .value { 
       width: 58%; 
       text-align: right; 
@@ -240,13 +238,12 @@
       color: var(--success); 
       font-weight: 700; 
     }
-    
+
     .status-voided { 
       color: var(--danger); 
       font-weight: 700; 
     }
 
-    /* Print-only styles */
     @media print {
       body, html {
         margin: 0;
@@ -262,7 +259,6 @@
         width: 80mm;
       }
 
-      /* hide everything except receipt */
       .header,
       .search-section,
       #printBtn,
@@ -278,13 +274,13 @@
         border: none;
         box-shadow: none;
         width: 100%;
-        padding: 4mm 2mm 4mm 2mm;
+        padding: 0;
         margin: 0;
         page-break-inside: avoid;
       }
 
       @page {
-        size: 80mm auto; /* auto height for continuous roll */
+        size: 80mm auto;
         margin: 0;
       }
     }
@@ -293,20 +289,20 @@
       body {
         padding: 10px;
       }
-      
+
       .page-wrap { 
         max-width: 100%; 
       }
-      
+
       .search-bar {
         flex-direction: column;
       }
-      
+
       .btn-search {
         width: 100%;
       }
     }
-    
+
     @keyframes fadeIn {
       from { opacity: 0; transform: translateY(10px); }
       to { opacity: 1; transform: translateY(0); }
@@ -458,11 +454,8 @@
         <div class="company-name">${escapeHtml(companyInfo.name || "")}</div>
         <div class="company-meta">${escapeHtml(companyInfo.address || "")}</div>
         <div class="company-meta">Phone: ${escapeHtml(companyInfo.phone || "")}</div>
-
         <div class="divider"></div>
-
         ${itemsHtml}
-
         <div style="margin-top:6px;">
           <div style="display:flex; justify-content:space-between; font-weight:600;">
             <div>Sub Total</div>
@@ -476,25 +469,20 @@
             <div>Total</div>
             <div>${fmtCurrency(total, data.currency)}</div>
           </div>
-
           <div style="display:flex; justify-content:space-between; margin-top:6px;">
             <div>Payment</div>
             <div>${escapeHtml(data.paymentType || "")}</div>
           </div>
-
           <div style="display:flex; justify-content:space-between; margin-top:4px;">
             <div>Shift</div>
             <div>${escapeHtml(data.shift || "")}</div>
           </div>
-
           <div style="display:flex; justify-content:space-between; margin-top:4px;">
             <div>Status</div>
             <div class="${statusClass}">${statusText}</div>
           </div>
-
           ${data.voided && data.voidReason ? `<div style="margin-top:6px;"><strong>Void Reason:</strong> ${escapeHtml(data.voidReason)}</div>` : ""}
         </div>
-
         <div class="divider"></div>
         <div class="note">Thank you for choosing ${escapeHtml(companyInfo.name || "")}!</div>
         <div style="text-align:center; font-size:10px; margin-top:6px;">Powered by Koveli POS</div>
@@ -505,12 +493,9 @@
       message.innerText = text;
       message.className = "message";
       message.style.display = "block";
-      
-      if (type === "error") {
-        message.classList.add("error");
-      } else if (type === "success") {
-        message.classList.add("success");
-      }
+
+      if (type === "error") message.classList.add("error");
+      else if (type === "success") message.classList.add("success");
     }
 
     function escapeHtml(unsafe) {
