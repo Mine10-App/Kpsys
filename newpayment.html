@@ -140,6 +140,14 @@ input[readonly] {
   transform: translateY(0);
 }
 
+.btn:disabled {
+  background: var(--medium-gray);
+  color: var(--dark-gray);
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
 .form-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
@@ -237,37 +245,38 @@ input[readonly] {
 
 .receipt {
   width: 100%;
-  max-width: 320px;
+  max-width: 80mm; /* Standard thermal receipt width */
   margin: 0 auto;
   background: white;
   border: 1px solid var(--medium-gray);
   border-radius: var(--border-radius);
-  padding: 15px;
+  padding: 10px;
   font-family: 'Courier New', monospace;
   box-shadow: 0 1px 3px rgba(0,0,0,0.1);
   font-size: 12px;
+  line-height: 1.2;
 }
 
 .receipt-header {
   text-align: center;
-  margin-bottom: 12px;
+  margin-bottom: 10px;
   padding-bottom: 8px;
   border-bottom: 1px dashed var(--medium-gray);
 }
 
 .receipt-header .company {
   font-weight: bold;
-  font-size: 16px;
-  margin-bottom: 4px;
+  font-size: 14px;
+  margin-bottom: 3px;
 }
 
 .receipt-header .details {
-  font-size: 10px;
+  font-size: 9px;
   color: var(--dark-gray);
 }
 
 .receipt-body {
-  margin-bottom: 12px;
+  margin-bottom: 10px;
   padding-bottom: 8px;
   border-bottom: 1px dashed var(--medium-gray);
 }
@@ -275,20 +284,20 @@ input[readonly] {
 .receipt-line {
   display: flex;
   justify-content: space-between;
-  margin-bottom: 4px;
-  font-size: 12px;
+  margin-bottom: 3px;
+  font-size: 11px;
 }
 
 .receipt-line.label {
   font-weight: bold;
-  margin-top: 6px;
+  margin-top: 5px;
 }
 
 .receipt-footer {
   text-align: center;
-  font-size: 10px;
+  font-size: 9px;
   color: var(--dark-gray);
-  margin-top: 12px;
+  margin-top: 10px;
 }
 
 .receipt-buttons {
@@ -343,6 +352,54 @@ input[readonly] {
   .card {
     padding: 15px;
     margin-bottom: 15px;
+  }
+  
+  /* Adjust receipt for mobile */
+  .receipt {
+    max-width: 100%;
+    padding: 8px;
+  }
+}
+
+/* Print-specific styles for receipt */
+@media print {
+  body * {
+    visibility: hidden;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+  #receiptContainer, #receiptContainer * {
+    visibility: visible;
+  }
+  #receiptContainer {
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 80mm;
+    height: auto;
+    padding: 0;
+    margin: 0;
+    box-shadow: none;
+    border: none;
+    background: white;
+  }
+  .receipt {
+    max-width: 80mm;
+    box-shadow: none;
+    border: none;
+    padding: 5mm;
+    margin: 0;
+    page-break-after: avoid;
+  }
+  .receipt-buttons {
+    display: none;
+  }
+  html, body {
+    width: 80mm;
+    height: auto;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: hidden;
   }
 }
 
@@ -553,7 +610,7 @@ const flightField = document.getElementById("flight");
 const seatField = document.getElementById("seat");
 const paymentTypeSelect = document.getElementById("paymentType");
 const cashPaymentFields = document.getElementById("cashPaymentFields");
-
+const saveBtn = document.getElementById("saveBtn");
 
 // ---------- USER INFO ----------
 if(!loggedUser){
@@ -700,6 +757,7 @@ window.addEventListener('load',()=>{
 
 const paymentsRef = window.db.collection("payments");
 let lastReceiptNo = 0;
+let isProcessing = false;
 
 // ---------- GET LAST RECEIPT NO ----------
 async function getLastReceiptNo(){
@@ -712,110 +770,120 @@ getLastReceiptNo();
 
 // ---------- SAVE & SHOW RECEIPT ----------
 document.getElementById("saveBtn").addEventListener("click", async ()=>{
-  lastReceiptNo++;
-
-  // Collect data
-  const data = {
-    receiptNo: lastReceiptNo,
-    user: loggedUser.name,
-    level: loggedUser.Level,
-    date: dateField.textContent,
-    shift: shiftField.textContent,
-    passenger: nameField.value,
-    flight: flightField.value,
-    seat: seatField.value,
-    adults: parseInt(adultCountInput.value)||0,
-    kids: parseInt(kidCountInput.value)||0,
-    rateType: rateSelect.value,
-    currency: currencySelect.value,
-    paymentType: paymentTypeSelect.value,
-    subtotal: parseFloat(rateField.textContent.replace(/[^0-9.-]+/g,""))||0,
-    gst: parseFloat(gstField.textContent.replace(/[^0-9.-]+/g,""))||0,
-    total: parseFloat(totalField.textContent.replace(/[^0-9.-]+/g,""))||0,
-    paid: parseFloat(paidAmountInput.value)||0,
-    balance: parseFloat(balanceField.value.replace(/[^0-9.-]+/g,""))||0
-  };
-
-  // Save to Firestore
-  await paymentsRef.doc("receipt_"+lastReceiptNo).set(data);
-
-  // Build receipt
-  const symbol = data.currency==="USD"?"$":"MVR ";
-
-  // Update receipt fields
-  document.getElementById("receiptNoField").textContent = data.receiptNo;
-  document.getElementById("receiptDateField").textContent = data.date;
-  document.getElementById("receiptShiftField").textContent = data.shift;
-  document.getElementById("receiptUserField").textContent = `${data.user} (${data.level})`;
-  document.getElementById("receiptPassengerField").textContent = data.passenger;
-  document.getElementById("receiptFlightField").textContent = data.flight;
-  document.getElementById("receiptSeatField").textContent = data.seat;
-  document.getElementById("receiptAdultsField").textContent = data.adults;
-  document.getElementById("receiptKidsField").textContent = data.kids;
-  document.getElementById("receiptCurrencyField").textContent = data.currency;
-  document.getElementById("receiptPaymentTypeField").textContent = data.paymentType;
-  document.getElementById("receiptSubtotalField").textContent = `${symbol}${data.subtotal.toFixed(2)}`;
-  document.getElementById("receiptGstField").textContent = `${symbol}${data.gst.toFixed(2)}`;
-  document.getElementById("receiptTotalField").textContent = `${symbol}${data.total.toFixed(2)}`;
-
-  // Conditionally show/hide Paid & Balance
-  if(data.paymentType.toLowerCase() === "cash"){
-      document.getElementById("receiptPaidField").textContent = `${symbol}${data.paid.toFixed(2)}`;
-      document.getElementById("receiptBalanceField").textContent = `${symbol}${data.balance.toFixed(2)}`;
-      // Apply color to balance
-      const receiptBalanceField = document.getElementById("receiptBalanceField");
-      receiptBalanceField.className = "";
-      if (data.balance < 0) {
-        receiptBalanceField.classList.add("balance-negative");
-      } else if (data.balance === 0) {
-        receiptBalanceField.classList.add("balance-zero");
-      } else {
-        receiptBalanceField.classList.add("balance-positive");
-      }
-      document.getElementById("receiptPaidField").parentElement.style.display = "flex";
-      document.getElementById("receiptBalanceField").parentElement.style.display = "flex";
-  } else {
-      // Hide Paid & Balance lines
-      document.getElementById("receiptPaidField").parentElement.style.display = "none";
-      document.getElementById("receiptBalanceField").parentElement.style.display = "none";
+  // Prevent multiple submissions
+  if (isProcessing) {
+    alert("Payment is already being processed. Please wait.");
+    return;
   }
+  
+  isProcessing = true;
+  saveBtn.disabled = true;
+  saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+  
+  try {
+    lastReceiptNo++;
 
-  document.getElementById("receiptContainer").style.display = "block";
+    // Collect data
+    const data = {
+      receiptNo: lastReceiptNo,
+      user: loggedUser.name,
+      level: loggedUser.Level,
+      date: dateField.textContent,
+      shift: shiftField.textContent,
+      passenger: nameField.value,
+      flight: flightField.value,
+      seat: seatField.value,
+      adults: parseInt(adultCountInput.value)||0,
+      kids: parseInt(kidCountInput.value)||0,
+      rateType: rateSelect.value,
+      currency: currencySelect.value,
+      paymentType: paymentTypeSelect.value,
+      subtotal: parseFloat(rateField.textContent.replace(/[^0-9.-]+/g,""))||0,
+      gst: parseFloat(gstField.textContent.replace(/[^0-9.-]+/g,""))||0,
+      total: parseFloat(totalField.textContent.replace(/[^0-9.-]+/g,""))||0,
+      paid: parseFloat(paidAmountInput.value)||0,
+      balance: parseFloat(balanceField.value.replace(/[^0-9.-]+/g,""))||0,
+      timestamp: new Date()
+    };
+
+    // Save to Firestore
+    await paymentsRef.doc("receipt_"+lastReceiptNo).set(data);
+
+    // Build receipt
+    const symbol = data.currency==="USD"?"$":"MVR ";
+
+    // Update receipt fields
+    document.getElementById("receiptNoField").textContent = data.receiptNo;
+    document.getElementById("receiptDateField").textContent = data.date;
+    document.getElementById("receiptShiftField").textContent = data.shift;
+    document.getElementById("receiptUserField").textContent = `${data.user} (${data.level})`;
+    document.getElementById("receiptPassengerField").textContent = data.passenger;
+    document.getElementById("receiptFlightField").textContent = data.flight;
+    document.getElementById("receiptSeatField").textContent = data.seat;
+    document.getElementById("receiptAdultsField").textContent = data.adults;
+    document.getElementById("receiptKidsField").textContent = data.kids;
+    document.getElementById("receiptCurrencyField").textContent = data.currency;
+    document.getElementById("receiptPaymentTypeField").textContent = data.paymentType;
+    document.getElementById("receiptSubtotalField").textContent = `${symbol}${data.subtotal.toFixed(2)}`;
+    document.getElementById("receiptGstField").textContent = `${symbol}${data.gst.toFixed(2)}`;
+    document.getElementById("receiptTotalField").textContent = `${symbol}${data.total.toFixed(2)}`;
+
+    // Conditionally show/hide Paid & Balance
+    if(data.paymentType.toLowerCase() === "cash"){
+        document.getElementById("receiptPaidField").textContent = `${symbol}${data.paid.toFixed(2)}`;
+        document.getElementById("receiptBalanceField").textContent = `${symbol}${data.balance.toFixed(2)}`;
+        // Apply color to balance
+        const receiptBalanceField = document.getElementById("receiptBalanceField");
+        receiptBalanceField.className = "";
+        if (data.balance < 0) {
+          receiptBalanceField.classList.add("balance-negative");
+        } else if (data.balance === 0) {
+          receiptBalanceField.classList.add("balance-zero");
+        } else {
+          receiptBalanceField.classList.add("balance-positive");
+        }
+        document.getElementById("receiptPaidField").parentElement.style.display = "flex";
+        document.getElementById("receiptBalanceField").parentElement.style.display = "flex";
+    } else {
+        // Hide Paid & Balance lines
+        document.getElementById("receiptPaidField").parentElement.style.display = "none";
+        document.getElementById("receiptBalanceField").parentElement.style.display = "none";
+    }
+
+    document.getElementById("receiptContainer").style.display = "block";
+
+  } catch (error) {
+    console.error("Error saving payment:", error);
+    alert("Error saving payment. Please try again.");
+    // Roll back the receipt number on error
+    lastReceiptNo--;
+  } finally {
+    // Keep the button disabled after processing
+    // It will be re-enabled when starting a new payment
+  }
 });
 
 // ---------- PRINT RECEIPT ----------
 document.getElementById("printReceiptBtn").addEventListener("click",()=>{
-  const content = document.getElementById("receiptContent").innerHTML;
-  const win = window.open("","PRINT","width=400,height=600");
-  win.document.write(`
-    <!DOCTYPE html>
-    <html>
-    <head>
-      <title>Receipt</title>
-      <style>
-        body { font-family: 'Courier New', monospace; margin: 0; padding: 20px; }
-        .receipt { max-width: 300px; margin: 0 auto; }
-        .receipt-header { text-align: center; margin-bottom: 15px; padding-bottom: 10px; border-bottom: 1px dashed #ccc; }
-        .receipt-body { margin-bottom: 15px; padding-bottom: 10px; border-bottom: 1px dashed #ccc; }
-        .receipt-line { display: flex; justify-content: space-between; margin-bottom: 5px; font-size: 14px; }
-        .receipt-line.label { font-weight: bold; margin-top: 8px; }
-        .receipt-footer { text-align: center; font-size: 11px; color: #666; margin-top: 15px; }
-      </style>
-    </head>
-    <body>
-      ${content}
-    </body>
-    </html>
-  `);
-  win.document.close();
-  win.focus();
-  win.print();
-  win.close();
+  // Use CSS media queries for printing
+  window.print();
 });
 
 // ---------- NEW PAYMENT ----------
 document.getElementById("newPaymentBtn").addEventListener("click",()=>{
-  location.reload();
+  // Re-enable the save button for the new payment
+  saveBtn.disabled = false;
+  saveBtn.innerHTML = '<i class="fas fa-check-circle"></i> Process Payment';
+  isProcessing = false;
+  
+  // Reset the form
+  document.getElementById("paymentForm").reset();
+  
+  // Reset the receipt container
+  document.getElementById("receiptContainer").style.display = "none";
+  
+  // Reset calculations
+  calculateTotals();
 });
 
 </script>
