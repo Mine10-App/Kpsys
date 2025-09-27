@@ -1,178 +1,824 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Payment Entry</title>
-  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>New Payment</title>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+<script src="fire2.js"></script>
+<script src="rate.js"></script>
+<script src="Co.js"></script>
+<script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+<style>
+:root {
+  --gold: #D4AF37;
+  --gold-light: #F5E8C8;
+  --gold-dark: #B8860B;
+  --white: #FFFFFF;
+  --light-gray: #F8F9FA;
+  --medium-gray: #E9ECEF;
+  --dark-gray: #495057;
+  --text-color: #333333;
+  --shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  --border-radius: 6px;
+  --error-color: #dc3545;
+  --success-color: #28a745;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: var(--light-gray);
+  color: var(--text-color);
+  line-height: 1.5;
+  padding: 15px;
+  min-height: 100vh;
+  font-size: 14px;
+}
+
+.container {
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+h2 {
+  color: var(--gold-dark);
+  font-size: 1.8rem;
+  margin-bottom: 15px;
+  text-align: center;
+}
+
+.card {
+  background: var(--white);
+  padding: 18px;
+  border-radius: var(--border-radius);
+  margin-bottom: 18px;
+  box-shadow: var(--shadow);
+  border-top: 2px solid var(--gold);
+}
+
+.card-header {
+  font-weight: bold;
+  margin-bottom: 15px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--gold-dark);
+  font-size: 1.1rem;
+}
+
+.card-header i {
+  color: var(--gold);
+  font-size: 1rem;
+}
+
+.form-group {
+  margin-bottom: 15px;
+}
+
+.form-label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: 600;
+  color: var(--dark-gray);
+  font-size: 0.9rem;
+}
+
+input, select {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--medium-gray);
+  border-radius: var(--border-radius);
+  font-size: 0.9rem;
+  transition: all 0.2s ease;
+  background-color: var(--light-gray);
+}
+
+input:focus, select:focus {
+  outline: none;
+  border-color: var(--gold);
+  box-shadow: 0 0 0 2px rgba(212, 175, 55, 0.2);
+  background-color: var(--white);
+}
+
+input[readonly] {
+  background-color: var(--medium-gray);
+  color: var(--dark-gray);
+}
+
+.btn {
+  background: var(--gold);
+  color: var(--white);
+  padding: 12px 18px;
+  border: none;
+  border-radius: var(--border-radius);
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 0.9rem;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: 100%;
+  margin-top: 8px;
+}
+
+.btn:hover {
+  background: var(--gold-dark);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+}
+
+.btn:active {
+  transform: translateY(0);
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 15px;
+}
+
+.input-icon {
+  position: relative;
+}
+
+.input-icon i {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--dark-gray);
+  font-size: 0.9rem;
+}
+
+.input-icon input {
+  padding-left: 35px;
+}
+
+.section-title {
+  margin-top: 20px;
+  margin-bottom: 12px;
+  font-weight: bold;
+  color: var(--gold-dark);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 1rem;
+}
+
+.totals-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.total-item {
+  display: flex;
+  justify-content: space-between;
+  font-weight: bold;
+  padding: 8px 12px;
+  background-color: var(--gold-light);
+  border-radius: var(--border-radius);
+  border-left: 2px solid var(--gold);
+  font-size: 0.9rem;
+}
+
+.user-info {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-bottom: 8px;
+  background-color: var(--gold-light);
+  padding: 12px;
+  border-radius: var(--border-radius);
+  border-left: 3px solid var(--gold);
+}
+
+.user-info p {
+  margin: 0;
+  padding: 6px 10px;
+  font-weight: 500;
+  font-size: 0.9rem;
+}
+
+.user-info strong {
+  color: var(--gold-dark);
+  font-size: 0.9rem;
+}
+
+.passenger-count {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+}
+
+.hidden {
+  display: none !important;
+}
+
+#receiptContainer {
+  display: none;
+  background: var(--white);
+  padding: 20px;
+  border-radius: var(--border-radius);
+  margin-top: 20px;
+  box-shadow: var(--shadow);
+  border-top: 2px solid var(--gold);
+}
+
+.receipt {
+  width: 100%;
+  max-width: 320px;
+  margin: 0 auto;
+  background: white;
+  border: 1px solid var(--medium-gray);
+  border-radius: var(--border-radius);
+  padding: 15px;
+  font-family: 'Courier New', monospace;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  font-size: 12px;
+}
+
+.receipt-header {
+  text-align: center;
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px dashed var(--medium-gray);
+}
+
+.receipt-header .company {
+  font-weight: bold;
+  font-size: 16px;
+  margin-bottom: 4px;
+}
+
+.receipt-header .details {
+  font-size: 10px;
+  color: var(--dark-gray);
+}
+
+.receipt-body {
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px dashed var(--medium-gray);
+}
+
+.receipt-line {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 4px;
+  font-size: 12px;
+}
+
+.receipt-line.label {
+  font-weight: bold;
+  margin-top: 6px;
+}
+
+.receipt-footer {
+  text-align: center;
+  font-size: 10px;
+  color: var(--dark-gray);
+  margin-top: 12px;
+}
+
+.receipt-buttons {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  margin-top: 15px;
+}
+
+.receipt-buttons .btn {
+  width: auto;
+  min-width: 120px;
+  margin-top: 0;
+  padding: 10px 15px;
+  font-size: 0.85rem;
+}
+
+@media (max-width: 768px) {
+  body {
+    padding: 10px;
+    font-size: 13px;
+  }
+  
+  .container {
+    max-width: 100%;
+  }
+  
+  .form-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  
+  .user-info {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+  
+  .passenger-count {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  
+  .receipt-buttons {
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .receipt-buttons .btn {
+    width: 100%;
+  }
+  
+  .card {
+    padding: 15px;
+    margin-bottom: 15px;
+  }
+}
+
+.balance-positive {
+  color: var(--success-color);
+}
+
+.balance-negative {
+  color: var(--error-color);
+}
+
+.balance-zero {
+  color: var(--gold-dark);
+}
+
+.compact-form .form-group {
+  margin-bottom: 12px;
+}
+
+.compact-form input, .compact-form select {
+  padding: 8px 10px;
+  font-size: 0.85rem;
+}
+</style>
 </head>
 <body>
-  <h2>New Payment</h2>
 
-  <div>
-    <label>Date: <span id="dateField"></span></label><br>
-    <label>Shift: <span id="shiftField"></span></label><br>
-    <label>User: <span id="userField"></span></label><br>
+<div class="container">
+  
+  <!-- User / Shift Info -->
+  <div class="card">
+    <div class="user-info">
+      <p><strong>User:</strong> <span id="userNameField"></span> (<span id="userLevelField"></span>)</p>
+      <p><strong>Date:</strong> <span id="dateField"></span></p>
+      <p><strong>Current Shift:</strong> <span id="shiftField"></span></p>
+    </div>
   </div>
 
-  <div>
-    <input id="nameField" placeholder="Passenger Name"><br>
-    <input id="flightField" placeholder="Flight"><br>
-    <input id="seatField" placeholder="Seat"><br>
-    <input id="adultCountInput" placeholder="Adults" type="number"><br>
-    <input id="kidCountInput" placeholder="Kids" type="number"><br>
+  <form id="paymentForm" class="compact-form">
 
-    <select id="rateSelect">
-      <option value="normal">Normal</option>
-      <option value="vip">VIP</option>
-    </select><br>
-    <select id="currencySelect">
-      <option value="MVR">MVR</option>
-      <option value="USD">USD</option>
-    </select><br>
-    <select id="paymentTypeSelect">
-      <option value="cash">Cash</option>
-      <option value="card">Card</option>
-    </select><br>
-
-    <span>Rate: <span id="rateField">0</span></span><br>
-    <span>GST: <span id="gstField">0</span></span><br>
-    <span>Total: <span id="totalField">0</span></span><br>
-    <input id="paidAmountInput" placeholder="Paid Amount" type="number"><br>
-    <input id="balanceField" placeholder="Balance" readonly><br>
-
-    <button id="saveBtn">Process Payment</button>
+  <!-- QR Code Card -->
+  <div class="card">
+    <div class="card-header"><i class="fas fa-qrcode"></i> QR Code</div>
+    <div class="form-group">
+      <div class="input-icon">
+        <i class="fas fa-qrcode"></i>
+        <input type="text" id="qrCode" placeholder="Scan or paste QR code">
+      </div>
+    </div>
   </div>
 
-  <hr>
-
-  <div id="receiptContainer" style="display:none;">
-    <h3>Receipt</h3>
-    <p>Receipt No: <span id="receiptNoField"></span></p>
-    <p>Date: <span id="receiptDateField"></span></p>
-    <p>Shift: <span id="receiptShiftField"></span></p>
-    <p>User: <span id="receiptUserField"></span></p>
-    <p>Passenger: <span id="receiptPassengerField"></span></p>
-    <p>Flight: <span id="receiptFlightField"></span></p>
-    <p>Seat: <span id="receiptSeatField"></span></p>
-    <p>Adults: <span id="receiptAdultsField"></span></p>
-    <p>Kids: <span id="receiptKidsField"></span></p>
-    <p>Currency: <span id="receiptCurrencyField"></span></p>
-    <p>Payment Type: <span id="receiptPaymentTypeField"></span></p>
-    <p>Subtotal: <span id="receiptSubtotalField"></span></p>
-    <p>GST: <span id="receiptGstField"></span></p>
-    <p>Total: <span id="receiptTotalField"></span></p>
-    <p id="receiptPaidRow">Paid: <span id="receiptPaidField"></span></p>
-    <p id="receiptBalanceRow">Balance: <span id="receiptBalanceField"></span></p>
+  <!-- Passenger Info Card -->
+  <div class="card">
+    <div class="card-header"><i class="fas fa-users"></i> Passenger Information</div>
+    <div class="form-grid">
+      <div class="form-group">
+        <label for="name" class="form-label">Passenger Name</label>
+        <div class="input-icon">
+          <i class="fas fa-user"></i>
+          <input type="text" id="name" placeholder="Full name">
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="flight" class="form-label">Flight Number</label>
+        <div class="input-icon">
+          <i class="fas fa-plane"></i>
+          <input type="text" id="flight" placeholder="Flight number">
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="seat" class="form-label">Seat Number</label>
+        <div class="input-icon">
+          <i class="fas fa-chair"></i>
+          <input type="text" id="seat" placeholder="Seat number">
+        </div>
+      </div>
+      <div class="form-group passenger-count">
+        <div>
+          <label for="adultCount" class="form-label">Adults</label>
+          <input type="number" id="adultCount" value="0" min="0">
+        </div>
+        <div>
+          <label for="kidCount" class="form-label">Kids</label>
+          <input type="number" id="kidCount" value="0" min="0">
+        </div>
+      </div>
+    </div>
   </div>
 
-  <script>
-    // --- Firebase Config (replace with yours) ---
-    const firebaseConfig = {
-      apiKey: "YOUR_API_KEY",
-      authDomain: "YOUR_PROJECT.firebaseapp.com",
-      projectId: "YOUR_PROJECT_ID",
-    };
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.firestore();
-    const paymentsRef = db.collection("payments");
+  <!-- Payment Info Card -->
+  <div class="card">
+    <div class="card-header"><i class="fas fa-credit-card"></i> Payment Details</div>
+    <div class="form-grid">
+      <div class="form-group">
+        <label for="paymentType" class="form-label">Payment Type</label>
+        <select id="paymentType">
+          <option value="Card">Credit/Debit Card</option>
+          <option value="Cash">Cash</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="currency" class="form-label">Currency</label>
+        <select id="currency">
+          <option value="USD">USD ($)</option>
+          <option value="MVR">MVR</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="rate" class="form-label">Rate Type</label>
+        <select id="rate">
+          <option value="A">Rate A</option>
+          <option value="B">Rate B</option>
+        </select>
+      </div>
+    </div>
 
-    // Example logged in user
-    const loggedUser = { name: "John", Level: "Cashier" };
+    <!-- Cash Payment Fields - Hidden by default -->
+    <div id="cashPaymentFields" class="hidden">
+      <div class="form-group">
+        <label for="paidAmount" class="form-label">Paid Amount</label>
+        <div class="input-icon">
+          <i class="fas fa-money-bill-wave"></i>
+          <input type="number" id="paidAmount" placeholder="0.00" min="0" step="0.01">
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="balanceAmount" class="form-label">Balance</label>
+        <div class="input-icon">
+          <i class="fas fa-coins"></i>
+          <input type="text" id="balanceAmount" readonly>
+        </div>
+      </div>
+    </div>
 
-    // Fill date, shift, user
-    document.getElementById("dateField").textContent = new Date().toLocaleDateString();
-    document.getElementById("shiftField").textContent = "Morning";
-    document.getElementById("userField").textContent = `${loggedUser.name} (${loggedUser.Level})`;
+    <h3 class="section-title"><i class="fas fa-calculator"></i> Payment Summary</h3>
+    <div class="totals-grid">
+      <div class="total-item"><label>Subtotal</label><span id="rateField">$0.00</span></div>
+      <div class="total-item"><label>GST</label><span id="gstField">$0.00</span></div>
+      <div class="total-item"><label>Total Amount</label><span id="totalField">$0.00</span></div>
+    </div>
+  </div>
 
-    const saveBtn = document.getElementById("saveBtn");
-    let saving = false;
+  <button type="button" id="saveBtn" class="btn"><i class="fas fa-check-circle"></i> Process Payment</button>
+  </form>
 
-    saveBtn.addEventListener("click", async () => {
-      if (saving) return;
-      saving = true;
-      saveBtn.disabled = true;
-      saveBtn.textContent = "Processing...";
+  <div id="receiptContainer">
+    <div class="receipt" id="receiptContent">
+      <div class="receipt-header">
+        <div class="company" id="companyName"></div>
+        <div class="details">
+          <div>Receipt No: <span id="receiptNoField"></span></div>
+          <div>Date: <span id="receiptDateField"></span> | Shift: <span id="receiptShiftField"></span></div>
+          <div>User: <span id="receiptUserField"></span></div>
+        </div>
+      </div>
+      
+      <div class="receipt-body">
+        <div class="receipt-line"><span>Passenger:</span> <span id="receiptPassengerField"></span></div>
+        <div class="receipt-line"><span>Flight:</span> <span id="receiptFlightField"></span></div>
+        <div class="receipt-line"><span>Seat:</span> <span id="receiptSeatField"></span></div>
+        <div class="receipt-line"><span>Adults:</span> <span id="receiptAdultsField"></span></div>
+        <div class="receipt-line"><span>Kids:</span> <span id="receiptKidsField"></span></div>
+        <div class="receipt-line"><span>Currency:</span> <span id="receiptCurrencyField"></span></div>
+        <div class="receipt-line"><span>Payment Type:</span> <span id="receiptPaymentTypeField"></span></div>
+        
+        <div class="receipt-line label"><span>Payment Details</span></div>
+        <div class="receipt-line"><span>Subtotal:</span> <span id="receiptSubtotalField"></span></div>
+        <div class="receipt-line"><span>GST:</span> <span id="receiptGstField"></span></div>
+        <div class="receipt-line" style="font-weight: bold; border-top: 1px dashed #ccc; padding-top: 4px;">
+          <span>Total:</span> <span id="receiptTotalField"></span>
+        </div>
+        <div class="receipt-line"><span>Paid:</span> <span id="receiptPaidField"></span></div>
+        <div class="receipt-line"><span>Balance:</span> <span id="receiptBalanceField"></span></div>
+      </div>
+      
+      <div class="receipt-footer">
+        This package is valid for three hours.
+      </div>
+    </div>
+    
+    <div class="receipt-buttons">
+      <button id="printReceiptBtn" class="btn"><i class="fas fa-print"></i> Print Receipt</button>
+      <button id="newPaymentBtn" class="btn"><i class="fas fa-plus-circle"></i> New Payment</button>
+    </div>
+  </div>
+</div>
 
-      try {
-        // --- Atomic transaction for safe receipt number ---
-        const counterRef = db.collection("counters").doc("payments");
-        let newReceiptNo = 1;
+<script>
+// ---------- DOM & USER ----------
+const shiftsRef = window.db.collection("shifts");
+const loggedUser = JSON.parse(localStorage.getItem('loggedInUser'));
+const userNameField = document.getElementById('userNameField');
+const userLevelField = document.getElementById('userLevelField');
+const dateField = document.getElementById('dateField');
+const shiftField = document.getElementById('shiftField');
+const paidAmountInput = document.getElementById('paidAmount');
+const totalField = document.getElementById('totalField');
+const balanceField = document.getElementById('balanceAmount');
+const adultCountInput = document.getElementById("adultCount");
+const kidCountInput = document.getElementById("kidCount");
+const rateSelect = document.getElementById("rate");
+const currencySelect = document.getElementById("currency");
+const rateField = document.getElementById("rateField");
+const gstField = document.getElementById("gstField");
+const qrInput = document.getElementById("qrCode");
+const nameField = document.getElementById("name");
+const flightField = document.getElementById("flight");
+const seatField = document.getElementById("seat");
+const paymentTypeSelect = document.getElementById("paymentType");
+const cashPaymentFields = document.getElementById("cashPaymentFields");
 
-        await db.runTransaction(async (tx) => {
-          const doc = await tx.get(counterRef);
-          if (doc.exists) {
-            newReceiptNo = (doc.data().lastNo || 0) + 1;
-            tx.update(counterRef, { lastNo: newReceiptNo });
-          } else {
-            tx.set(counterRef, { lastNo: 1 });
-            newReceiptNo = 1;
-          }
-        });
 
-        // --- Collect form data ---
-        const data = {
-          receiptNo: newReceiptNo,
-          user: loggedUser.name,
-          level: loggedUser.Level,
-          date: document.getElementById("dateField").textContent,
-          shift: document.getElementById("shiftField").textContent,
-          passenger: document.getElementById("nameField").value,
-          flight: document.getElementById("flightField").value,
-          seat: document.getElementById("seatField").value,
-          adults: parseInt(document.getElementById("adultCountInput").value) || 0,
-          kids: parseInt(document.getElementById("kidCountInput").value) || 0,
-          rateType: document.getElementById("rateSelect").value,
-          currency: document.getElementById("currencySelect").value,
-          paymentType: document.getElementById("paymentTypeSelect").value,
-          subtotal: parseFloat(document.getElementById("rateField").textContent.replace(/[^0-9.-]+/g,""))||0,
-          gst: parseFloat(document.getElementById("gstField").textContent.replace(/[^0-9.-]+/g,""))||0,
-          total: parseFloat(document.getElementById("totalField").textContent.replace(/[^0-9.-]+/g,""))||0,
-          paid: parseFloat(document.getElementById("paidAmountInput").value)||0,
-          balance: parseFloat(document.getElementById("balanceField").value.replace(/[^0-9.-]+/g,""))||0
-        };
+// ---------- USER INFO ----------
+if(!loggedUser){
+  alert("No user logged in.");
+  window.location.href="login.html";
+}
+userNameField.textContent = loggedUser.name;
+userLevelField.textContent = loggedUser.Level;
+dateField.textContent = new Date().toISOString().split('T')[0];
 
-        // --- Save payment ---
-        await paymentsRef.doc("receipt_" + newReceiptNo).set(data);
+// Disable rate field if not supervisor
+if(loggedUser.Level.toLowerCase() !== "supervisor"){
+    rateSelect.disabled = true;
+}
 
-        // --- Build receipt ---
-        const symbol = data.currency === "USD" ? "$" : "MVR ";
-        document.getElementById("receiptNoField").textContent = data.receiptNo;
-        document.getElementById("receiptDateField").textContent = data.date;
-        document.getElementById("receiptShiftField").textContent = data.shift;
-        document.getElementById("receiptUserField").textContent = `${data.user} (${data.level})`;
-        document.getElementById("receiptPassengerField").textContent = data.passenger;
-        document.getElementById("receiptFlightField").textContent = data.flight;
-        document.getElementById("receiptSeatField").textContent = data.seat;
-        document.getElementById("receiptAdultsField").textContent = data.adults;
-        document.getElementById("receiptKidsField").textContent = data.kids;
-        document.getElementById("receiptCurrencyField").textContent = data.currency;
-        document.getElementById("receiptPaymentTypeField").textContent = data.paymentType;
-        document.getElementById("receiptSubtotalField").textContent = `${symbol}${data.subtotal.toFixed(2)}`;
-        document.getElementById("receiptGstField").textContent = `${symbol}${data.gst.toFixed(2)}`;
-        document.getElementById("receiptTotalField").textContent = `${symbol}${data.total.toFixed(2)}`;
+// ---------- CURRENT SHIFT ----------
+async function fetchCurrentShift(){
+    const today = new Date().toISOString().split('T')[0];
+    const snapshot = await shiftsRef.where("currentDate","==",today).get();
+    let shiftName = "No shift open";
+    if(!snapshot.empty){
+        const data = snapshot.docs[0].data();
+        if(data.shift1status==="Open") shiftName = data.shift1name;
+        else if(data.shift2status==="Open") shiftName = data.shift2name;
+    }
+    shiftField.textContent = shiftName;
+}
+fetchCurrentShift();
+setInterval(fetchCurrentShift,30000);
 
-        if(data.paymentType.toLowerCase() === "cash"){
-          document.getElementById("receiptPaidField").textContent = `${symbol}${data.paid.toFixed(2)}`;
-          document.getElementById("receiptBalanceField").textContent = `${symbol}${data.balance.toFixed(2)}`;
-          document.getElementById("receiptPaidRow").style.display = "block";
-          document.getElementById("receiptBalanceRow").style.display = "block";
-        } else {
-          document.getElementById("receiptPaidRow").style.display = "none";
-          document.getElementById("receiptBalanceRow").style.display = "none";
+// ---------- QR PARSER ----------
+function parseQR(code){
+    code = code.trim().toUpperCase().replace(/\s+/g,' ');
+    const allParts = code.split(' ');
+    let name="", flightNo="", seatNo="";
+    if(code.startsWith("TKVCPO")){
+        const tkIndex = code.indexOf("TK0");
+        if(tkIndex!=-1){ 
+            flightNo = code.substring(tkIndex, tkIndex+6); 
+            name = code.substring(6, tkIndex);
         }
+        const mlePos = code.indexOf("MLE");
+        if(mlePos!=-1){ 
+            const afterMLE = code.substring(mlePos).split(' ')[0]; 
+            if(afterMLE.length>=11) seatNo = afterMLE.substring(8,11);
+        }
+    } else {
+        name = allParts[0].substring(2);
+        const mleIndex = allParts.findIndex(w=>w.includes("MLE"));
+        if(mleIndex!=-1){
+            const mleWord = allParts[mleIndex];
+            const nextWord = (mleIndex+1<allParts.length)?allParts[mleIndex+1]:"";
+            flightNo = mleWord.slice(-2)+nextWord;
+            const partsAfterMLE = allParts.slice(mleIndex+1);
+            for(let w of partsAfterMLE){
+                if(w.length>=9 && !w.includes("QR") && !w.includes("MLE")){ 
+                    seatNo = w.substring(5,w.length-4); 
+                    break; 
+                }
+            }
+        }
+    }
+    return {name, flightNo, seatNo};
+}
+qrInput.addEventListener("change",()=>{
+    const parsed = parseQR(qrInput.value);
+    if(parsed.name) nameField.value = parsed.name;
+    if(parsed.flightNo) flightField.value = parsed.flightNo;
+    if(parsed.seatNo) seatField.value = parsed.seatNo;
+    qrInput.value='';
+});
 
-        document.getElementById("receiptContainer").style.display = "block";
+// ---------- UPPERCASE INPUT ----------
+[nameField, flightField, seatField].forEach(input=>{
+    input.addEventListener("input",()=>input.value=input.value.toUpperCase());
+});
 
-      } catch (err) {
-        console.error("Error saving payment:", err);
-        alert("Error saving payment. Try again.");
-      } finally {
-        saving = false;
-        saveBtn.disabled = false;
-        saveBtn.textContent = "Process Payment";
+// ---------- CALCULATION ----------
+function calculateTotals(){
+    if(typeof rates==="undefined") return;
+
+    const adults = parseInt(adultCountInput.value)||0;
+    const kids = parseInt(kidCountInput.value)||0;
+    const currency = currencySelect.value;
+    const rateType = rateSelect.value;
+
+    const adultKey = `Adult${rateType}${currency}`;
+    const kidKey = `Kids${rateType}${currency}`;
+
+    const adultPrice = rates[adultKey]?.price||0;
+    const kidPrice = rates[kidKey]?.price||0;
+    const gstRate = rates[adultKey]?.GST||0;
+
+    const subtotal = adults*adultPrice + kids*kidPrice;
+    const gst = subtotal * (gstRate/100);
+    const total = subtotal + gst;
+
+    const symbol = currency==="USD"?"$":"MVR ";
+    rateField.textContent = `${symbol}${subtotal.toFixed(2)}`;
+    gstField.textContent = `${symbol}${gst.toFixed(2)}`;
+    totalField.textContent = `${symbol}${total.toFixed(2)}`;
+
+    updateBalance();
+}
+
+function updateBalance(){
+    const total = parseFloat(totalField.textContent.replace(/[^0-9.-]+/g,""))||0;
+
+    // If payment type is not cash, hide paid & balance and set balance to 0
+    if(paymentTypeSelect.value.toLowerCase()!=="cash"){
+        cashPaymentFields.classList.add("hidden");
+        balanceField.value = 0;
+    } else {
+        cashPaymentFields.classList.remove("hidden");
+        const paid = parseFloat(paidAmountInput.value)||0;
+        const balance = paid-total;
+        const symbol = currencySelect.value==="USD"?"$":"MVR ";
+        balanceField.value = `${symbol}${balance.toFixed(2)}`;
+        
+        // Apply color coding
+        balanceField.classList.remove("balance-positive", "balance-negative", "balance-zero");
+        if (balance < 0) {
+            balanceField.classList.add("balance-negative");
+        } else if (balance === 0) {
+            balanceField.classList.add("balance-zero");
+        } else {
+            balanceField.classList.add("balance-positive");
+        }
+    }
+}
+
+document.getElementById("companyName").textContent = companyInfo.name;
+// ---------- LISTENERS ----------
+[adultCountInput, kidCountInput, rateSelect, currencySelect, paidAmountInput, paymentTypeSelect].forEach(el=>{
+    el.addEventListener("input",calculateTotals);
+});
+paymentTypeSelect.addEventListener("change",calculateTotals);
+
+// INITIAL CALC
+window.addEventListener('load',()=>{
+    if(typeof rates!=="undefined") calculateTotals();
+    else setTimeout(calculateTotals,100);
+});
+
+const paymentsRef = window.db.collection("payments");
+let lastReceiptNo = 0;
+
+// ---------- GET LAST RECEIPT NO ----------
+async function getLastReceiptNo(){
+  const snapshot = await paymentsRef.orderBy("receiptNo","desc").limit(1).get();
+  if(!snapshot.empty){
+    lastReceiptNo = snapshot.docs[0].data().receiptNo;
+  }
+}
+getLastReceiptNo();
+
+// ---------- SAVE & SHOW RECEIPT ----------
+document.getElementById("saveBtn").addEventListener("click", async ()=>{
+  lastReceiptNo++;
+
+  // Collect data
+  const data = {
+    receiptNo: lastReceiptNo,
+    user: loggedUser.name,
+    level: loggedUser.Level,
+    date: dateField.textContent,
+    shift: shiftField.textContent,
+    passenger: nameField.value,
+    flight: flightField.value,
+    seat: seatField.value,
+    adults: parseInt(adultCountInput.value)||0,
+    kids: parseInt(kidCountInput.value)||0,
+    rateType: rateSelect.value,
+    currency: currencySelect.value,
+    paymentType: paymentTypeSelect.value,
+    subtotal: parseFloat(rateField.textContent.replace(/[^0-9.-]+/g,""))||0,
+    gst: parseFloat(gstField.textContent.replace(/[^0-9.-]+/g,""))||0,
+    total: parseFloat(totalField.textContent.replace(/[^0-9.-]+/g,""))||0,
+    paid: parseFloat(paidAmountInput.value)||0,
+    balance: parseFloat(balanceField.value.replace(/[^0-9.-]+/g,""))||0
+  };
+
+  // Save to Firestore
+  await paymentsRef.doc("receipt_"+lastReceiptNo).set(data);
+
+  // Build receipt
+  const symbol = data.currency==="USD"?"$":"MVR ";
+
+  // Update receipt fields
+  document.getElementById("receiptNoField").textContent = data.receiptNo;
+  document.getElementById("receiptDateField").textContent = data.date;
+  document.getElementById("receiptShiftField").textContent = data.shift;
+  document.getElementById("receiptUserField").textContent = `${data.user} (${data.level})`;
+  document.getElementById("receiptPassengerField").textContent = data.passenger;
+  document.getElementById("receiptFlightField").textContent = data.flight;
+  document.getElementById("receiptSeatField").textContent = data.seat;
+  document.getElementById("receiptAdultsField").textContent = data.adults;
+  document.getElementById("receiptKidsField").textContent = data.kids;
+  document.getElementById("receiptCurrencyField").textContent = data.currency;
+  document.getElementById("receiptPaymentTypeField").textContent = data.paymentType;
+  document.getElementById("receiptSubtotalField").textContent = `${symbol}${data.subtotal.toFixed(2)}`;
+  document.getElementById("receiptGstField").textContent = `${symbol}${data.gst.toFixed(2)}`;
+  document.getElementById("receiptTotalField").textContent = `${symbol}${data.total.toFixed(2)}`;
+
+  // Conditionally show/hide Paid & Balance
+  if(data.paymentType.toLowerCase() === "cash"){
+      document.getElementById("receiptPaidField").textContent = `${symbol}${data.paid.toFixed(2)}`;
+      document.getElementById("receiptBalanceField").textContent = `${symbol}${data.balance.toFixed(2)}`;
+      // Apply color to balance
+      const receiptBalanceField = document.getElementById("receiptBalanceField");
+      receiptBalanceField.className = "";
+      if (data.balance < 0) {
+        receiptBalanceField.classList.add("balance-negative");
+      } else if (data.balance === 0) {
+        receiptBalanceField.classList.add("balance-zero");
+      } else {
+        receiptBalanceField.classList.add("balance-positive");
       }
-    });
-  </script>
+      document.getElementById("receiptPaidField").parentElement.style.display = "flex";
+      document.getElementById("receiptBalanceField").parentElement.style.display = "flex";
+  } else {
+      // Hide Paid & Balance lines
+      document.getElementById("receiptPaidField").parentElement.style.display = "none";
+      document.getElementById("receiptBalanceField").parentElement.style.display = "none";
+  }
+
+  document.getElementById("receiptContainer").style.display = "block";
+});
+
+// ---------- PRINT RECEIPT ----------
+document.getElementById("printReceiptBtn").addEventListener("click",()=>{
+  const content = document.getElementById("receiptContent").innerHTML;
+  const win = window.open("","PRINT","width=400,height=600");
+  win.document.write(`
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <title>Receipt</title>
+      <style>
+        body { font-family: 'Courier New', monospace; margin: 0; padding: 20px; }
+        .receipt { max-width: 300px; margin: 0 auto; }
+        .receipt-header { text-align: center; margin-bottom: 15px; padding-bottom: 10px; border-bottom: 1px dashed #ccc; }
+        .receipt-body { margin-bottom: 15px; padding-bottom: 10px; border-bottom: 1px dashed #ccc; }
+        .receipt-line { display: flex; justify-content: space-between; margin-bottom: 5px; font-size: 14px; }
+        .receipt-line.label { font-weight: bold; margin-top: 8px; }
+        .receipt-footer { text-align: center; font-size: 11px; color: #666; margin-top: 15px; }
+      </style>
+    </head>
+    <body>
+      ${content}
+    </body>
+    </html>
+  `);
+  win.document.close();
+  win.focus();
+  win.print();
+  win.close();
+});
+
+// ---------- NEW PAYMENT ----------
+document.getElementById("newPaymentBtn").addEventListener("click",()=>{
+  location.reload();
+});
+
+</script>
+
 </body>
 </html>
