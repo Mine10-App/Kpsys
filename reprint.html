@@ -155,16 +155,15 @@
       padding: 0 20px 20px;
     }
 
-    /* Key: match 80mm width for print and preview container narrower on screen */
     .receipt {
-      width: 80mm;               /* exact roll paper width */
+      width: 80mm;               
       max-width: 80mm;
       background: #fff;
       border: 1px solid #e0e0e0;
       padding: 8px 6px;
       box-sizing: border-box;
-      font-family: "Courier New", Courier, monospace; /* thermal style */
-      font-size: 12px;          /* small, printable */
+      font-family: "Courier New", Courier, monospace; 
+      font-size: 12px;          
       color: #111;
       line-height: 1.15;
       box-shadow: 0 2px 8px rgba(0,0,0,0.1);
@@ -249,8 +248,8 @@
 
     /* Print-specific settings */
     @page {
-      size: 80mm 297mm; /* width x height in mm */
-      margin: 0mm;      /* minimal margins; may be ignored by some printers */
+      size: 80mm 297mm; 
+      margin: 0mm;      
     }
 
     @media print {
@@ -269,7 +268,7 @@
       
       .search-bar, .header, .message, .btn-print { 
         display: none !important; 
-      } /* hide UI */
+      }
       
       .receipt {
         border: none;
@@ -278,11 +277,8 @@
         margin: 0;
         width: 80mm;
       }
-      
-      /* Hide the browser's header/footer in print settings manually if needed */
     }
 
-    /* Small screen preview adjustments */
     @media (max-width: 520px) {
       body {
         padding: 10px;
@@ -301,7 +297,6 @@
       }
     }
     
-    /* Animation for receipt appearance */
     @keyframes fadeIn {
       from { opacity: 0; transform: translateY(10px); }
       to { opacity: 1; transform: translateY(0); }
@@ -326,13 +321,10 @@
           <i class="fas fa-search"></i> Search
         </button>
       </div>
-      
-      
     </div>
 
     <div class="receipt-wrapper">
       <div id="receiptDetails" class="receipt" aria-live="polite">
-        <!-- Empty until search -->
         <div style="text-align:center; font-size:12px; color:#666; padding: 20px;">
           <i class="fas fa-receipt" style="font-size: 24px; margin-bottom: 10px; display: block;"></i>
           Search a receipt number to show receipt here
@@ -363,7 +355,6 @@
 
     let currentData = null;
 
-    // Allow Enter key to trigger search
     receiptInput.addEventListener("keypress", function(event) {
       if (event.key === "Enter") {
         searchReceipt();
@@ -406,23 +397,19 @@
 
     function fmtCurrency(val, cur) {
       if (typeof val === "number") {
-        // Use fixed 2 decimals (thermal receipts usually show two decimals)
         return val.toFixed(2) + (cur ? " " + cur : "");
       }
       return (val || "0.00") + (cur ? " " + cur : "");
     }
 
     function renderReceipt(data) {
-      // attempt to format date if it's a timestamp (firebase) or plain string
       let dateStr = "";
       if (!data.date) {
         dateStr = new Date().toLocaleString();
       } else {
-        // if firebase timestamp object (has toDate)
         if (data.date && typeof data.date.toDate === "function") {
           dateStr = data.date.toDate().toLocaleString();
         } else {
-          // fallback to string
           dateStr = data.date;
         }
       }
@@ -430,8 +417,6 @@
       const statusClass = data.voided ? "status-voided" : "status-active";
       const statusText  = data.voided ? "Voided" : "Active";
 
-      // Build items rows if you store items; otherwise show booking info
-      // If there is an 'items' array in the record, list it; otherwise show summary fields
       let itemsHtml = "";
       if (Array.isArray(data.items) && data.items.length) {
         itemsHtml += "<table class='items'>";
@@ -445,7 +430,6 @@
         itemsHtml += "</table>";
       }
 
-      // If no items, show booking/service details
       if (!itemsHtml) {
         itemsHtml = `
           <table>
@@ -460,7 +444,6 @@
         `;
       }
 
-      // Totals and GST (if present)
       const subtotal = data.subtotal != null ? Number(data.subtotal) : (data.total != null ? Number(data.total) : 0);
       const gst = data.gst != null ? Number(data.gst) : (data.GST != null ? Number(data.GST) : 0);
       const total = data.total != null ? Number(data.total) : (subtotal + gst);
@@ -524,7 +507,6 @@
       }
     }
 
-    // small helper to prevent HTML injection via data
     function escapeHtml(unsafe) {
       if (unsafe === null || unsafe === undefined) return "";
       return String(unsafe)
@@ -536,6 +518,4 @@
     }
   </script>
 </body>
-
 </html>
-
