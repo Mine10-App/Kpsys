@@ -152,19 +152,19 @@
       padding: 0 20px 20px;
     }
 
-    /* Redesigned receipt styles */
+    /* Optimized receipt styles for 70mm thermal paper */
     .receipt {
       width: 70mm;
       max-width: 70mm;
       min-height: auto;
       background: #fff;
       border: 1px solid #e0e0e0;
-      padding: 12px 10px;
+      padding: 2mm; /* Reduced padding for thermal paper */
       box-sizing: border-box;
       font-family: "Courier New", Courier, monospace; 
-      font-size: 12px;
+      font-size: 11px; /* Slightly smaller font for thermal paper */
       color: #111;
-      line-height: 1.15;
+      line-height: 1.1; /* Tighter line height */
       box-shadow: 0 2px 8px rgba(0,0,0,0.1);
       border-radius: 4px;
       animation: fadeIn 0.3s ease-out;
@@ -172,34 +172,34 @@
 
     .receipt-header {
       text-align: center;
-      margin-bottom: 8px;
-      padding-bottom: 8px;
+      margin-bottom: 6px; /* Reduced margin */
+      padding-bottom: 6px; /* Reduced padding */
       border-bottom: 1px dashed #888;
     }
 
     .company-name {
       font-weight: 700;
-      font-size: 14px;
+      font-size: 13px; /* Slightly smaller for thermal paper */
       margin-bottom: 2px;
       text-transform: uppercase;
       letter-spacing: 0.5px;
     }
 
     .company-meta {
-      font-size: 10px;
+      font-size: 9px; /* Smaller font for thermal paper */
       margin: 0;
       color: #333;
-      line-height: 1.2;
+      line-height: 1.1; /* Tighter line height */
     }
 
     .receipt-details {
-      margin-bottom: 8px;
+      margin-bottom: 6px; /* Reduced margin */
     }
 
     .detail-row {
       display: flex;
       justify-content: space-between;
-      margin-bottom: 2px;
+      margin-bottom: 1px; /* Reduced margin */
     }
 
     .detail-label {
@@ -211,13 +211,13 @@
     }
 
     .items-section {
-      margin: 8px 0;
+      margin: 6px 0; /* Reduced margin */
     }
 
     .item-row {
       display: flex;
       justify-content: space-between;
-      margin-bottom: 4px;
+      margin-bottom: 2px; /* Reduced margin */
     }
 
     .item-name {
@@ -226,91 +226,91 @@
     }
 
     .item-qty {
-      width: 20px;
+      width: 15px; /* Smaller width */
       text-align: center;
     }
 
     .item-price {
-      width: 60px;
+      width: 50px; /* Smaller width */
       text-align: right;
     }
 
     .totals-section {
-      margin-top: 8px;
+      margin-top: 6px; /* Reduced margin */
       border-top: 1px dashed #888;
-      padding-top: 8px;
+      padding-top: 6px; /* Reduced padding */
     }
 
     .total-row {
       display: flex;
       justify-content: space-between;
-      margin-bottom: 3px;
+      margin-bottom: 2px; /* Reduced margin */
     }
 
     .grand-total {
       font-weight: 700;
-      font-size: 13px;
+      font-size: 12px; /* Slightly smaller */
       border-top: 1px solid #000;
-      padding-top: 5px;
-      margin-top: 5px;
+      padding-top: 3px; /* Reduced padding */
+      margin-top: 3px; /* Reduced margin */
     }
 
     .payment-info {
-      margin-top: 8px;
+      margin-top: 6px; /* Reduced margin */
       border-top: 1px dashed #888;
-      padding-top: 8px;
+      padding-top: 6px; /* Reduced padding */
     }
 
     .payment-details {
-      margin-top: 5px;
-      font-size: 11px;
+      margin-top: 3px; /* Reduced margin */
+      font-size: 10px; /* Smaller font */
       background: #f8f8f8;
-      padding: 5px;
-      border-radius: 3px;
+      padding: 3px; /* Reduced padding */
+      border-radius: 2px;
     }
 
     .status-section {
-      margin-top: 8px;
+      margin-top: 6px; /* Reduced margin */
       text-align: center;
     }
 
     .status-active { 
       color: var(--success); 
       font-weight: 700; 
-      font-size: 11px;
+      font-size: 10px; /* Smaller font */
     }
 
     .status-voided { 
       color: var(--danger); 
       font-weight: 700; 
-      font-size: 11px;
+      font-size: 10px; /* Smaller font */
     }
 
     .void-reason {
-      margin-top: 5px;
-      font-size: 10px;
+      margin-top: 3px; /* Reduced margin */
+      font-size: 9px; /* Smaller font */
       text-align: center;
       background: #f8f8f8;
-      padding: 3px;
+      padding: 2px; /* Reduced padding */
       border-radius: 2px;
     }
 
     .receipt-footer {
-      margin-top: 10px;
+      margin-top: 8px; /* Reduced margin */
       text-align: center;
-      font-size: 10px;
+      font-size: 9px; /* Smaller font */
       color: #666;
       border-top: 1px dashed #888;
-      padding-top: 8px;
+      padding-top: 6px; /* Reduced padding */
     }
 
     .thank-you {
       font-style: italic;
-      margin-bottom: 5px;
+      margin-bottom: 3px; /* Reduced margin */
     }
 
     .powered-by {
-      font-size: 9px;
+      font-size: 8px; /* Smaller font */
     }
 
     @media print {
@@ -412,7 +412,7 @@
 
     <div class="receipt-wrapper">
       <div id="receiptDetails" class="receipt" aria-live="polite">
-        <div style="text-align:center; font-size:12px; color:#666; padding: 20px;">
+        <div style="text-align:center; font-size:11px; color:#666; padding: 20px;">
           <i class="fas fa-receipt" style="font-size: 24px; margin-bottom: 10px; display: block;"></i>
           Search a receipt number to show receipt here
         </div>
