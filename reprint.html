@@ -152,13 +152,14 @@
       padding: 0 20px 20px;
     }
 
+    /* Redesigned receipt styles */
     .receipt {
       width: 70mm;
       max-width: 70mm;
       min-height: auto;
       background: #fff;
       border: 1px solid #e0e0e0;
-      padding: 8px 6px;
+      padding: 12px 10px;
       box-sizing: border-box;
       font-family: "Courier New", Courier, monospace; 
       font-size: 12px;
@@ -169,8 +170,14 @@
       animation: fadeIn 0.3s ease-out;
     }
 
-    .company-name {
+    .receipt-header {
       text-align: center;
+      margin-bottom: 8px;
+      padding-bottom: 8px;
+      border-bottom: 1px dashed #888;
+    }
+
+    .company-name {
       font-weight: 700;
       font-size: 14px;
       margin-bottom: 2px;
@@ -179,70 +186,131 @@
     }
 
     .company-meta {
-      text-align: center;
-      font-size: 11px;
-      margin: 0 0 6px 0;
+      font-size: 10px;
+      margin: 0;
       color: #333;
+      line-height: 1.2;
     }
 
-    .divider {
+    .receipt-details {
+      margin-bottom: 8px;
+    }
+
+    .detail-row {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 2px;
+    }
+
+    .detail-label {
+      font-weight: 600;
+    }
+
+    .detail-value {
+      text-align: right;
+    }
+
+    .items-section {
+      margin: 8px 0;
+    }
+
+    .item-row {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 4px;
+    }
+
+    .item-name {
+      flex: 1;
+      font-weight: 600;
+    }
+
+    .item-qty {
+      width: 20px;
+      text-align: center;
+    }
+
+    .item-price {
+      width: 60px;
+      text-align: right;
+    }
+
+    .totals-section {
+      margin-top: 8px;
       border-top: 1px dashed #888;
-      margin: 6px 0;
-    }
-
-    .receipt table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 2px;
-    }
-
-    .receipt th, .receipt td {
-      padding: 4px 0;
-      text-align: left;
-      vertical-align: top;
-      font-size: 12px;
-    }
-
-    .receipt .label { 
-      width: 42%; 
-      font-weight: 600; 
-    }
-
-    .receipt .value { 
-      width: 58%; 
-      text-align: right; 
-    }
-
-    .items {
-      margin-top: 6px;
+      padding-top: 8px;
     }
 
     .total-row {
-      margin-top: 6px;
       display: flex;
       justify-content: space-between;
-      font-weight: 700;
-      font-size: 13px;
-      padding-top: 6px;
-      border-top: 1px solid #000;
+      margin-bottom: 3px;
     }
 
-    .note {
-      font-size: 10px;
-      text-align: center;
+    .grand-total {
+      font-weight: 700;
+      font-size: 13px;
+      border-top: 1px solid #000;
+      padding-top: 5px;
+      margin-top: 5px;
+    }
+
+    .payment-info {
       margin-top: 8px;
-      color: #444;
-      font-style: italic;
+      border-top: 1px dashed #888;
+      padding-top: 8px;
+    }
+
+    .payment-details {
+      margin-top: 5px;
+      font-size: 11px;
+      background: #f8f8f8;
+      padding: 5px;
+      border-radius: 3px;
+    }
+
+    .status-section {
+      margin-top: 8px;
+      text-align: center;
     }
 
     .status-active { 
       color: var(--success); 
       font-weight: 700; 
+      font-size: 11px;
     }
 
     .status-voided { 
       color: var(--danger); 
       font-weight: 700; 
+      font-size: 11px;
+    }
+
+    .void-reason {
+      margin-top: 5px;
+      font-size: 10px;
+      text-align: center;
+      background: #f8f8f8;
+      padding: 3px;
+      border-radius: 2px;
+    }
+
+    .receipt-footer {
+      margin-top: 10px;
+      text-align: center;
+      font-size: 10px;
+      color: #666;
+      border-top: 1px dashed #888;
+      padding-top: 8px;
+    }
+
+    .thank-you {
+      font-style: italic;
+      margin-bottom: 5px;
+    }
+
+    .powered-by {
+      font-size: 9px;
     }
 
     @media print {
@@ -434,32 +502,68 @@
       }
 
       const statusClass = data.voided ? "status-voided" : "status-active";
-      const statusText  = data.voided ? "Voided" : "Active";
+      const statusText  = data.voided ? "VOIDED" : "ACTIVE";
 
+      // Check if payment is not cash and has approval code/batch number
+      const isNonCashPayment = data.paymentType && 
+                              data.paymentType.toLowerCase() !== "cash" && 
+                              (data.approvalCode || data.batchNo);
+      
+      // Build items section
       let itemsHtml = "";
       if (Array.isArray(data.items) && data.items.length) {
-        itemsHtml += "<table class='items'>";
+        itemsHtml += `<div class="items-section">`;
         data.items.forEach(it => {
           const name = it.name || "";
           const qty  = it.qty != null ? it.qty : 1;
           const price = it.price != null ? Number(it.price) : 0;
           const lineTotal = (qty * price).toFixed(2);
-          itemsHtml += `<tr><td class="label">${escapeHtml(name)} x${qty}</td><td class="value">${lineTotal} ${data.currency || ""}</td></tr>`;
+          
+          itemsHtml += `
+            <div class="item-row">
+              <div class="item-name">${escapeHtml(name)}</div>
+              <div class="item-qty">x${qty}</div>
+              <div class="item-price">${lineTotal}</div>
+            </div>
+          `;
         });
-        itemsHtml += "</table>";
+        itemsHtml += `</div>`;
       }
 
+      // Build details section for non-item receipts
+      let detailsHtml = "";
       if (!itemsHtml) {
-        itemsHtml = `
-          <table>
-            <tr><th class="label">Receipt</th><td class="value">${escapeHtml(data.receiptNo)}</td></tr>
-            <tr><th class="label">Date</th><td class="value">${escapeHtml(dateStr)}</td></tr>
-            <tr><th class="label">Name</th><td class="value">${escapeHtml(data.passenger || "")}</td></tr>
-            <tr><th class="label">Flight</th><td class="value">${escapeHtml(data.flight || "")}</td></tr>
-            <tr><th class="label">Seat</th><td class="value">${escapeHtml(data.seat || "")}</td></tr>
-            <tr><th class="label">Adults</th><td class="value">${escapeHtml(data.adults != null ? data.adults : 0)}</td></tr>
-            <tr><th class="label">Kids</th><td class="value">${escapeHtml(data.kids != null ? data.kids : 0)}</td></tr>
-          </table>
+        detailsHtml = `
+          <div class="receipt-details">
+            <div class="detail-row">
+              <div class="detail-label">Receipt No:</div>
+              <div class="detail-value">${escapeHtml(data.receiptNo)}</div>
+            </div>
+            <div class="detail-row">
+              <div class="detail-label">Date:</div>
+              <div class="detail-value">${escapeHtml(dateStr)}</div>
+            </div>
+            <div class="detail-row">
+              <div class="detail-label">Passenger:</div>
+              <div class="detail-value">${escapeHtml(data.passenger || "")}</div>
+            </div>
+            <div class="detail-row">
+              <div class="detail-label">Flight:</div>
+              <div class="detail-value">${escapeHtml(data.flight || "")}</div>
+            </div>
+            <div class="detail-row">
+              <div class="detail-label">Seat:</div>
+              <div class="detail-value">${escapeHtml(data.seat || "")}</div>
+            </div>
+            <div class="detail-row">
+              <div class="detail-label">Adults:</div>
+              <div class="detail-value">${escapeHtml(data.adults != null ? data.adults : 0)}</div>
+            </div>
+            <div class="detail-row">
+              <div class="detail-label">Kids:</div>
+              <div class="detail-value">${escapeHtml(data.kids != null ? data.kids : 0)}</div>
+            </div>
+          </div>
         `;
       }
 
@@ -468,49 +572,56 @@
       const total = data.total != null ? Number(data.total) : (subtotal + gst);
 
       receiptDetails.innerHTML = `
-        <div class="company-name">${escapeHtml(companyInfo.name || "")}</div>
-        <div class="company-meta">${escapeHtml(companyInfo.address || "")}</div>
-        <div class="company-meta">Phone: ${escapeHtml(companyInfo.phone || "")}</div>
-
-        <div class="divider"></div>
-
-        ${itemsHtml}
-
-        <div style="margin-top:6px;">
-          <div style="display:flex; justify-content:space-between; font-weight:600;">
-            <div>Sub Total</div>
-            <div>${fmtCurrency(subtotal, data.currency)}</div>
-          </div>
-          <div style="display:flex; justify-content:space-between;">
-            <div>GST</div>
-            <div>${fmtCurrency(gst, data.currency)}</div>
-          </div>
-          <div class="total-row">
-            <div>Total</div>
-            <div>${fmtCurrency(total, data.currency)}</div>
-          </div>
-
-          <div style="display:flex; justify-content:space-between; margin-top:6px;">
-            <div>Payment</div>
-            <div>${escapeHtml(data.paymentType || "")}</div>
-          </div>
-
-          <div style="display:flex; justify-content:space-between; margin-top:4px;">
-            <div>Shift</div>
-            <div>${escapeHtml(data.shift || "")}</div>
-          </div>
-
-          <div style="display:flex; justify-content:space-between; margin-top:4px;">
-            <div>Status</div>
-            <div class="${statusClass}">${statusText}</div>
-          </div>
-
-          ${data.voided && data.voidReason ? `<div style="margin-top:6px;"><strong>Void Reason:</strong> ${escapeHtml(data.voidReason)}</div>` : ""}
+        <div class="receipt-header">
+          <div class="company-name">${escapeHtml(companyInfo.name || "")}</div>
+          <div class="company-meta">${escapeHtml(companyInfo.address || "")}</div>
+          <div class="company-meta">Phone: ${escapeHtml(companyInfo.phone || "")}</div>
         </div>
 
-        <div class="divider"></div>
-        <div class="note">Thank you for choosing ${escapeHtml(companyInfo.name || "")}!</div>
-        <div style="text-align:center; font-size:10px; margin-top:6px;">Powered by Koveli POS</div>
+        ${detailsHtml}
+        ${itemsHtml}
+
+        <div class="totals-section">
+          <div class="total-row">
+            <div>Sub Total:</div>
+            <div>${fmtCurrency(subtotal, data.currency)}</div>
+          </div>
+          <div class="total-row">
+            <div>GST:</div>
+            <div>${fmtCurrency(gst, data.currency)}</div>
+          </div>
+          <div class="total-row grand-total">
+            <div>TOTAL:</div>
+            <div>${fmtCurrency(total, data.currency)}</div>
+          </div>
+        </div>
+
+        <div class="payment-info">
+          <div class="detail-row">
+            <div>Payment:</div>
+            <div>${escapeHtml(data.paymentType || "")}</div>
+          </div>
+          <div class="detail-row">
+            <div>Shift:</div>
+            <div>${escapeHtml(data.shift || "")}</div>
+          </div>
+          ${isNonCashPayment ? `
+            <div class="payment-details">
+              ${data.approvalCode ? `<div class="detail-row"><div>Approval Code:</div><div>${escapeHtml(data.approvalCode)}</div></div>` : ''}
+              ${data.batchNo ? `<div class="detail-row"><div>Batch No:</div><div>${escapeHtml(data.batchNo)}</div></div>` : ''}
+            </div>
+          ` : ''}
+        </div>
+
+        <div class="status-section">
+          <div class="${statusClass}">${statusText}</div>
+          ${data.voided && data.voidReason ? `<div class="void-reason">${escapeHtml(data.voidReason)}</div>` : ""}
+        </div>
+
+        <div class="receipt-footer">
+          <div class="thank-you">Thank you for choosing ${escapeHtml(companyInfo.name || "")}!</div>
+          <div class="powered-by">Powered by Koveli POS</div>
+        </div>
       `;
     }
 
@@ -538,5 +649,3 @@
   </script>
 </body>
 </html>
-
-
