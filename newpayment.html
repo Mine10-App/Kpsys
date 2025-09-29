@@ -45,13 +45,42 @@ body {
 .container {
   max-width: 900px;
   margin: 0 auto;
+  position: relative;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
 }
 
 h2 {
   color: var(--gold-dark);
   font-size: 1.8rem;
-  margin-bottom: 15px;
-  text-align: center;
+  margin-bottom: 0;
+}
+
+.dashboard-btn {
+  background: var(--gold);
+  color: var(--white);
+  padding: 10px 15px;
+  border: none;
+  border-radius: var(--border-radius);
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 0.9rem;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  text-decoration: none;
+}
+
+.dashboard-btn:hover {
+  background: var(--gold-dark);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
 }
 
 .card {
@@ -233,176 +262,6 @@ input[readonly] {
   display: none !important;
 }
 
-#receiptContainer {
-  display: none;
-  background: var(--white);
-  padding: 20px;
-  border-radius: var(--border-radius);
-  margin-top: 20px;
-  box-shadow: var(--shadow);
-  border-top: 2px solid var(--gold);
-}
-
-.receipt {
-  width: 100%;
-  max-width: 70mm; /* Standard thermal receipt width */
-  margin: 0 auto;
-  background: white;
-  border: 1px solid var(--medium-gray);
-  border-radius: var(--border-radius);
-  padding: 10px;
-  font-family: 'Courier New', monospace;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-  font-size: 12px;
-  line-height: 1.2;
-}
-
-.receipt-header {
-  text-align: center;
-  margin-bottom: 10px;
-  padding-bottom: 8px;
-  border-bottom: 1px dashed var(--medium-gray);
-}
-
-.receipt-header .company {
-  font-weight: bold;
-  font-size: 14px;
-  margin-bottom: 3px;
-}
-
-.receipt-header .details {
-  font-size: 9px;
-  color: var(--dark-gray);
-}
-
-.receipt-body {
-  margin-bottom: 10px;
-  padding-bottom: 8px;
-  border-bottom: 1px dashed var(--medium-gray);
-}
-
-.receipt-line {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 3px;
-  font-size: 11px;
-}
-
-.receipt-line.label {
-  font-weight: bold;
-  margin-top: 5px;
-}
-
-.receipt-footer {
-  text-align: center;
-  font-size: 9px;
-  color: var(--dark-gray);
-  margin-top: 10px;
-}
-
-.receipt-buttons {
-  display: flex;
-  gap: 12px;
-  justify-content: center;
-  margin-top: 15px;
-}
-
-.receipt-buttons .btn {
-  width: auto;
-  min-width: 120px;
-  margin-top: 0;
-  padding: 10px 15px;
-  font-size: 0.85rem;
-}
-
-@media (max-width: 768px) {
-  body {
-    padding: 10px;
-    font-size: 13px;
-  }
-  
-  .container {
-    max-width: 100%;
-  }
-  
-  .form-grid {
-    grid-template-columns: 1fr;
-    gap: 12px;
-  }
-  
-  .user-info {
-    grid-template-columns: 1fr;
-    gap: 8px;
-  }
-  
-  .passenger-count {
-    grid-template-columns: 1fr;
-    gap: 12px;
-  }
-  
-  .receipt-buttons {
-    flex-direction: column;
-    gap: 8px;
-  }
-  
-  .receipt-buttons .btn {
-    width: 100%;
-  }
-  
-  .card {
-    padding: 15px;
-    margin-bottom: 15px;
-  }
-  
-  /* Adjust receipt for mobile */
-  .receipt {
-    max-width: 100%;
-    padding: 8px;
-  }
-}
-
-/* Print-specific styles for receipt */
-@media print {
-  body * {
-    visibility: hidden;
-    margin: 0 !important;
-    padding: 0 !important;
-  }
-  #receiptContainer, #receiptContainer * {
-    visibility: visible;
-  }
-  #receiptContainer {
-    position: fixed;
-    left: 0;
-    top: 0;
-    width: 70mm;
-    height: auto;
-    padding: 0;
-    margin: 0;
-    box-shadow: none;
-    border: none;
-    background: white;
-  }
-  .receipt {
-    max-width: 70mm;
-    box-shadow: none;
-    border: none;
-    padding: 5mm;
-    margin: 0;
-    page-break-after: avoid;
-  }
-  .receipt-buttons {
-    display: none;
-  }
-  html, body {
-    width: 70mm;
-    height: auto;
-    margin: 0 !important;
-    padding: 0 !important;
-    overflow: hidden;
-  }
-}
-
 .balance-positive {
   color: var(--success-color);
 }
@@ -423,11 +282,55 @@ input[readonly] {
   padding: 8px 10px;
   font-size: 0.85rem;
 }
+
+@media (max-width: 768px) {
+  body {
+    padding: 10px;
+    font-size: 13px;
+  }
+  
+  .container {
+    max-width: 100%;
+  }
+  
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  
+  .form-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  
+  .user-info {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+  
+  .passenger-count {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  
+  .card {
+    padding: 15px;
+    margin-bottom: 15px;
+  }
+}
 </style>
 </head>
 <body>
 
 <div class="container">
+  <!-- Header with title and dashboard button -->
+  <div class="header">
+    <h2>New Payment</h2>
+    <a href="dashboard.html" class="dashboard-btn">
+      <i class="fas fa-tachometer-alt"></i> Dashboard
+    </a>
+  </div>
   
   <!-- User / Shift Info -->
   <div class="card">
@@ -544,47 +447,6 @@ input[readonly] {
 
   <button type="button" id="saveBtn" class="btn"><i class="fas fa-check-circle"></i> Process Payment</button>
   </form>
-
-  <div id="receiptContainer">
-    <div class="receipt" id="receiptContent">
-      <div class="receipt-header">
-        <div class="company" id="companyName"></div>
-        <div class="details">
-          <div>Receipt No: <span id="receiptNoField"></span></div>
-          <div>Date: <span id="receiptDateField"></span> | Shift: <span id="receiptShiftField"></span></div>
-          <div>User: <span id="receiptUserField"></span></div>
-        </div>
-      </div>
-      
-      <div class="receipt-body">
-        <div class="receipt-line"><span>Passenger:</span> <span id="receiptPassengerField"></span></div>
-        <div class="receipt-line"><span>Flight:</span> <span id="receiptFlightField"></span></div>
-        <div class="receipt-line"><span>Seat:</span> <span id="receiptSeatField"></span></div>
-        <div class="receipt-line"><span>Adults:</span> <span id="receiptAdultsField"></span></div>
-        <div class="receipt-line"><span>Kids:</span> <span id="receiptKidsField"></span></div>
-        <div class="receipt-line"><span>Currency:</span> <span id="receiptCurrencyField"></span></div>
-        <div class="receipt-line"><span>Payment Type:</span> <span id="receiptPaymentTypeField"></span></div>
-        
-        <div class="receipt-line label"><span>Payment Details</span></div>
-        <div class="receipt-line"><span>Subtotal:</span> <span id="receiptSubtotalField"></span></div>
-        <div class="receipt-line"><span>GST:</span> <span id="receiptGstField"></span></div>
-        <div class="receipt-line" style="font-weight: bold; border-top: 1px dashed #ccc; padding-top: 4px;">
-          <span>Total:</span> <span id="receiptTotalField"></span>
-        </div>
-        <div class="receipt-line"><span>Paid:</span> <span id="receiptPaidField"></span></div>
-        <div class="receipt-line"><span>Balance:</span> <span id="receiptBalanceField"></span></div>
-      </div>
-      
-      <div class="receipt-footer">
-        This package is valid for three hours.
-      </div>
-    </div>
-    
-    <div class="receipt-buttons">
-      <button id="printReceiptBtn" class="btn"><i class="fas fa-print"></i> Print Receipt</button>
-      <button id="newPaymentBtn" class="btn"><i class="fas fa-plus-circle"></i> New Payment</button>
-    </div>
-  </div>
 </div>
 
 <script>
@@ -742,7 +604,6 @@ function updateBalance(){
     }
 }
 
-document.getElementById("companyName").textContent = companyInfo.name;
 // ---------- LISTENERS ----------
 [adultCountInput, kidCountInput, rateSelect, currencySelect, paidAmountInput, paymentTypeSelect].forEach(el=>{
     el.addEventListener("input",calculateTotals);
@@ -768,7 +629,7 @@ async function getLastReceiptNo(){
 }
 getLastReceiptNo();
 
-// ---------- SAVE & SHOW RECEIPT ----------
+// ---------- SAVE & REDIRECT TO RECEIPT PAGE ----------
 document.getElementById("saveBtn").addEventListener("click", async ()=>{
   // Prevent multiple submissions
   if (isProcessing) {
@@ -807,87 +668,27 @@ document.getElementById("saveBtn").addEventListener("click", async ()=>{
     };
 
     // Save to Firestore
-    await paymentsRef.doc("receipt_"+lastReceiptNo).set(data);
-
-    // Build receipt
-    const symbol = data.currency==="USD"?"$":"MVR ";
-
-    // Update receipt fields
-    document.getElementById("receiptNoField").textContent = data.receiptNo;
-    document.getElementById("receiptDateField").textContent = data.date;
-    document.getElementById("receiptShiftField").textContent = data.shift;
-    document.getElementById("receiptUserField").textContent = `${data.user} (${data.level})`;
-    document.getElementById("receiptPassengerField").textContent = data.passenger;
-    document.getElementById("receiptFlightField").textContent = data.flight;
-    document.getElementById("receiptSeatField").textContent = data.seat;
-    document.getElementById("receiptAdultsField").textContent = data.adults;
-    document.getElementById("receiptKidsField").textContent = data.kids;
-    document.getElementById("receiptCurrencyField").textContent = data.currency;
-    document.getElementById("receiptPaymentTypeField").textContent = data.paymentType;
-    document.getElementById("receiptSubtotalField").textContent = `${symbol}${data.subtotal.toFixed(2)}`;
-    document.getElementById("receiptGstField").textContent = `${symbol}${data.gst.toFixed(2)}`;
-    document.getElementById("receiptTotalField").textContent = `${symbol}${data.total.toFixed(2)}`;
-
-    // Conditionally show/hide Paid & Balance
-    if(data.paymentType.toLowerCase() === "cash"){
-        document.getElementById("receiptPaidField").textContent = `${symbol}${data.paid.toFixed(2)}`;
-        document.getElementById("receiptBalanceField").textContent = `${symbol}${data.balance.toFixed(2)}`;
-        // Apply color to balance
-        const receiptBalanceField = document.getElementById("receiptBalanceField");
-        receiptBalanceField.className = "";
-        if (data.balance < 0) {
-          receiptBalanceField.classList.add("balance-negative");
-        } else if (data.balance === 0) {
-          receiptBalanceField.classList.add("balance-zero");
-        } else {
-          receiptBalanceField.classList.add("balance-positive");
-        }
-        document.getElementById("receiptPaidField").parentElement.style.display = "flex";
-        document.getElementById("receiptBalanceField").parentElement.style.display = "flex";
-    } else {
-        // Hide Paid & Balance lines
-        document.getElementById("receiptPaidField").parentElement.style.display = "none";
-        document.getElementById("receiptBalanceField").parentElement.style.display = "none";
-    }
-
-    document.getElementById("receiptContainer").style.display = "block";
+    const docRef = await paymentsRef.add(data);
+    
+    // Store the document ID in sessionStorage (same approach as reprint receipts)
+    sessionStorage.setItem("lastPaymentId", docRef.id);
+    
+    // Redirect to receipt page
+    window.location.href = "receipt.html";
 
   } catch (error) {
     console.error("Error saving payment:", error);
     alert("Error saving payment. Please try again.");
     // Roll back the receipt number on error
     lastReceiptNo--;
-  } finally {
-    // Keep the button disabled after processing
-    // It will be re-enabled when starting a new payment
+    
+    // Re-enable the save button
+    saveBtn.disabled = false;
+    saveBtn.innerHTML = '<i class="fas fa-check-circle"></i> Process Payment';
+    isProcessing = false;
   }
 });
-
-// ---------- PRINT RECEIPT ----------
-document.getElementById("printReceiptBtn").addEventListener("click",()=>{
-  // Use CSS media queries for printing
-  window.print();
-});
-
-// ---------- NEW PAYMENT ----------
-document.getElementById("newPaymentBtn").addEventListener("click",()=>{
-  // Re-enable the save button for the new payment
-  saveBtn.disabled = false;
-  saveBtn.innerHTML = '<i class="fas fa-check-circle"></i> Process Payment';
-  isProcessing = false;
-  
-  // Reset the form
-  document.getElementById("paymentForm").reset();
-  
-  // Reset the receipt container
-  document.getElementById("receiptContainer").style.display = "none";
-  
-  // Reset calculations
-  calculateTotals();
-});
-
 </script>
 
 </body>
 </html>
-
