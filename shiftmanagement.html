@@ -387,22 +387,28 @@ async function hashPassword(password) {
 let openBtn, closeBtn, reopenBtn;
 let currentShiftDoc;
 
+// Document ID for the current shift document
+const CURRENT_SHIFT_DOC_ID = "current_shift";
+
 window.onload = async function() {
   openBtn = document.getElementById("openBtn");
   closeBtn = document.getElementById("closeBtn");
   reopenBtn = document.getElementById("reopenBtn");
 
-  await loadTodayShift();
+  await loadCurrentShift();
 }
 
-// --- Load today's shift ---
-async function loadTodayShift() {
+// --- Load current shift document ---
+async function loadCurrentShift() {
   const today = getFormattedDate();
-  const snapshot = await shiftsRef.where("currentDate", "==", today).get();
-
-  if (snapshot.empty) {
-    const newDoc = shiftsRef.doc();
-    await newDoc.set({
+  
+  // Get the current shift document
+  currentShiftDoc = shiftsRef.doc(CURRENT_SHIFT_DOC_ID);
+  const docSnap = await currentShiftDoc.get();
+  
+  if (!docSnap.exists) {
+    // Create the document if it doesn't exist
+    await currentShiftDoc.set({
       currentDate: today,
       shift1name: "Morning",
       shift1status: "Not Open Yet",
@@ -412,9 +418,19 @@ async function loadTodayShift() {
       shift2Reopen: false,
       status: "Not Open Yet"
     });
-    currentShiftDoc = newDoc;
   } else {
-    currentShiftDoc = snapshot.docs[0].ref;
+    const data = docSnap.data();
+    
+    // Check if the date has changed
+    if (data.currentDate !== today) {
+      // Reset shifts for the new day
+      await currentShiftDoc.update({
+        currentDate: today,
+        shift1status: "Not Open Yet",
+        shift2status: "Not Open Yet",
+        status: "Not Open Yet"
+      });
+    }
   }
 
   updateButtonStates();
@@ -425,7 +441,6 @@ async function updateButtonStates() {
   const docSnap = await currentShiftDoc.get();
   const data = docSnap.data();
   const today = getFormattedDate();
-  const yesterday = getFormattedDate(new Date(Date.now() - 86400000));
 
   // Update status displays
   document.getElementById("systemStatus").textContent = data.status;
@@ -436,20 +451,31 @@ async function updateButtonStates() {
   updateStatusClass("shift1Status", data.shift1status);
   updateStatusClass("shift2Status", data.shift2status);
 
+  // Enable/disable buttons based on current state
   openBtn.disabled = false;
   closeBtn.disabled = false;
   reopenBtn.style.display = "none";
 
-  if (data.currentDate === yesterday && data.shift1status === "Not Open Yet") {
-    openBtn.disabled = false; closeBtn.disabled = true;
-  } else if (data.currentDate === today && data.shift1status === "Open") {
-    openBtn.disabled = true; closeBtn.disabled = false;
-  } else if (data.currentDate === today && data.shift1status === "Closed" && data.shift2status === "Not Open Yet") {
-    openBtn.disabled = false; closeBtn.disabled = true;
-  } else if (data.currentDate === today && data.shift1status === "Closed" && data.shift2status === "Open") {
-    openBtn.disabled = true; closeBtn.disabled = false;
-  } else if (data.currentDate === today && data.shift1status === "Closed" && data.shift2status === "Closed") {
-    openBtn.disabled = true; closeBtn.disabled = true;
+  if (data.shift1status === "Not Open Yet" && data.shift2status === "Not Open Yet") {
+    // Both shifts are not open yet
+    openBtn.disabled = false;
+    closeBtn.disabled = true;
+  } else if (data.shift1status === "Open" && data.shift2status === "Not Open Yet") {
+    // Morning shift is open, evening not yet
+    openBtn.disabled = true;
+    closeBtn.disabled = false;
+  } else if (data.shift1status === "Closed" && data.shift2status === "Not Open Yet") {
+    // Morning shift closed, evening not yet
+    openBtn.disabled = false;
+    closeBtn.disabled = true;
+  } else if (data.shift1status === "Closed" && data.shift2status === "Open") {
+    // Morning closed, evening open
+    openBtn.disabled = true;
+    closeBtn.disabled = false;
+  } else if (data.shift1status === "Closed" && data.shift2status === "Closed") {
+    // Both shifts closed
+    openBtn.disabled = true;
+    closeBtn.disabled = true;
     reopenBtn.style.display = "inline-block";
   }
 }
@@ -472,22 +498,17 @@ function updateStatusClass(elementId, status) {
 async function handleOpenShift() {
   const docSnap = await currentShiftDoc.get();
   const data = docSnap.data();
-  const today = getFormattedDate();
-
-  // Reset if date changed
-  if (data.currentDate !== today) {
-    await currentShiftDoc.update({
-      currentDate: today,
-      shift1status: "Not Open Yet",
-      shift2status: "Not Open Yet",
-      status: "Not Open Yet"
-    });
-  }
 
   if (data.shift1status === "Not Open Yet") {
-    await currentShiftDoc.update({ shift1status: "Open", status: "Open" });
+    await currentShiftDoc.update({ 
+      shift1status: "Open", 
+      status: "Open" 
+    });
   } else if (data.shift1status === "Closed" && data.shift2status === "Not Open Yet") {
-    await currentShiftDoc.update({ shift2status: "Open", status: "Open" });
+    await currentShiftDoc.update({ 
+      shift2status: "Open", 
+      status: "Open" 
+    });
   }
 
   updateButtonStates();
@@ -499,9 +520,15 @@ async function handleCloseShift() {
   const data = docSnap.data();
 
   if (data.shift1status === "Open") {
-    await currentShiftDoc.update({ shift1status: "Closed", status: "Closed" });
+    await currentShiftDoc.update({ 
+      shift1status: "Closed", 
+      status: "Closed" 
+    });
   } else if (data.shift2status === "Open") {
-    await currentShiftDoc.update({ shift2status: "Closed", status: "Closed" });
+    await currentShiftDoc.update({ 
+      shift2status: "Closed", 
+      status: "Closed" 
+    });
   }
 
   updateButtonStates();
@@ -515,6 +542,9 @@ function handleReopenShift() {
 // --- Close modal ---
 function closeReopenModal() {
   document.getElementById("reopenModal").style.display = "none";
+  // Clear form fields
+  document.getElementById("username").value = "";
+  document.getElementById("password").value = "";
 }
 
 // --- Submit reopen form (with hashed password) ---
@@ -541,7 +571,11 @@ async function submitReopenForm(event) {
   }
 
   const field = shiftNum === "1" ? "shift1status" : "shift2status";
-  await currentShiftDoc.update({ [field]: "Open", status: "Open" });
+  await currentShiftDoc.update({ 
+    [field]: "Open", 
+    status: "Open" 
+  });
+  
   alert(`Shift ${shiftNum === "1" ? "Morning" : "Evening"} reopened successfully`);
   closeReopenModal();
   updateButtonStates();
@@ -550,11 +584,13 @@ async function submitReopenForm(event) {
 // --- Close modal when clicking outside content ---
 window.onclick = function(event) {
   const modal = document.getElementById("reopenModal");
-  if (event.target == modal) { modal.style.display = "none"; }
+  if (event.target == modal) { 
+    modal.style.display = "none"; 
+  }
 }
 
 // --- Auto refresh to check date change every minute ---
-setInterval(loadTodayShift, 60*1000);
+setInterval(loadCurrentShift, 60*1000);
 </script>
 
 </body>
