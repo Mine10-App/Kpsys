@@ -3,658 +3,104 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Reprint Receipts (80mm)</title>
+  <title>Reprint Receipts (70mm)</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
   <style>
-    :root {
-      --primary: #3498db;
-      --primary-dark: #2980b9;
-      --success: #27ae60;
-      --success-dark: #1e8449;
-      --danger: #e74c3c;
-      --warning: #f39c12;
-      --light: #f8f9fa;
-      --dark: #2c3e50;
-      --gray: #7f8c8d;
-      --border-radius: 8px;
-      --shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-      --transition: all 0.3s ease;
-    }
-
     body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+      font-family: 'Segoe UI', sans-serif;
+      background: #f5f7fa;
       margin: 0;
-      padding: 20px;
-      min-height: 100vh;
+      padding: 40px;
       display: flex;
-      align-items: center;
       justify-content: center;
-      -webkit-print-color-adjust: exact;
+      align-items: center;
+      height: 100vh;
     }
-
-    .page-wrap {
-      max-width: 420px;
-      margin: auto;
+    .box {
       background: white;
-      border-radius: var(--border-radius);
-      box-shadow: var(--shadow);
-      overflow: hidden;
-    }
-
-    .header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 12px;
-      padding: 20px 20px 0;
-      background: var(--dark);
-      color: white;
-    }
-
-    h1.app-title {
-      font-size: 20px;
-      margin: 0;
-      font-weight: 600;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .search-section {
       padding: 20px;
-      background: var(--light);
-    }
-
-    .search-bar {
-      display: flex;
-      gap: 8px;
-      margin-bottom: 12px;
-    }
-
-    .search-bar input[type="number"]{
-      flex: 1;
-      padding: 12px;
-      font-size: 16px;
-      border-radius: var(--border-radius);
-      border: 1px solid #ddd;
-      transition: var(--transition);
-    }
-
-    .search-bar input:focus {
-      outline: none;
-      border-color: var(--primary);
-      box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
-    }
-
-    .btn {
-      padding: 12px 16px;
-      font-size: 14px;
-      font-weight: 600;
-      border: none;
-      border-radius: var(--border-radius);
-      cursor: pointer;
-      transition: var(--transition);
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .btn-search { 
-      background: var(--primary); 
-      color: #fff; 
-      min-width: 100px;
-    }
-
-    .btn-search:hover { 
-      background: var(--primary-dark);
-      transform: translateY(-2px);
-    }
-
-    .btn-print  { 
-      background: var(--success); 
-      color: #fff;
-      width: 100%;
-      justify-content: center;
-      margin-top: 15px;
-    }
-
-    .btn-print:hover {
-      background: var(--success-dark);
-      transform: translateY(-2px);
-    }
-
-    .message { 
-      text-align: center; 
-      color: var(--gray); 
-      margin-top: 8px; 
-      padding: 10px;
-      border-radius: var(--border-radius);
-      background: #f8f9fa;
-      display: none;
-    }
-
-    .message.error {
-      background: rgba(231, 76, 60, 0.1);
-      color: var(--danger);
-    }
-
-    .message.success {
-      background: rgba(39, 174, 96, 0.1);
-      color: var(--success);
-    }
-
-    .receipt-wrapper {
-      margin-top: 10px;
-      display: flex;
-      justify-content: center;
-      padding: 0 20px 20px;
-    }
-
-    /* UPDATED RECEIPT DESIGN - Better padding and margins */
-    .receipt {
-      width: 80mm;
-      padding: 15px; /* Increased padding */
-      font-family: 'Courier New', monospace;
-      font-size: 14px;
-      background: white;
-      margin: 0 auto;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.05);
       border-radius: 8px;
-      border: 1px solid #e0e0e0;
-      line-height: 1.3; /* Slightly increased line height */
-    }
-
-    .receipt-header {
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
       text-align: center;
-      margin-bottom: 18px; /* Increased margin */
-      border-bottom: 1px dashed #ccc;
-      padding-bottom: 12px; /* Increased padding */
+      width: 320px;
     }
-
-    .company-name {
-      font-weight: bold;
+    h1 {
+      font-size: 20px;
+      margin-bottom: 15px;
+    }
+    input {
+      width: 100%;
+      padding: 10px;
       font-size: 16px;
-      margin-bottom: 8px; /* Increased margin */
-      text-transform: uppercase;
+      margin-bottom: 15px;
+      border: 1px solid #ddd;
+      border-radius: 6px;
     }
-
-    .company-meta {
-      font-size: 12px;
-      margin: 4px 0; /* Increased margin */
-      color: #333;
-    }
-
-    .receipt-details {
-      margin-bottom: 15px; /* Increased margin */
-    }
-
-    .detail-row {
-      display: flex;
-      justify-content: space-between;
-      margin-bottom: 6px; /* Increased margin */
-      padding: 2px 0; /* Added padding */
-    }
-
-    .detail-label {
+    button {
+      background: #27ae60;
+      color: white;
       font-weight: bold;
+      border: none;
+      padding: 12px;
+      width: 100%;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 16px;
     }
-
-    .items-section {
-      margin: 15px 0; /* Increased margin */
+    button:hover {
+      background: #1e8449;
     }
-
-    .item-row {
-      display: flex;
-      justify-content: space-between;
-      margin-bottom: 8px; /* Increased margin */
-      padding: 3px 0; /* Added padding */
-    }
-
-    .item-name {
-      flex: 1;
-    }
-
-    .item-qty {
-      width: 25px; /* Slightly wider */
-      text-align: center;
-      margin: 0 8px; /* Added margin */
-    }
-
-    .item-price {
-      width: 70px; /* Slightly wider */
-      text-align: right;
-    }
-
-    .totals-section {
-      margin-top: 15px; /* Increased margin */
-      border-top: 1px dashed #ccc;
-      padding-top: 12px; /* Increased padding */
-    }
-
-    .total-row {
-      display: flex;
-      justify-content: space-between;
-      margin-bottom: 8px; /* Increased margin */
-      padding: 3px 0; /* Added padding */
-    }
-
-    .grand-total {
-      font-weight: bold;
-      font-size: 15px;
-      border-top: 1px solid #000;
-      padding-top: 8px; /* Increased padding */
-      margin-top: 8px; /* Increased margin */
-    }
-
-    .payment-info {
-      margin-top: 15px; /* Increased margin */
-      border-top: 1px dashed #ccc;
-      padding-top: 12px; /* Increased padding */
-    }
-
-    .payment-details {
-      margin-top: 8px; /* Increased margin */
-      font-size: 12px;
-      background: #f8f8f8;
-      padding: 8px; /* Increased padding */
-      border-radius: 4px;
-    }
-
-    .status-section {
-      margin-top: 15px; /* Increased margin */
-      text-align: center;
-      padding: 8px 0; /* Added padding */
-    }
-
-    .status-active { 
-      color: var(--success); 
-      font-weight: bold; 
-      font-size: 12px;
-      padding: 4px 0; /* Added padding */
-    }
-
-    .status-voided { 
-      color: var(--danger); 
-      font-weight: bold; 
-      font-size: 12px;
-      padding: 4px 0; /* Added padding */
-    }
-
-    .void-reason {
-      margin-top: 8px; /* Increased margin */
-      font-size: 11px;
-      text-align: center;
-      background: #f8f8f8;
-      padding: 6px; /* Increased padding */
-      border-radius: 3px;
-    }
-
-    .receipt-footer {
-      margin-top: 18px; /* Increased margin */
-      text-align: center;
-      font-size: 11px;
-      color: #666;
-      border-top: 1px dashed #ccc;
-      padding-top: 12px; /* Increased padding */
-    }
-
-    .thank-you {
-      font-style: italic;
-      margin-bottom: 8px; /* Increased margin */
-      padding: 3px 0; /* Added padding */
-    }
-
-    .powered-by {
-      font-size: 10px;
-      padding: 2px 0; /* Added padding */
-    }
-
-    .receipt-divider {
-      border-top: 1px dashed #ccc;
-      margin: 12px 0; /* Increased margin */
-      padding: 2px 0; /* Added padding */
-    }
-
-    @media print {
-      body, html {
-        margin: 0 !important;
-        padding: 0 !important;
-        background: #fff;
-        width: 80mm !important;
-        height: auto !important;
-        min-height: auto !important;
-        display: block;
-        overflow: hidden;
-      }
-
-      .page-wrap {
-        margin: 0 !important;
-        padding: 0 !important;
-        box-shadow: none !important;
-        border-radius: 0 !important;
-        width: 80mm !important;
-        max-width: 80mm !important;
-        height: auto !important;
-        min-height: auto !important;
-      }
-
-      .header,
-      .search-section,
-      #printBtn,
-      .message {
-        display: none !important;
-      }
-
-      .receipt-wrapper {
-        padding: 0 !important;
-        margin: 0 !important;
-        width: 80mm !important;
-        max-width: 80mm !important;
-        height: auto !important;
-      }
-
-      .receipt {
-        border: none !important;
-        box-shadow: none !important;
-        width: 80mm !important;
-        max-width: 80mm !important;
-        padding: 10px !important; /* Keep some padding for print */
-        margin: 0 !important;
-        page-break-inside: avoid;
-        height: auto !important;
-        min-height: auto !important;
-      }
-
-      @page {
-        size: 80mm auto;
-        margin: 0 !important;
-        padding: 0 !important;
-      }
-    }
-
-    @media (max-width: 520px) {
-      body {
-        padding: 10px;
-      }
-
-      .page-wrap { 
-        max-width: 100%; 
-      }
-
-      .search-bar {
-        flex-direction: column;
-      }
-
-      .btn-search {
-        width: 100%;
-      }
-      
-      .receipt {
-        width: 100%;
-        padding: 12px; /* Slightly reduced for mobile */
-      }
-    }
-
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(10px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
+    .msg { margin-top: 10px; font-size: 14px; color: #e74c3c; }
   </style>
 </head>
-
 <body>
-  <div class="page-wrap">
-    <div class="header">
-      <h1 class="app-title"><i class="fas fa-receipt"></i> Reprint Receipts</h1>
-    </div>
 
-    <div class="search-section">
-      <div class="search-bar">
-        <input type="number" id="receiptInput" placeholder="Enter Receipt No" />
-        <button class="btn btn-search" onclick="searchReceipt()">
-          <i class="fas fa-search"></i> Search
-        </button>
-      </div>
-    </div>
-
-    <div class="receipt-wrapper">
-      <div id="receiptDetails" class="receipt" aria-live="polite">
-        <div style="text-align:center; font-size:11px; color:#666; padding: 20px;">
-          <i class="fas fa-receipt" style="font-size: 24px; margin-bottom: 10px; display: block;"></i>
-          Search a receipt number to show receipt here
-        </div>
-      </div>
-    </div>
-
-    <div style="text-align:center; margin-top:8px; padding: 0 20px 20px;">
-      <button id="printBtn" class="btn btn-print" onclick="window.print()" style="display:none;">
-        <i class="fas fa-print"></i> Print Receipt
-      </button>
-    </div>
-
-    <div class="message" id="message"></div>
+  <div class="box">
+    <h1><i class="fas fa-receipt"></i> Reprint Receipt</h1>
+    <input type="number" id="receiptInput" placeholder="Enter Receipt No" />
+    <button onclick="goToReceipt()">Print Receipt</button>
+    <div class="msg" id="msg"></div>
   </div>
 
-  <!-- Firebase + company info -->
+  <!-- Firebase -->
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
   <script src="fire2.js"></script>
-  <script src="Co.js"></script>
 
   <script>
-    const receiptInput = document.getElementById("receiptInput");
-    const receiptDetails = document.getElementById("receiptDetails");
-    const message = document.getElementById("message");
-    const printBtn = document.getElementById("printBtn");
+    async function goToReceipt() {
+      const receiptNo = document.getElementById("receiptInput").value.trim();
+      const msg = document.getElementById("msg");
 
-    let currentData = null;
-
-    receiptInput.addEventListener("keypress", function(event) {
-      if (event.key === "Enter") {
-        searchReceipt();
-      }
-    });
-
-    async function searchReceipt() {
-      const receiptNo = receiptInput.value.trim();
       if (!receiptNo) {
-        showMessage("Please enter a receipt number", "error");
+        msg.innerText = "⚠️ Please enter a receipt number";
         return;
       }
 
-      showMessage("Searching for receipt...", "info");
-      receiptDetails.innerHTML = "";
-
       try {
-        const snapshot = await db.collection("payments")
+        // Find receipt in Firestore
+        const snap = await db.collection("payments")
           .where("receiptNo", "==", Number(receiptNo))
+          .limit(1)
           .get();
 
-        if (snapshot.empty) {
-          showMessage("No receipt found with that number.", "error");
-          printBtn.style.display = "none";
+        if (snap.empty) {
+          msg.innerText = "❌ Receipt not found!";
           return;
         }
 
-        const doc = snapshot.docs[0];
-        currentData = doc.data();
+        const doc = snap.docs[0];
+        // Save doc id to session
+        sessionStorage.setItem("lastPaymentId", doc.id);
+        // Redirect to receipt page
+        window.location.href = "receipt.html";
 
-        showMessage("Receipt found successfully!", "success");
-        renderReceipt(currentData);
-        printBtn.style.display = "inline-block";
       } catch (err) {
-        console.error("Error searching receipt:", err);
-        showMessage("Error: " + err.message, "error");
-        printBtn.style.display = "none";
+        console.error(err);
+        msg.innerText = "Error: " + err.message;
       }
-    }
-
-    function fmtCurrency(val, cur) {
-      if (typeof val === "number") {
-        return val.toFixed(2) + (cur ? " " + cur : "");
-      }
-      return (val || "0.00") + (cur ? " " + cur : "");
-    }
-
-    function renderReceipt(data) {
-      let dateStr = "";
-      if (!data.date) {
-        dateStr = new Date().toLocaleString();
-      } else {
-        if (data.date && typeof data.date.toDate === "function") {
-          dateStr = data.date.toDate().toLocaleString();
-        } else {
-          dateStr = data.date;
-        }
-      }
-
-      const statusClass = data.voided ? "status-voided" : "status-active";
-      const statusText  = data.voided ? "VOIDED" : "ACTIVE";
-
-      // Check if payment is not cash and has approval code/batch number
-      const isNonCashPayment = data.paymentType && 
-                              data.paymentType.toLowerCase() !== "cash" && 
-                              (data.approvalCode || data.batchNo);
-      
-      // Build items section
-      let itemsHtml = "";
-      if (Array.isArray(data.items) && data.items.length) {
-        itemsHtml += `<div class="items-section">`;
-        data.items.forEach(it => {
-          const name = it.name || "";
-          const qty  = it.qty != null ? it.qty : 1;
-          const price = it.price != null ? Number(it.price) : 0;
-          const lineTotal = (qty * price).toFixed(2);
-          
-          itemsHtml += `
-            <div class="item-row">
-              <div class="item-name">${escapeHtml(name)}</div>
-              <div class="item-qty">x${qty}</div>
-              <div class="item-price">${lineTotal}</div>
-            </div>
-          `;
-        });
-        itemsHtml += `</div>`;
-      }
-
-      // Build details section for non-item receipts
-      let detailsHtml = "";
-      if (!itemsHtml) {
-        detailsHtml = `
-          <div class="receipt-details">
-            <div class="detail-row">
-              <div class="detail-label">Receipt No:</div>
-              <div class="detail-value">${escapeHtml(data.receiptNo)}</div>
-            </div>
-            <div class="detail-row">
-              <div class="detail-label">Date:</div>
-              <div class="detail-value">${escapeHtml(dateStr)}</div>
-            </div>
-            <div class="detail-row">
-              <div class="detail-label">Passenger:</div>
-              <div class="detail-value">${escapeHtml(data.passenger || "")}</div>
-            </div>
-            <div class="detail-row">
-              <div class="detail-label">Flight:</div>
-              <div class="detail-value">${escapeHtml(data.flight || "")}</div>
-            </div>
-            <div class="detail-row">
-              <div class="detail-label">Seat:</div>
-              <div class="detail-value">${escapeHtml(data.seat || "")}</div>
-            </div>
-            <div class="detail-row">
-              <div class="detail-label">Adults:</div>
-              <div class="detail-value">${escapeHtml(data.adults != null ? data.adults : 0)}</div>
-            </div>
-            <div class="detail-row">
-              <div class="detail-label">Kids:</div>
-              <div class="detail-value">${escapeHtml(data.kids != null ? data.kids : 0)}</div>
-            </div>
-          </div>
-        `;
-      }
-
-      const subtotal = data.subtotal != null ? Number(data.subtotal) : (data.total != null ? Number(data.total) : 0);
-      const gst = data.gst != null ? Number(data.gst) : (data.GST != null ? Number(data.GST) : 0);
-      const total = data.total != null ? Number(data.total) : (subtotal + gst);
-
-      receiptDetails.innerHTML = `
-        <div class="receipt-header">
-          <div class="company-name">${escapeHtml(companyInfo.name || "")}</div>
-          <div class="company-meta">${escapeHtml(companyInfo.address || "")}</div>
-          <div class="company-meta">Phone: ${escapeHtml(companyInfo.phone || "")}</div>
-        </div>
-
-        ${detailsHtml}
-        ${itemsHtml}
-
-        <div class="totals-section">
-          <div class="total-row">
-            <div>Sub Total:</div>
-            <div>${fmtCurrency(subtotal, data.currency)}</div>
-          </div>
-          <div class="total-row">
-            <div>GST:</div>
-            <div>${fmtCurrency(gst, data.currency)}</div>
-          </div>
-          <div class="total-row grand-total">
-            <div>TOTAL:</div>
-            <div>${fmtCurrency(total, data.currency)}</div>
-          </div>
-        </div>
-
-        <div class="payment-info">
-          <div class="detail-row">
-            <div>Payment:</div>
-            <div>${escapeHtml(data.paymentType || "")}</div>
-          </div>
-          <div class="detail-row">
-            <div>Shift:</div>
-            <div>${escapeHtml(data.shift || "")}</div>
-          </div>
-          ${isNonCashPayment ? `
-            <div class="payment-details">
-              ${data.approvalCode ? `<div class="detail-row"><div>Approval Code:</div><div>${escapeHtml(data.approvalCode)}</div></div>` : ''}
-              ${data.batchNo ? `<div class="detail-row"><div>Batch No:</div><div>${escapeHtml(data.batchNo)}</div></div>` : ''}
-            </div>
-          ` : ''}
-        </div>
-
-        <div class="status-section">
-          <div class="${statusClass}">${statusText}</div>
-          ${data.voided && data.voidReason ? `<div class="void-reason">${escapeHtml(data.voidReason)}</div>` : ""}
-        </div>
-
-        <div class="receipt-footer">
-          <div class="thank-you">Thank you for choosing ${escapeHtml(companyInfo.name || "")}!</div>
-          <div class="powered-by">Powered by Koveli POS</div>
-        </div>
-      `;
-    }
-
-    function showMessage(text, type) {
-      message.innerText = text;
-      message.className = "message";
-      message.style.display = "block";
-      
-      if (type === "error") {
-        message.classList.add("error");
-      } else if (type === "success") {
-        message.classList.add("success");
-      }
-    }
-
-    function escapeHtml(unsafe) {
-      if (unsafe === null || unsafe === undefined) return "";
-      return String(unsafe)
-        .replaceAll('&', '&amp;')
-        .replaceAll('<', '&lt;')
-        .replaceAll('>', '&gt;')
-        .replaceAll('"', '&quot;')
-        .replaceAll("'", '&#039;');
     }
   </script>
+
 </body>
 </html>
