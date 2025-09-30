@@ -8,6 +8,8 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
     <script src="fire2.js"></script>
     <script src="user.js"></script>
+    <!-- Include a hashing library for password verification -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/js-sha256/0.9.0/sha256.min.js"></script>
     <style>
     :root {
         --primary: #8c6d1f;
@@ -16,6 +18,7 @@
         --accent: #c19a1b;
         --success: #27ae60;
         --warning: #f39c12;
+        --danger: #e74c3c;
         --light: #ffffff;
         --dark: #5d4d0f;
         --gray: #8a7c4a;
@@ -211,7 +214,7 @@
     
     .summary-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
         gap: 15px;
         margin-top: 15px;
     }
@@ -233,6 +236,16 @@
         font-weight: 700;
         color: var(--dark);
         font-size: 0.9rem;
+    }
+    
+    .extra-cash {
+        color: var(--success);
+        font-weight: bold;
+    }
+    
+    .short-cash {
+        color: var(--danger);
+        font-weight: bold;
     }
     
     .grand-total {
@@ -369,6 +382,21 @@
         background-color: var(--accent);
     }
     
+    .error-message {
+        color: #dc3545;
+        font-size: 0.9rem;
+        margin-top: 10px;
+        text-align: center;
+        display: none;
+    }
+    
+    .loading {
+        display: none;
+        text-align: center;
+        color: var(--primary);
+        margin: 10px 0;
+    }
+    
     @media (max-width: 1300px) {
         body {
             overflow-x: auto;
@@ -480,7 +508,7 @@
             <h2>All Denomination Counts</h2>
             <div class="all-tables-row">
                 <div class="table-section">
-                    <h3>USD Cash Count</h3>
+                    <h3>Sales USD Count</h3>
                     <table id="usdTable">
                         <thead>
                             <tr>
@@ -500,7 +528,7 @@
                 </div>
                 
                 <div class="table-section">
-                    <h3>MVR Cash Count</h3>
+                    <h3>Sales MVR Count</h3>
                     <table id="mvrTable">
                         <thead>
                             <tr>
@@ -565,29 +593,65 @@
             <h2>Reconciliation Summary</h2>
             <div class="summary-grid">
                 <div class="summary-item">
-                    <span class="summary-label">Total Cash USD:</span>
-                    <span class="summary-value" id="totalCashUSD">0.00</span>
+                    <span class="summary-label">Sales USD (Actual):</span>
+                    <span class="summary-value" id="actualSalesUSD">0.00</span>
                 </div>
                 <div class="summary-item">
-                    <span class="summary-label">Total Cash MVR:</span>
-                    <span class="summary-value" id="totalCashMVR">0.00</span>
+                    <span class="summary-label">Sales USD (Counted):</span>
+                    <span class="summary-value" id="countedSalesUSD">0.00</span>
                 </div>
                 <div class="summary-item">
-                    <span class="summary-label">Total Petty Cash USD:</span>
-                    <span class="summary-value" id="totalPettyUSD">0.00</span>
+                    <span class="summary-label">Sales USD (Difference):</span>
+                    <span class="summary-value" id="differenceSalesUSD">0.00</span>
+                </div>
+                
+                <div class="summary-item">
+                    <span class="summary-label">Sales MVR (Actual):</span>
+                    <span class="summary-value" id="actualSalesMVR">0.00</span>
                 </div>
                 <div class="summary-item">
-                    <span class="summary-label">Total Petty Cash MVR:</span>
-                    <span class="summary-value" id="totalPettyMVR">0.00</span>
+                    <span class="summary-label">Sales MVR (Counted):</span>
+                    <span class="summary-value" id="countedSalesMVR">0.00</span>
+                </div>
+                <div class="summary-item">
+                    <span class="summary-label">Sales MVR (Difference):</span>
+                    <span class="summary-value" id="differenceSalesMVR">0.00</span>
+                </div>
+                
+                <div class="summary-item">
+                    <span class="summary-label">Petty USD (Actual):</span>
+                    <span class="summary-value" id="actualPettyUSD">0.00</span>
+                </div>
+                <div class="summary-item">
+                    <span class="summary-label">Petty USD (Counted):</span>
+                    <span class="summary-value" id="countedPettyUSD">0.00</span>
+                </div>
+                <div class="summary-item">
+                    <span class="summary-label">Petty USD (Difference):</span>
+                    <span class="summary-value" id="differencePettyUSD">0.00</span>
+                </div>
+                
+                <div class="summary-item">
+                    <span class="summary-label">Petty MVR (Actual):</span>
+                    <span class="summary-value" id="actualPettyMVR">0.00</span>
+                </div>
+                <div class="summary-item">
+                    <span class="summary-label">Petty MVR (Counted):</span>
+                    <span class="summary-value" id="countedPettyMVR">0.00</span>
+                </div>
+                <div class="summary-item">
+                    <span class="summary-label">Petty MVR (Difference):</span>
+                    <span class="summary-value" id="differencePettyMVR">0.00</span>
                 </div>
             </div>
+            
             <div class="grand-total">
-                <span>Grand Total USD:</span>
-                <span id="grandTotalUSD">0.00</span>
+                <span>Total Extra Cash USD:</span>
+                <span id="totalExtraUSD">0.00</span>
             </div>
             <div class="grand-total">
-                <span>Grand Total MVR:</span>
-                <span id="grandTotalMVR">0.00</span>
+                <span>Total Extra Cash MVR:</span>
+                <span id="totalExtraMVR">0.00</span>
             </div>
         </section>
         
@@ -607,6 +671,8 @@
             <h3>Enter Username & Password</h3>
             <input type="text" id="popupUsername" placeholder="Username">
             <input type="password" id="popupPassword" placeholder="Password">
+            <div class="loading" id="loading">Verifying credentials...</div>
+            <div class="error-message" id="errorMessage">Invalid credentials</div>
             <button id="popupSubmit">Submit</button>
         </div>
     </div>
@@ -623,6 +689,8 @@
         const pettyMVREl = document.getElementById("pettyMVR");
         const statusIndicator = document.getElementById("statusIndicator");
         const cashierStatus = document.getElementById("cashierStatus");
+        const errorMessage = document.getElementById("errorMessage");
+        const loading = document.getElementById("loading");
 
         const openBtn = document.getElementById("openShiftBtn");
         const closeBtn = document.getElementById("closeShiftBtn");
@@ -732,26 +800,66 @@
             }, 1000);
         });
 
-        // Update summary and check buttons
+        // Update summary with proper calculations
         function updateSummary(){
-            const cUSD = Number(document.getElementById("usdGrandTotal").textContent);
-            const cMVR = Number(document.getElementById("mvrGrandTotal").textContent);
-            const cPettyUSD = Number(document.getElementById("pettyUSDGrandTotal").textContent);
-            const cPettyMVR = Number(document.getElementById("pettyMVRGrandTotal").textContent);
+            // Get actual values from Firebase
+            const actualSalesUSD = Number(totalUSDEl.textContent);
+            const actualSalesMVR = Number(totalMVREl.textContent);
+            const actualPettyUSD = Number(pettyUSDEl.textContent);
+            const actualPettyMVR = Number(pettyMVREl.textContent);
+            
+            // Get counted values from denomination tables
+            const countedSalesUSD = Number(document.getElementById("usdGrandTotal").textContent);
+            const countedSalesMVR = Number(document.getElementById("mvrGrandTotal").textContent);
+            const countedPettyUSD = Number(document.getElementById("pettyUSDGrandTotal").textContent);
+            const countedPettyMVR = Number(document.getElementById("pettyMVRGrandTotal").textContent);
+            
+            // Calculate differences (positive = extra cash, negative = short cash)
+            const differenceSalesUSD = countedSalesUSD - actualSalesUSD;
+            const differenceSalesMVR = countedSalesMVR - actualSalesMVR;
+            const differencePettyUSD = countedPettyUSD - actualPettyUSD;
+            const differencePettyMVR = countedPettyMVR - actualPettyMVR;
+            
+            // Calculate total extra cash (only positive differences)
+            const totalExtraUSD = Math.max(0, differenceSalesUSD) + Math.max(0, differencePettyUSD);
+            const totalExtraMVR = Math.max(0, differenceSalesMVR) + Math.max(0, differencePettyMVR);
+            
+            // Update summary display
+            document.getElementById("actualSalesUSD").textContent = actualSalesUSD.toFixed(2);
+            document.getElementById("actualSalesMVR").textContent = actualSalesMVR.toFixed(2);
+            document.getElementById("actualPettyUSD").textContent = actualPettyUSD.toFixed(2);
+            document.getElementById("actualPettyMVR").textContent = actualPettyMVR.toFixed(2);
+            
+            document.getElementById("countedSalesUSD").textContent = countedSalesUSD.toFixed(2);
+            document.getElementById("countedSalesMVR").textContent = countedSalesMVR.toFixed(2);
+            document.getElementById("countedPettyUSD").textContent = countedPettyUSD.toFixed(2);
+            document.getElementById("countedPettyMVR").textContent = countedPettyMVR.toFixed(2);
+            
+            // Update differences with color coding
+            updateDifferenceDisplay("differenceSalesUSD", differenceSalesUSD);
+            updateDifferenceDisplay("differenceSalesMVR", differenceSalesMVR);
+            updateDifferenceDisplay("differencePettyUSD", differencePettyUSD);
+            updateDifferenceDisplay("differencePettyMVR", differencePettyMVR);
+            
+            document.getElementById("totalExtraUSD").textContent = totalExtraUSD.toFixed(2);
+            document.getElementById("totalExtraMVR").textContent = totalExtraMVR.toFixed(2);
+            
+            checkButtonStatus(countedSalesUSD, countedSalesMVR, countedPettyUSD, countedPettyMVR, 
+                            actualSalesUSD, actualSalesMVR, actualPettyUSD, actualPettyMVR);
+        }
 
-            const sUSD = Number(totalUSDEl.textContent);
-            const sMVR = Number(totalMVREl.textContent);
-            const pUSD = Number(pettyUSDEl.textContent);
-            const pMVR = Number(pettyMVREl.textContent);
-
-            document.getElementById("totalCashUSD").textContent = (sUSD + cUSD).toFixed(2);
-            document.getElementById("totalCashMVR").textContent = (sMVR + cMVR).toFixed(2);
-            document.getElementById("totalPettyUSD").textContent = (pUSD + cPettyUSD).toFixed(2);
-            document.getElementById("totalPettyMVR").textContent = (pMVR + cPettyMVR).toFixed(2);
-            document.getElementById("grandTotalUSD").textContent = (sUSD + cUSD + pUSD + cPettyUSD).toFixed(2);
-            document.getElementById("grandTotalMVR").textContent = (sMVR + cMVR + pMVR + cPettyMVR).toFixed(2);
-
-            checkButtonStatus(cUSD, cMVR, cPettyUSD, cPettyMVR, sUSD, sMVR, pUSD, pMVR);
+        // Update difference display with color coding
+        function updateDifferenceDisplay(elementId, difference) {
+            const element = document.getElementById(elementId);
+            element.textContent = difference.toFixed(2);
+            
+            if (difference > 0) {
+                element.className = "summary-value extra-cash";
+            } else if (difference < 0) {
+                element.className = "summary-value short-cash";
+            } else {
+                element.className = "summary-value";
+            }
         }
 
         // Cashier status management
@@ -780,13 +888,14 @@
         }
 
         // Enable/disable buttons based on counts and active cashier
-        function checkButtonStatus(cUSD, cMVR, cPettyUSD, cPettyMVR, sUSD, sMVR, pUSD, pMVR) {
-            // Check if counts are valid (counted amount >= fetched amount)
-            const cashCountsValid = cUSD >= sUSD && cMVR >= sMVR;
-            const pettyCountsValid = cPettyUSD >= pUSD && cPettyMVR >= pMVR;
+        function checkButtonStatus(countedUSD, countedMVR, countedPettyUSD, countedPettyMVR, 
+                                 actualUSD, actualMVR, actualPettyUSD, actualPettyMVR) {
+            // Check if counts are valid (counted amount >= actual amount)
+            const salesCountsValid = countedUSD >= actualUSD && countedMVR >= actualMVR;
+            const pettyCountsValid = countedPettyUSD >= actualPettyUSD && countedPettyMVR >= actualPettyMVR;
             
-            // Both cash and petty cash counts should be valid
-            const countsValid = cashCountsValid && pettyCountsValid;
+            // Both sales and petty cash counts should be valid
+            const countsValid = salesCountsValid && pettyCountsValid;
 
             if (!countsValid) {
                 openBtn.disabled = true;
@@ -825,6 +934,50 @@
             return localStorage.getItem('currentUser');
         }
 
+        // Verify hashed password
+        function verifyPassword(inputPassword, storedHash) {
+            // Hash the input password using SHA-256
+            const inputHash = sha256(inputPassword);
+            return inputHash === storedHash;
+        }
+
+        // Authenticate user with hashed password
+        function authenticateUser(username, password) {
+            return new Promise((resolve, reject) => {
+                try {
+                    if (typeof users === 'undefined') {
+                        reject(new Error('User database not found. Please check user.js'));
+                        return;
+                    }
+
+                    // Debug: log available users
+                    console.log('Available users:', users);
+
+                    const user = users.find(u => u.username === username);
+                    
+                    if (!user) {
+                        reject(new Error('User not found'));
+                        return;
+                    }
+
+                    // Check if password field exists
+                    if (!user.password) {
+                        reject(new Error('User password hash not found'));
+                        return;
+                    }
+
+                    // Verify the hashed password
+                    if (verifyPassword(password, user.password)) {
+                        resolve(user);
+                    } else {
+                        reject(new Error('Invalid password'));
+                    }
+                } catch (error) {
+                    reject(error);
+                }
+            });
+        }
+
         // Popup logic
         let actionType = null; // "open" or "close"
         function showAuthPopup(type) { 
@@ -832,6 +985,8 @@
             document.getElementById("authPopup").style.display = "flex"; 
             document.getElementById("popupUsername").value = "";
             document.getElementById("popupPassword").value = "";
+            errorMessage.style.display = "none";
+            loading.style.display = "none";
             document.getElementById("popupUsername").focus();
         }
 
@@ -843,72 +998,88 @@
         openBtn.addEventListener("click", () => showAuthPopup("open"));
         closeBtn.addEventListener("click", () => showAuthPopup("close"));
 
-        document.getElementById("popupSubmit").addEventListener("click", () => {
+        document.getElementById("popupSubmit").addEventListener("click", async () => {
             const username = document.getElementById("popupUsername").value;
             const password = document.getElementById("popupPassword").value;
 
-            // Check if users array exists (from user.js)
-            if (typeof users === 'undefined') {
-                alert("User authentication not available. Please check user.js");
+            if (!username || !password) {
+                errorMessage.textContent = "Please enter both username and password";
+                errorMessage.style.display = "block";
                 return;
             }
 
-            const user = users.find(u => u.username === username && u.password === password);
-            if (!user) { 
-                alert("Invalid credentials"); 
-                return; 
-            }
+            // Show loading
+            loading.style.display = "block";
+            errorMessage.style.display = "none";
+            document.getElementById("popupSubmit").disabled = true;
 
-            if (actionType === "open") {
-                if (activeCashierData) {
-                    alert(`Cashier already active (opened by ${activeCashierData.currentCashier})`);
-                    hideAuthPopup();
-                    return;
+            try {
+                const user = await authenticateUser(username, password);
+                
+                // Clear messages and enable button
+                loading.style.display = "none";
+                errorMessage.style.display = "none";
+                document.getElementById("popupSubmit").disabled = false;
+
+                // Authentication successful
+                if (actionType === "open") {
+                    if (activeCashierData) {
+                        alert(`Cashier already active (opened by ${activeCashierData.currentCashier})`);
+                        hideAuthPopup();
+                        return;
+                    }
+                    
+                    // Store current user in localStorage
+                    localStorage.setItem('currentUser', username);
+                    
+                    // Create new cashier session
+                    db.collection("cashier").add({
+                        currentCashier: username,
+                        active: true,
+                        openedAt: firebase.firestore.FieldValue.serverTimestamp(),
+                        date: document.getElementById("currentDate").textContent
+                    }).then(() => {
+                        alert("Cashier opened successfully"); 
+                        hideAuthPopup();
+                    }).catch(error => {
+                        alert("Error opening cashier: " + error.message);
+                    });
+                    
+                } else if (actionType === "close") {
+                    if (!activeCashierData) {
+                        alert("No active cashier");
+                        hideAuthPopup();
+                        return;
+                    }
+                    
+                    // Check if the user trying to close is the one who opened it
+                    if (username !== activeCashierData.currentCashier) {
+                        alert(`Only ${activeCashierData.currentCashier} can close this cashier`);
+                        hideAuthPopup();
+                        return;
+                    }
+                    
+                    // Close the cashier
+                    db.collection("cashier").doc(activeCashierData.id).update({
+                        active: false,
+                        closedAt: firebase.firestore.FieldValue.serverTimestamp(),
+                        closedBy: username
+                    }).then(() => {
+                        // Clear current user from localStorage
+                        localStorage.removeItem('currentUser');
+                        alert("Cashier closed successfully"); 
+                        hideAuthPopup();
+                    }).catch(error => {
+                        alert("Error closing cashier: " + error.message);
+                    });
                 }
-                
-                // Store current user in localStorage
-                localStorage.setItem('currentUser', username);
-                
-                // Create new cashier session
-                db.collection("cashier").add({
-                    currentCashier: username,
-                    active: true,
-                    openedAt: firebase.firestore.FieldValue.serverTimestamp(),
-                    date: document.getElementById("currentDate").textContent
-                }).then(() => {
-                    alert("Cashier opened successfully"); 
-                    hideAuthPopup();
-                }).catch(error => {
-                    alert("Error opening cashier: " + error.message);
-                });
-                
-            } else if (actionType === "close") {
-                if (!activeCashierData) {
-                    alert("No active cashier");
-                    hideAuthPopup();
-                    return;
-                }
-                
-                // Check if the user trying to close is the one who opened it
-                if (username !== activeCashierData.currentCashier) {
-                    alert(`Only ${activeCashierData.currentCashier} can close this cashier`);
-                    hideAuthPopup();
-                    return;
-                }
-                
-                // Close the cashier
-                db.collection("cashier").doc(activeCashierData.id).update({
-                    active: false,
-                    closedAt: firebase.firestore.FieldValue.serverTimestamp(),
-                    closedBy: username
-                }).then(() => {
-                    // Clear current user from localStorage
-                    localStorage.removeItem('currentUser');
-                    alert("Cashier closed successfully"); 
-                    hideAuthPopup();
-                }).catch(error => {
-                    alert("Error closing cashier: " + error.message);
-                });
+            } catch (error) {
+                // Authentication failed
+                loading.style.display = "none";
+                errorMessage.textContent = error.message;
+                errorMessage.style.display = "block";
+                document.getElementById("popupSubmit").disabled = false;
+                console.error("Authentication error:", error);
             }
         });
 
@@ -924,6 +1095,13 @@
             const savedUser = localStorage.getItem('currentUser');
             if (savedUser) {
                 console.log('Current user:', savedUser);
+            }
+            
+            // Debug: Check if users are loaded
+            if (typeof users !== 'undefined') {
+                console.log('Users loaded successfully:', users.map(u => u.username));
+            } else {
+                console.error('Users not loaded. Check user.js file.');
             }
         });
     </script>
