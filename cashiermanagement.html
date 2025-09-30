@@ -480,7 +480,7 @@
             <h2>All Denomination Counts</h2>
             <div class="all-tables-row">
                 <div class="table-section">
-                    <h3>Sales USD Count</h3>
+                    <h3>USD Cash Count</h3>
                     <table id="usdTable">
                         <thead>
                             <tr>
@@ -500,7 +500,7 @@
                 </div>
                 
                 <div class="table-section">
-                    <h3>Sales MVR Count</h3>
+                    <h3>MVR Cash Count</h3>
                     <table id="mvrTable">
                         <thead>
                             <tr>
@@ -624,11 +624,11 @@
         const statusIndicator = document.getElementById("statusIndicator");
         const cashierStatus = document.getElementById("cashierStatus");
 
-        const openBtn=document.getElementById("openShiftBtn");
-        const closeBtn=document.getElementById("closeShiftBtn");
+        const openBtn = document.getElementById("openShiftBtn");
+        const closeBtn = document.getElementById("closeShiftBtn");
 
         // Current date
-        const today=new Date();
+        const today = new Date();
         document.getElementById("currentDate").textContent = today.toISOString().split('T')[0];
 
         // Create denomination tables
@@ -678,38 +678,59 @@
 
         // Fetch totals from Firebase
         function fetchCashTotals(){
-            db.collection("payments").where("date","==",document.getElementById("currentDate").textContent).where("paymentType","==","Cash").where("currency","==","USD")
-                .onSnapshot(snap=>{
-                    let t=0; 
-                    snap.forEach(d=>{
-                        const p=d.data(); 
-                        if(!p.voided) t+=Number(p.total||0)
+            // Fetch USD cash payments
+            db.collection("payments")
+                .where("date", "==", document.getElementById("currentDate").textContent)
+                .where("paymentType", "==", "Cash")
+                .where("currency", "==", "USD")
+                .onSnapshot(snap => {
+                    let total = 0; 
+                    snap.forEach(doc => {
+                        const payment = doc.data(); 
+                        if(!payment.voided) total += Number(payment.total || 0);
                     }); 
-                    totalUSDEl.textContent=t.toFixed(2); 
+                    totalUSDEl.textContent = total.toFixed(2); 
                     updateSummary();
                 });
             
-            db.collection("payments").where("date","==",document.getElementById("currentDate").textContent).where("paymentType","==","Cash").where("currency","==","MVR")
-                .onSnapshot(snap=>{
-                    let t=0; 
-                    snap.forEach(d=>{
-                        const p=d.data(); 
-                        if(!p.voided) t+=Number(p.total||0)
+            // Fetch MVR cash payments
+            db.collection("payments")
+                .where("date", "==", document.getElementById("currentDate").textContent)
+                .where("paymentType", "==", "Cash")
+                .where("currency", "==", "MVR")
+                .onSnapshot(snap => {
+                    let total = 0; 
+                    snap.forEach(doc => {
+                        const payment = doc.data(); 
+                        if(!payment.voided) total += Number(payment.total || 0);
                     }); 
-                    totalMVREl.textContent=t.toFixed(2); 
+                    totalMVREl.textContent = total.toFixed(2); 
                     updateSummary();
                 });
             
-            db.collection("pettyCash").limit(1).onSnapshot(snap=>{
+            // Fetch petty cash
+            db.collection("pettyCash").limit(1).onSnapshot(snap => {
                 if(!snap.empty){
                     const data = snap.docs[0].data();
-                    pettyUSDEl.textContent = Number(data.USD||0).toFixed(2);
-                    pettyMVREl.textContent = Number(data.MVR||0).toFixed(2);
+                    pettyUSDEl.textContent = Number(data.USD || 0).toFixed(2);
+                    pettyMVREl.textContent = Number(data.MVR || 0).toFixed(2);
                     updateSummary();
                 }
             });
         }
-        fetchCashTotals();
+        
+        // Initialize Firebase and fetch data
+        document.addEventListener('DOMContentLoaded', function() {
+            // Wait for Firebase to initialize
+            setTimeout(() => {
+                if (typeof db !== 'undefined') {
+                    fetchCashTotals();
+                    checkCashierStatus();
+                } else {
+                    console.error("Firebase not initialized. Check your fire2.js configuration.");
+                }
+            }, 1000);
+        });
 
         // Update summary and check buttons
         function updateSummary(){
@@ -730,26 +751,36 @@
             document.getElementById("grandTotalUSD").textContent = (sUSD + cUSD + pUSD + cPettyUSD).toFixed(2);
             document.getElementById("grandTotalMVR").textContent = (sMVR + cMVR + pMVR + cPettyMVR).toFixed(2);
 
-            checkButtonStatus(cUSD,cMVR,cPettyUSD,cPettyMVR,sUSD,sMVR,pUSD,pMVR);
+            checkButtonStatus(cUSD, cMVR, cPettyUSD, cPettyMVR, sUSD, sMVR, pUSD, pMVR);
         }
 
-        // Live cashier status
-        let activeCashierId = null;
-        db.collection("cashier").limit(1).onSnapshot(snap=>{
-            if(snap.empty || !snap.docs[0].data().activeCashier){
-                activeCashierId = null;
-                statusIndicator.className = "status-indicator status-inactive";
-                cashierStatus.textContent = "Inactive";
-            } else {
-                activeCashierId = snap.docs[0].id;
-                statusIndicator.className = "status-indicator status-active";
-                cashierStatus.textContent = "Active";
-            }
-            updateSummary();
-        });
+        // Cashier status management
+        let activeCashierData = null;
+
+        // Listen for active cashier
+        function checkCashierStatus() {
+            db.collection("cashier")
+                .where("active", "==", true)
+                .limit(1)
+                .onSnapshot(snap => {
+                    if (snap.empty) {
+                        activeCashierData = null;
+                        statusIndicator.className = "status-indicator status-inactive";
+                        cashierStatus.textContent = "Inactive";
+                        updateButtonVisibility(null);
+                    } else {
+                        activeCashierData = snap.docs[0].data();
+                        activeCashierData.id = snap.docs[0].id;
+                        statusIndicator.className = "status-indicator status-active";
+                        cashierStatus.textContent = `Active - ${activeCashierData.currentCashier}`;
+                        updateButtonVisibility(activeCashierData.currentCashier);
+                    }
+                    updateSummary();
+                });
+        }
 
         // Enable/disable buttons based on counts and active cashier
-        function checkButtonStatus(cUSD,cMVR,cPettyUSD,cPettyMVR,sUSD,sMVR,pUSD,pMVR){
+        function checkButtonStatus(cUSD, cMVR, cPettyUSD, cPettyMVR, sUSD, sMVR, pUSD, pMVR) {
             // Check if counts are valid (counted amount >= fetched amount)
             const cashCountsValid = cUSD >= sUSD && cMVR >= sMVR;
             const pettyCountsValid = cPettyUSD >= pUSD && cPettyMVR >= pMVR;
@@ -757,75 +788,126 @@
             // Both cash and petty cash counts should be valid
             const countsValid = cashCountsValid && pettyCountsValid;
 
-            if(!countsValid){
+            if (!countsValid) {
                 openBtn.disabled = true;
                 closeBtn.disabled = true;
                 return;
             }
 
-            // If counts are valid, enable appropriate button based on cashier status
-            if(activeCashierId){
-                openBtn.disabled = true;
-                closeBtn.disabled = false;
-            } else {
+            // If counts are valid, update button visibility
+            updateButtonVisibility(activeCashierData ? activeCashierData.currentCashier : null);
+        }
+
+        // Update button visibility based on cashier status and current user
+        function updateButtonVisibility(currentCashier) {
+            const currentUser = getCurrentUser();
+            
+            if (!currentCashier) {
+                // No active cashier - anyone can open
                 openBtn.disabled = false;
                 closeBtn.disabled = true;
+            } else {
+                // Active cashier exists
+                openBtn.disabled = true;
+                
+                // Only enable close button if current user is the one who opened it
+                if (currentUser === currentCashier) {
+                    closeBtn.disabled = false;
+                } else {
+                    closeBtn.disabled = true;
+                    closeBtn.title = `Only ${currentCashier} can close this cashier`;
+                }
             }
+        }
+
+        // Get current user
+        function getCurrentUser() {
+            return localStorage.getItem('currentUser');
         }
 
         // Popup logic
         let actionType = null; // "open" or "close"
-        function showAuthPopup(type){ 
+        function showAuthPopup(type) { 
             actionType = type; 
-            document.getElementById("authPopup").style.display="flex"; 
+            document.getElementById("authPopup").style.display = "flex"; 
             document.getElementById("popupUsername").value = "";
             document.getElementById("popupPassword").value = "";
             document.getElementById("popupUsername").focus();
         }
-        
-        function hideAuthPopup(){ 
-            document.getElementById("authPopup").style.display="none"; 
+
+        function hideAuthPopup() { 
+            document.getElementById("authPopup").style.display = "none"; 
         }
 
         // Button events
-        openBtn.addEventListener("click", ()=>showAuthPopup("open"));
-        closeBtn.addEventListener("click", ()=>showAuthPopup("close"));
+        openBtn.addEventListener("click", () => showAuthPopup("open"));
+        closeBtn.addEventListener("click", () => showAuthPopup("close"));
 
-        document.getElementById("popupSubmit").addEventListener("click", ()=>{
+        document.getElementById("popupSubmit").addEventListener("click", () => {
             const username = document.getElementById("popupUsername").value;
             const password = document.getElementById("popupPassword").value;
 
-            const user = users.find(u => u.username===username && u.password===password);
-            if(!user){ 
+            // Check if users array exists (from user.js)
+            if (typeof users === 'undefined') {
+                alert("User authentication not available. Please check user.js");
+                return;
+            }
+
+            const user = users.find(u => u.username === username && u.password === password);
+            if (!user) { 
                 alert("Invalid credentials"); 
                 return; 
             }
 
-            if(actionType==="open"){
-                if(activeCashierId){
-                    alert("Cashier already active");
+            if (actionType === "open") {
+                if (activeCashierData) {
+                    alert(`Cashier already active (opened by ${activeCashierData.currentCashier})`);
                     hideAuthPopup();
                     return;
                 }
+                
+                // Store current user in localStorage
+                localStorage.setItem('currentUser', username);
+                
+                // Create new cashier session
                 db.collection("cashier").add({
-                    activeCashier: username,
-                    openedAt: firebase.firestore.FieldValue.serverTimestamp()
-                }).then(()=>{
+                    currentCashier: username,
+                    active: true,
+                    openedAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    date: document.getElementById("currentDate").textContent
+                }).then(() => {
                     alert("Cashier opened successfully"); 
                     hideAuthPopup();
+                }).catch(error => {
+                    alert("Error opening cashier: " + error.message);
                 });
-            } else if(actionType==="close"){
-                if(!activeCashierId){
+                
+            } else if (actionType === "close") {
+                if (!activeCashierData) {
                     alert("No active cashier");
                     hideAuthPopup();
                     return;
                 }
-                db.collection("cashier").doc(activeCashierId).update({
-                    activeCashier: "",
-                    closedAt: firebase.firestore.FieldValue.serverTimestamp()
-                }).then(()=>{
+                
+                // Check if the user trying to close is the one who opened it
+                if (username !== activeCashierData.currentCashier) {
+                    alert(`Only ${activeCashierData.currentCashier} can close this cashier`);
+                    hideAuthPopup();
+                    return;
+                }
+                
+                // Close the cashier
+                db.collection("cashier").doc(activeCashierData.id).update({
+                    active: false,
+                    closedAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    closedBy: username
+                }).then(() => {
+                    // Clear current user from localStorage
+                    localStorage.removeItem('currentUser');
                     alert("Cashier closed successfully"); 
                     hideAuthPopup();
+                }).catch(error => {
+                    alert("Error closing cashier: " + error.message);
                 });
             }
         });
@@ -834,6 +916,14 @@
         document.getElementById("authPopup").addEventListener("click", function(e) {
             if (e.target === this) {
                 hideAuthPopup();
+            }
+        });
+
+        // Check for existing user session on page load
+        window.addEventListener('load', function() {
+            const savedUser = localStorage.getItem('currentUser');
+            if (savedUser) {
+                console.log('Current user:', savedUser);
             }
         });
     </script>
