@@ -1,182 +1,224 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Koveli Lounge Receipt</title>
+<title>Professional Receipt</title>
 <style>
   :root {
-    --primary: #1a3a6c;
-    --accent: #d4af37;
-    --border-color: #000;
-    --text-color: #000;
+    --primary-color: #2c3e50;
+    --accent-color: #3498db;
+    --border-color: #e0e0e0;
+    --light-bg: #f8f9fa;
+    --success-color: #27ae60;
+    --void-color: #e74c3c;
+    --text-color: #333;
     --text-light: #666;
+    --shadow: 0 2px 10px rgba(0,0,0,0.05);
   }
   
   * {
     box-sizing: border-box;
-    margin: 0;
-    padding: 0;
   }
   
   body { 
-    margin: 0; 
-    padding: 0; 
-    font-family: 'Courier New', monospace;
-    background: #fff; 
+    margin:0; 
+    padding:0; 
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background:#fff; 
     color: var(--text-color);
-    line-height: 1.2;
-    font-size: 12px;
+    line-height: 1.4;
   }
   
   .receipt { 
-    width: 68mm;
-    max-width: 68mm;
-    padding: 3mm;
-    margin: 0 auto;
+    width:65mm; 
+    max-width:65mm; 
+    padding:10px; 
+    margin:0 auto; 
+    font-size:12px;
+    box-shadow: var(--shadow);
+    border-radius: 4px;
   }
   
-  .company-header {
-    text-align: center;
-    margin-bottom: 8px;
-    padding-bottom: 6px;
+  .receipt-header { 
+    text-align:center; 
+    margin-bottom:10px; 
+    padding-bottom:10px; 
     border-bottom: 1px solid var(--border-color);
   }
   
-  .company-name {
-    font-size: 16px;
-    font-weight: bold;
-    margin-bottom: 2px;
-    color: var(--primary);
+  .company-name { 
+    font-weight:600; 
+    font-size:15px; 
+    margin-bottom:4px; 
+    color: var(--primary-color);
+    letter-spacing: 0.5px;
   }
   
-  .company-details {
-    font-size: 10px;
-    line-height: 1.3;
+  .company-meta { 
+    font-size:10px; 
+    margin:2px 0; 
     color: var(--text-light);
   }
   
-  .receipt-title {
+  .receipt-no {
+    font-size: 11px;
+    font-weight: 600;
     text-align: center;
-    font-weight: bold;
-    font-size: 13px;
-    margin: 8px 0;
-    padding: 4px 0;
-    border-top: 1px solid var(--border-color);
-    border-bottom: 1px solid var(--border-color);
+    margin: 6px 0;
+    color: var(--primary-color);
+    background: var(--light-bg);
+    padding: 4px;
+    border-radius: 3px;
   }
   
-  .receipt-info {
-    margin: 8px 0;
+  .section-title {
+    font-size: 10px;
+    text-transform: uppercase;
+    font-weight: 600;
+    color: var(--text-light);
+    margin-bottom: 6px;
+    letter-spacing: 0.5px;
   }
   
-  .info-row {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 4px;
+  .details-section, .items-section { 
+    margin:8px 0; 
+    padding: 6px;
+    background: var(--light-bg);
+    border-radius: 4px;
   }
   
-  .info-label {
-    font-weight: bold;
-  }
-  
-  .divider {
+  .detail-row, .item-row { 
+    display:flex; 
+    justify-content:space-between; 
+    margin-bottom:4px; 
+    padding-bottom: 4px;
     border-bottom: 1px dashed var(--border-color);
-    margin: 8px 0;
   }
   
-  .amounts-section {
-    margin: 10px 0;
+  .detail-row:last-child, .item-row:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+    padding-bottom: 0;
   }
   
-  .amount-row {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 3px;
+  .detail-label, .item-name { 
+    flex:1; 
+    font-weight: 500;
   }
   
-  .total-row {
-    display: flex;
-    justify-content: space-between;
-    font-weight: bold;
-    font-size: 13px;
-    margin-top: 6px;
-    padding-top: 6px;
-    border-top: 2px solid var(--border-color);
+  .detail-value, .item-qty, .item-price { 
+    text-align:right; 
   }
   
-  .payment-section {
-    margin: 10px 0;
-    padding-top: 8px;
-    border-top: 1px dashed var(--border-color);
+  .item-qty { 
+    width:22px; 
+    text-align:center; 
+    margin:0 6px; 
   }
   
-  .footer {
-    text-align: center;
-    margin-top: 12px;
-    padding-top: 8px;
-    border-top: 1px solid var(--border-color);
-    font-size: 10px;
+  .item-price { 
+    width:50px; 
+  }
+  
+  .totals-section { 
+    margin-top:10px; 
+    border-top:1px solid var(--border-color); 
+    padding-top:10px; 
+  }
+  
+  .total-row { 
+    display:flex; 
+    justify-content:space-between; 
+    margin-bottom:5px; 
+  }
+  
+  .grand-total { 
+    font-weight:bold; 
+    font-size:12px; 
+    border-top:1px solid var(--border-color); 
+    padding-top:5px; 
+    margin-top:5px; 
+    color: var(--primary-color);
+  }
+  
+  .payment-info { 
+    margin-top:10px; 
+    border-top:1px solid var(--border-color); 
+    padding-top:10px; 
+    font-size:10px; 
+  }
+  
+  .status-section { 
+    margin-top:10px; 
+    text-align:center; 
+    padding:5px 0; 
+    font-weight:bold; 
+    font-size:11px; 
+    border-radius: 4px;
+    background: var(--success-color);
+    color: white;
+  }
+  
+  .status-section.voided {
+    background: var(--void-color);
+  }
+  
+  .void-reason { 
+    font-size:9px; 
+    text-align:center; 
+    margin-top:5px; 
+    background:#f8f8f8; 
+    padding:5px; 
+    border-radius: 4px;
+    border-left: 3px solid var(--void-color);
+  }
+  
+  .receipt-footer { 
+    margin-top:10px; 
+    text-align:center; 
+    font-size:9px; 
+    border-top:1px solid var(--border-color); 
+    padding-top:10px; 
     color: var(--text-light);
   }
   
-  .thank-you {
-    font-weight: bold;
-    margin-bottom: 4px;
-    color: var(--primary);
-  }
-  
-  .validity {
-    font-style: italic;
-    margin: 4px 0;
+  .thank-you { 
+    font-style:italic; 
+    margin-bottom:4px; 
   }
 
-  .loading, .error {
-    text-align: center;
-    padding: 20px;
-    font-size: 12px;
-  }
-  
-  .error {
-    color: red;
+  @media (max-width:520px) {
+    .receipt { 
+      width:320px; 
+      max-width:100%; 
+      padding:12px; 
+    }
   }
 
   @media print {
     body, html { 
-      margin: 0; 
-      padding: 0; 
-      width: 70mm !important; 
+      margin:0; 
+      padding:0; 
+      width:65mm !important; 
     }
     .receipt { 
-      width: 68mm !important; 
-      padding: 3mm !important; 
-      border: none !important; 
-      box-shadow: none !important; 
+      width:65mm !important; 
+      padding:0 !important; 
+      border:none !important; 
+      box-shadow:none !important; 
     }
     @page { 
-      size: 70mm auto; 
-      margin: 0 !important; 
-    }
-    
-    body * {
-      visibility: hidden;
-    }
-    .receipt, .receipt * {
-      visibility: visible;
-    }
-    .receipt {
-      position: absolute;
-      left: 0;
-      top: 0;
+      size:65mm auto; 
+      margin:0 !important; 
     }
   }
 </style>
 </head>
 <body>
 
-<div class="receipt" id="receipt">
-  <div class="loading">Loading receipt...</div>
-</div>
+<div class="receipt" id="receipt">Loading receipt...</div>
 
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
@@ -209,24 +251,12 @@ async function fetchByReceiptNo(no) {
   return { data: doc.data(), docId: doc.id };
 }
 
-function formatDate(date) {
-  if (!date) return new Date().toLocaleString();
-  
-  if (date.toDate) {
-    return date.toDate().toLocaleString();
-  } else if (date instanceof Date) {
-    return date.toLocaleString();
-  } else {
-    return new Date(date).toLocaleString();
-  }
-}
-
 (async function loadReceipt(){
   const lastPaymentId = sessionStorage.getItem('lastPaymentId');
   const lastReceiptNo = sessionStorage.getItem('lastReceiptNo');
 
   if (!lastPaymentId && !lastReceiptNo) {
-    receiptDiv.innerHTML = '<div class="error">No receipt data found.</div>';
+    receiptDiv.innerHTML = '<p style="padding:10px; text-align:center;">No receipt data found.</p>';
     return;
   }
 
@@ -236,7 +266,7 @@ function formatDate(date) {
     else if (lastReceiptNo) res = await fetchByReceiptNo(lastReceiptNo);
 
     if (!res || !res.data) {
-      receiptDiv.innerHTML = '<div class="error">Receipt not found.</div>';
+      receiptDiv.innerHTML = '<p style="padding:10px; text-align:center;">Receipt not found.</p>';
       return;
     }
 
@@ -244,97 +274,117 @@ function formatDate(date) {
 
     // Company info
     const compName = (typeof companyInfo !== 'undefined' && companyInfo && companyInfo.name) ? companyInfo.name
-                    : (typeof COMPANY_NAME !== 'undefined' ? COMPANY_NAME : 'Koveli Lounge');
-    const compAddress = (companyInfo && companyInfo.address) ? companyInfo.address : 'Velana International Airport';
-    const compPhone = (companyInfo && companyInfo.phone) ? companyInfo.phone : '+960 304 6677';
-    const currency = (data.currency) ? data.currency : (companyInfo && companyInfo.currency ? companyInfo.currency : 'USD');
+                    : (typeof COMPANY_NAME !== 'undefined' ? COMPANY_NAME : '');
+    const compAddress = (companyInfo && companyInfo.address) ? companyInfo.address : '';
+    const compPhone = (companyInfo && companyInfo.phone) ? companyInfo.phone : '';
+    const currency = (data.currency) ? data.currency : (companyInfo && companyInfo.currency ? companyInfo.currency : '$');
 
     function fmt(v) {
       const n = Number(v || 0);
-      return `${n.toFixed(2)} ${currency}`;
+      return `${currency}${n.toFixed(2)}`;
     }
 
-    // Calculate values
+    // Items
+    let itemsHtml = '';
+    if (Array.isArray(data.items) && data.items.length) {
+      itemsHtml += '<div class="section-title">Items</div>';
+      itemsHtml += '<div class="items-section">';
+      data.items.forEach(it => {
+        const name = escapeHtml(it.name || '');
+        const qty = (it.qty != null) ? it.qty : 1;
+        const price = (it.price != null) ? Number(it.price) : 0;
+        const lineTotal = qty * price;
+        itemsHtml += `
+          <div class="item-row">
+            <div class="item-name">${name}</div>
+            <div class="item-qty">x${escapeHtml(qty)}</div>
+            <div class="item-price">${fmt(lineTotal)}</div>
+          </div>
+        `;
+      });
+      itemsHtml += '</div>';
+    }
+
+    // Receipt number at the top
+    const receiptNoHtml = data.receiptNo ? `<div class="receipt-no">Receipt #${escapeHtml(data.receiptNo)}</div>` : '';
+
+    // Passenger/flight/seat section
+    let detailsHtml = '<div class="section-title">Details</div>';
+    detailsHtml += '<div class="details-section">';
+    if (data.passenger || data.flight || data.seat || data.adults || data.kids) {
+      detailsHtml += `
+        <div class="detail-row"><div class="detail-label">Passenger:</div><div class="detail-value">${escapeHtml(data.passenger || '')}</div></div>
+        <div class="detail-row"><div class="detail-label">Flight:</div><div class="detail-value">${escapeHtml(data.flight || '')}</div></div>
+        <div class="detail-row"><div class="detail-label">Seat:</div><div class="detail-value">${escapeHtml(data.seat || '')}</div></div>
+        <div class="detail-row"><div class="detail-label">Adults:</div><div class="detail-value">${escapeHtml(data.adults != null ? data.adults : 0)}</div></div>
+        <div class="detail-row"><div class="detail-label">Kids:</div><div class="detail-value">${escapeHtml(data.kids != null ? data.kids : 0)}</div></div>
+      `;
+    } else {
+      detailsHtml += `
+        <div class="detail-row"><div class="detail-label">Customer:</div><div class="detail-value">${escapeHtml(data.customer || '')}</div></div>
+      `;
+    }
+    detailsHtml += '</div>';
+
+    // Totals
     const subtotal = (data.subtotal != null) ? Number(data.subtotal) : (data.total != null ? Number(data.total) : 0);
     const gst = (data.gst != null) ? Number(data.gst) : 0;
     const total = (data.total != null) ? Number(data.total) : (subtotal + gst);
-    const adults = data.adults || 0;
-    const kids = data.kids || 0;
-    
-    // Payment info
-    const paymentType = (data.paymentType || '').toString();
-    
-    // Date
-    const receiptDate = formatDate(data.timestamp || data.date || new Date());
 
-    // Render receipt
+    // Payment
+    const paymentType = (data.paymentType || '').toString();
+    const isNonCash = paymentType.toLowerCase() !== 'cash';
+    let nonCashHtml = '';
+    if (isNonCash && data.approvalCode) {
+      nonCashHtml += `<div class="detail-row"><div class="detail-label">Approval:</div><div class="detail-value">${escapeHtml(data.approvalCode)}</div></div>`;
+      nonCashHtml += `<div class="detail-row"><div class="detail-label">Batch No:</div><div class="detail-value">${escapeHtml(data.batchNo || '')}</div></div>`;
+    }
+
+    let cashHtml = '';
+    if (!isNonCash) {
+      const paid = (data.paid != null) ? Number(data.paid) : total;
+      const balance = (data.balance != null) ? Number(data.balance) : Math.max(0, paid - total);
+      cashHtml = `<div class="detail-row"><div class="detail-label">Paid:</div><div class="detail-value">${fmt(paid)}</div></div>`;
+      cashHtml += `<div class="detail-row"><div class="detail-label">Balance:</div><div class="detail-value">${fmt(balance)}</div></div>`;
+    }
+
+    // Status / Void
+    const statusText = data.voided ? 'VOIDED' : 'ACTIVE';
+    const statusClass = data.voided ? 'voided' : '';
+    const voidReasonHtml = data.voided && data.voidReason ? `<div class="void-reason">${escapeHtml(data.voidReason)}</div>` : '';
+
+    // Render
     receiptDiv.innerHTML = `
-      <div class="company-header">
+      <div class="receipt-header">
         <div class="company-name">${escapeHtml(compName)}</div>
-        <div class="company-details">
-          <div>${escapeHtml(compAddress)}</div>
-          <div>${escapeHtml(compPhone)}</div>
-        </div>
+        <div class="company-meta">${escapeHtml(compAddress)}</div>
+        <div class="company-meta">Phone: ${escapeHtml(compPhone)}</div>
       </div>
-      
-      <div class="receipt-title">WALK-IN PAYMENT</div>
-      
-      <div class="receipt-info">
-        <div class="info-row">
-          <span class="info-label">Receipt No:</span>
-          <span>${escapeHtml(data.receiptNo || '-')}</span>
-        </div>
-        <div class="info-row">
-          <span class="info-label">Date:</span>
-          <span>${escapeHtml(receiptDate)}</span>
-        </div>
-        <div class="info-row">
-          <span class="info-label">Cashier:</span>
-          <span>${escapeHtml(data.cashier || '-')}</span>
-        </div>
-        <div class="info-row">
-          <span class="info-label">Shift:</span>
-          <span>${escapeHtml(data.shift || 'No Shift Open')}</span>
-        </div>
+
+      ${receiptNoHtml}
+      ${detailsHtml}
+      ${itemsHtml}
+
+      <div class="totals-section">
+        <div class="total-row"><div>Sub Total:</div><div>${fmt(subtotal)}</div></div>
+        <div class="total-row"><div>GST:</div><div>${fmt(gst)}</div></div>
+        <div class="total-row grand-total"><div>Total:</div><div>${fmt(total)}</div></div>
       </div>
-      
-      <div class="divider"></div>
-      
-      <div class="amounts-section">
-        <div class="amount-row">
-          <span>Adults (${escapeHtml(adults)}):</span>
-          <span>${fmt(subtotal)}</span>
-        </div>
-        ${kids > 0 ? `
-        <div class="amount-row">
-          <span>Kids (${escapeHtml(kids)}):</span>
-          <span>${fmt(0)}</span>
-        </div>
-        ` : ''}
-        <div class="amount-row">
-          <span>Subtotal:</span>
-          <span>${fmt(subtotal)}</span>
-        </div>
-        <div class="amount-row">
-          <span>GST:</span>
-          <span>${fmt(gst)}</span>
-        </div>
-        <div class="total-row">
-          <span>GRAND TOTAL:</span>
-          <span>${fmt(total)}</span>
-        </div>
+
+      <div class="payment-info">
+        <div class="section-title">Payment Information</div>
+        <div class="detail-row"><div class="detail-label">Payment Type:</div><div class="detail-value">${escapeHtml(paymentType)}</div></div>
+        <div class="detail-row"><div class="detail-label">Shift:</div><div class="detail-value">${escapeHtml(data.shift || '')}</div></div>
+        ${isNonCash ? nonCashHtml : cashHtml}
       </div>
-      
-      <div class="payment-section">
-        <div class="info-row">
-          <span class="info-label">Payment Type:</span>
-          <span>${escapeHtml(paymentType)}</span>
-        </div>
-      </div>
-      
-      <div class="footer">
-        <div class="validity">This package is valid for 3 hours</div>
-        <div class="thank-you">Thank you for your payment!</div>
+
+      <div class="status-section ${statusClass}">${escapeHtml(statusText)}</div>
+      ${voidReasonHtml}
+
+      <div class="receipt-footer">
+        <div class="thank-you">Thank you for choosing ${escapeHtml(compName)}!</div>
+        <div>This package is valid for 3 hours.</div>
+        <div>Powered by Koveli POS</div>
       </div>
     `;
 
@@ -347,7 +397,7 @@ function formatDate(date) {
 
   } catch (err) {
     console.error('Error loading receipt:', err);
-    receiptDiv.innerHTML = `<div class="error">Error: ${escapeHtml(err.message || String(err))}</div>`;
+    receiptDiv.innerHTML = `<p style="padding:10px; text-align:center;">Error: ${escapeHtml(err.message || String(err))}</p>`;
   }
 })();
 </script>
