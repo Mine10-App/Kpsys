@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Professional Receipt</title>
+<style>
+  :root {
+    --primary-color: #000;
+    --accent-color: #000;
+    --border-color: #000;
+    --light-bg: #f0f0f0;
+    --success-color: #000;
+    --void-color: #000;
+    --text-color: #000;
+    --text-light: #555;
+    --shadow: 0 0 0 rgba(0,0,0,0);
+  }
+  
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+  
+  body { 
+    margin:0; 
+    padding:0; 
+    font-family: 'Courier New', monospace;
+    background:#fff; 
+    color: var(--text-color);
+    line-height: 1;
+    font-size: 11px;
+  }
+  
+  .receipt { 
+    width: 70mm;
+    max-width: 70mm;
+    padding: 3mm;
+    margin: 0 auto;
+    font-size: 11px;
+  }
+  
+  .receipt-header { 
+    text-align:center; 
+    margin-bottom: 6px; 
+    padding-bottom: 5px; 
+    border-bottom: 1px dashed var(--border-color);
+  }
+  
+  .company-name { 
+    font-weight: bold; 
+    font-size: 14px; 
+    margin-bottom: 3px; 
+    color: var(--primary-color);
+  }
+  
+  .company-meta { 
+    font-size: 10px; 
+    margin: 1px 0; 
+    color: var(--text-light);
+  }
+  
+  .receipt-no {
+    font-size: 11px;
+    font-weight: bold;
+    text-align: center;
+    margin: 5px 0;
+    color: var(--primary-color);
+    background: var(--light-bg);
+    padding: 3px;
+  }
+  
+  .section-title {
+    font-size: 10px;
+    text-transform: uppercase;
+    font-weight: bold;
+    color: var(--text-color);
+    margin-bottom: 4px;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 2px;
+  }
+  
+  .details-section, .items-section { 
+    margin: 6px 0; 
+    padding: 4px 0;
+  }
+  
+  .detail-row, .item-row { 
+    display: flex; 
+    justify-content: space-between; 
+    margin-bottom: 3px; 
+    padding-bottom: 3px;
+    border-bottom: 1px dashed var(--border-color);
+  }
+  
+  .detail-row:last-child, .item-row:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+    padding-bottom: 0;
+  }
+  
+  .detail-label, .item-name { 
+    flex: 1; 
+    font-weight: normal;
+  }
+  
+  .detail-value, .item-qty, .item-price { 
+    text-align: right; 
+  }
+  
+  .item-qty { 
+    width: 15px; 
+    text-align: center; 
+    margin: 0 4px; 
+  }
+  
+  .item-price { 
+    width: 40px; 
+  }
+  
+  .totals-section { 
+    margin-top: 8px; 
+    border-top: 1px solid var(--border-color); 
+    padding-top: 8px; 
+  }
+  
+  .total-row { 
+    display: flex; 
+    justify-content: space-between; 
+    margin-bottom: 4px; 
+  }
+  
+  .grand-total { 
+    font-weight: bold; 
+    font-size: 12px; 
+    border-top: 1px solid var(--border-color); 
+    padding-top: 4px; 
+    margin-top: 4px; 
+    color: var(--primary-color);
+  }
+  
+  .payment-info { 
+    margin-top: 8px; 
+    border-top: 1px solid var(--border-color); 
+    padding-top: 8px; 
+    font-size: 10px; 
+  }
+  
+  .status-section { 
+    margin-top: 8px; 
+    text-align: center; 
+    padding: 4px 0; 
+    font-weight: bold; 
+    font-size: 11px; 
+    border: 1px solid var(--border-color);
+  }
+  
+  .status-section.voided {
+    background: var(--void-color);
+    color: white;
+  }
+  
+  .void-reason { 
+    font-size: 9px; 
+    text-align: center; 
+    margin-top: 4px; 
+    background: #f8f8f8; 
+    padding: 4px; 
+    border: 1px dashed var(--border-color);
+  }
+  
+  .receipt-footer { 
+    margin-top: 8px; 
+    text-align: center; 
+    font-size: 9px; 
+    border-top: 1px solid var(--border-color); 
+    padding-top: 8px; 
+    color: var(--text-light);
+  }
+  
+  .thank-you { 
+    font-style: italic; 
+    margin-bottom: 3px; 
+  }
+
+  @media (max-width:520px) {
+    .receipt { 
+      width: 70mm; 
+      max-width: 70mm; 
+      padding: 3mm; 
+    }
+  }
+
+  @media print {
+    body, html { 
+      margin: 0; 
+      padding: 0; 
+      width: 70mm !important; 
+    }
+    .receipt { 
+      width: 70mm !important; 
+      padding: 3mm !important; 
+      border: none !important; 
+      box-shadow: none !important; 
+      font-size: 11px !important;
+    }
+    @page { 
+      size: 70mm auto; 
+      margin: 0 !important; 
+    }
+    
+    /* Hide everything but the receipt when printing */
+    body * {
+      visibility: hidden;
+    }
+    .receipt, .receipt * {
+      visibility: visible;
+    }
+    .receipt {
+      position: absolute;
+      left: 0;
+      top: 0;
+    }
+  }
+</style>
+</head>
+<body>
+
+<div class="receipt" id="receipt">Loading receipt...</div>
+
+<script>
+const receiptDiv = document.getElementById('receipt');
+
+function escapeHtml(str) {
+  if (str === null || str === undefined) return '';
+  return String(str)
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&#039;');
+}
+
+// Sample data for demonstration
+const sampleData = {
+  receiptNo: 12345,
+  passenger: "John Smith",
+  flight: "AA1234",
+  seat: "12A",
+  adults: 1,
+  kids: 0,
+  items: [
+    { name: "WiFi Package", qty: 1, price: 9.99 },
+    { name: "Extra Baggage", qty: 1, price: 25.00 }
+  ],
+  subtotal: 34.99,
+  gst: 3.50,
+  total: 38.49,
+  paymentType: "Credit Card",
+  shift: "Morning",
+  approvalCode: "A1B2C3",
+  batchNo: "BATCH001",
+  voided: false
+};
+
+// Mock company info
+const companyInfo = {
+  name: "SkyTravel Airlines",
+  address: "123 Airport Blvd, Terminal 2",
+  phone: "(555) 123-4567",
+  currency: "$"
+};
+
+function fmt(v, currency) {
+  const n = Number(v || 0);
+  return `${currency}${n.toFixed(2)}`;
+}
+
+function renderReceipt(data) {
+  const compName = companyInfo.name;
+  const compAddress = companyInfo.address;
+  const compPhone = companyInfo.phone;
+  const currency = companyInfo.currency;
+
+  // Items
+  let itemsHtml = '';
+  if (Array.isArray(data.items) && data.items.length) {
+    itemsHtml += '<div class="section-title">Items</div>';
+    itemsHtml += '<div class="items-section">';
+    data.items.forEach(it => {
+      const name = escapeHtml(it.name || '');
+      const qty = (it.qty != null) ? it.qty : 1;
+      const price = (it.price != null) ? Number(it.price) : 0;
+      const lineTotal = qty * price;
+      itemsHtml += `
+        <div class="item-row">
+          <div class="item-name">${name}</div>
+          <div class="item-qty">x${escapeHtml(qty)}</div>
+          <div class="item-price">${fmt(lineTotal, currency)}</div>
+        </div>
+      `;
+    });
+    itemsHtml += '</div>';
+  }
+
+  // Receipt number at the top
+  const receiptNoHtml = data.receiptNo ? `<div class="receipt-no">Receipt #${escapeHtml(data.receiptNo)}</div>` : '';
+
+  // Passenger/flight/seat section
+  let detailsHtml = '<div class="section-title">Details</div>';
+  detailsHtml += '<div class="details-section">';
+  if (data.passenger || data.flight || data.seat || data.adults || data.kids) {
+    detailsHtml += `
+      <div class="detail-row"><div class="detail-label">Passenger:</div><div class="detail-value">${escapeHtml(data.passenger || '')}</div></div>
+      <div class="detail-row"><div class="detail-label">Flight:</div><div class="detail-value">${escapeHtml(data.flight || '')}</div></div>
+      <div class="detail-row"><div class="detail-label">Seat:</div><div class="detail-value">${escapeHtml(data.seat || '')}</div></div>
+      <div class="detail-row"><div class="detail-label">Adults:</div><div class="detail-value">${escapeHtml(data.adults != null ? data.adults : 0)}</div></div>
+      <div class="detail-row"><div class="detail-label">Kids:</div><div class="detail-value">${escapeHtml(data.kids != null ? data.kids : 0)}</div></div>
+    `;
+  } else {
+    detailsHtml += `
+      <div class="detail-row"><div class="detail-label">Customer:</div><div class="detail-value">${escapeHtml(data.customer || '')}</div></div>
+    `;
+  }
+  detailsHtml += '</div>';
+
+  // Totals
+  const subtotal = (data.subtotal != null) ? Number(data.subtotal) : (data.total != null ? Number(data.total) : 0);
+  const gst = (data.gst != null) ? Number(data.gst) : 0;
+  const total = (data.total != null) ? Number(data.total) : (subtotal + gst);
+
+  // Payment
+  const paymentType = (data.paymentType || '').toString();
+  const isNonCash = paymentType.toLowerCase() !== 'cash';
+  let nonCashHtml = '';
+  if (isNonCash && data.approvalCode) {
+    nonCashHtml += `<div class="detail-row"><div class="detail-label">Approval:</div><div class="detail-value">${escapeHtml(data.approvalCode)}</div></div>`;
+    nonCashHtml += `<div class="detail-row"><div class="detail-label">Batch No:</div><div class="detail-value">${escapeHtml(data.batchNo || '')}</div></div>`;
+  }
+
+  let cashHtml = '';
+  if (!isNonCash) {
+    const paid = (data.paid != null) ? Number(data.paid) : total;
+    const balance = (data.balance != null) ? Number(data.balance) : Math.max(0, paid - total);
+    cashHtml = `<div class="detail-row"><div class="detail-label">Paid:</div><div class="detail-value">${fmt(paid, currency)}</div></div>`;
+    cashHtml += `<div class="detail-row"><div class="detail-label">Balance:</div><div class="detail-value">${fmt(balance, currency)}</div></div>`;
+  }
+
+  // Status / Void
+  const statusText = data.voided ? 'VOIDED' : 'PAID';
+  const statusClass = data.voided ? 'voided' : '';
+  const voidReasonHtml = data.voided && data.voidReason ? `<div class="void-reason">${escapeHtml(data.voidReason)}</div>` : '';
+
+  // Render
+  receiptDiv.innerHTML = `
+    <div class="receipt-header">
+      <div class="company-name">${escapeHtml(compName)}</div>
+      <div class="company-meta">${escapeHtml(compAddress)}</div>
+      <div class="company-meta">Phone: ${escapeHtml(compPhone)}</div>
+    </div>
+
+    ${receiptNoHtml}
+    ${detailsHtml}
+    ${itemsHtml}
+
+    <div class="totals-section">
+      <div class="total-row"><div>Sub Total:</div><div>${fmt(subtotal, currency)}</div></div>
+      <div class="total-row"><div>GST:</div><div>${fmt(gst, currency)}</div></div>
+      <div class="total-row grand-total"><div>Total:</div><div>${fmt(total, currency)}</div></div>
+    </div>
+
+    <div class="payment-info">
+      <div class="section-title">Payment Information</div>
+      <div class="detail-row"><div class="detail-label">Payment Type:</div><div class="detail-value">${escapeHtml(paymentType)}</div></div>
+      <div class="detail-row"><div class="detail-label">Shift:</div><div class="detail-value">${escapeHtml(data.shift || '')}</div></div>
+      ${isNonCash ? nonCashHtml : cashHtml}
+    </div>
+
+    <div class="status-section ${statusClass}">${escapeHtml(statusText)}</div>
+    ${voidReasonHtml}
+
+    <div class="receipt-footer">
+      <div class="thank-you">Thank you for choosing ${escapeHtml(compName)}!</div>
+      <div>This package is valid for 3 hours.</div>
+      <div>Powered by Koveli POS</div>
+    </div>
+  `;
+
+  // Auto-print after a short delay
+  setTimeout(() => {
+    window.print();
+  }, 500);
+}
+
+// Load receipt with sample data for demonstration
+renderReceipt(sampleData);
+</script>
+</body>
+</html>
