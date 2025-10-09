@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Professional Receipt</title>
+<title>Koveli Lounge Receipt</title>
 <style>
   :root {
     --primary: #1a3a6c;
@@ -20,18 +20,18 @@
   }
   
   body { 
-    margin:0; 
-    padding:0; 
+    margin: 0; 
+    padding: 0; 
     font-family: 'Courier New', monospace;
-    background:#fff; 
+    background: #fff; 
     color: var(--text-color);
     line-height: 1.2;
     font-size: 12px;
   }
   
   .receipt { 
-    width: 65mm;
-    max-width: 65mm;
+    width: 68mm;
+    max-width: 68mm;
     padding: 3mm;
     margin: 0 auto;
   }
@@ -131,6 +131,16 @@
     margin: 4px 0;
   }
 
+  .loading, .error {
+    text-align: center;
+    padding: 20px;
+    font-size: 12px;
+  }
+  
+  .error {
+    color: red;
+  }
+
   @media print {
     body, html { 
       margin: 0; 
@@ -138,7 +148,7 @@
       width: 70mm !important; 
     }
     .receipt { 
-      width: 65mm !important; 
+      width: 68mm !important; 
       padding: 3mm !important; 
       border: none !important; 
       box-shadow: none !important; 
@@ -159,16 +169,6 @@
       left: 0;
       top: 0;
     }
-  }
-
-  .loading, .error {
-    text-align: center;
-    padding: 20px;
-    font-size: 12px;
-  }
-  
-  .error {
-    color: red;
   }
 </style>
 </head>
@@ -210,14 +210,14 @@ async function fetchByReceiptNo(no) {
 }
 
 function formatDate(date) {
-  if (!date) return new Date().toLocaleDateString();
+  if (!date) return new Date().toLocaleString();
   
   if (date.toDate) {
-    return date.toDate().toLocaleDateString();
+    return date.toDate().toLocaleString();
   } else if (date instanceof Date) {
-    return date.toLocaleDateString();
+    return date.toLocaleString();
   } else {
-    return new Date(date).toLocaleDateString();
+    return new Date(date).toLocaleString();
   }
 }
 
@@ -247,11 +247,11 @@ function formatDate(date) {
                     : (typeof COMPANY_NAME !== 'undefined' ? COMPANY_NAME : 'Koveli Lounge');
     const compAddress = (companyInfo && companyInfo.address) ? companyInfo.address : 'Velana International Airport';
     const compPhone = (companyInfo && companyInfo.phone) ? companyInfo.phone : '+960 304 6677';
-    const currency = (data.currency) ? data.currency : (companyInfo && companyInfo.currency ? companyInfo.currency : '$');
+    const currency = (data.currency) ? data.currency : (companyInfo && companyInfo.currency ? companyInfo.currency : 'USD');
 
     function fmt(v) {
       const n = Number(v || 0);
-      return `${currency}${n.toFixed(2)}`;
+      return `${n.toFixed(2)} ${currency}`;
     }
 
     // Calculate values
@@ -263,14 +263,11 @@ function formatDate(date) {
     
     // Payment info
     const paymentType = (data.paymentType || '').toString();
-    const isCash = paymentType.toLowerCase() === 'cash';
-    const paid = (data.paid != null) ? Number(data.paid) : total;
-    const balance = (data.balance != null) ? Number(data.balance) : Math.max(0, paid - total);
     
     // Date
     const receiptDate = formatDate(data.timestamp || data.date || new Date());
 
-    // Clean receipt design
+    // Render receipt
     receiptDiv.innerHTML = `
       <div class="company-header">
         <div class="company-name">${escapeHtml(compName)}</div>
@@ -280,7 +277,7 @@ function formatDate(date) {
         </div>
       </div>
       
-      <div class="receipt-title">PAYMENT RECEIPT</div>
+      <div class="receipt-title">WALK-IN PAYMENT</div>
       
       <div class="receipt-info">
         <div class="info-row">
@@ -292,8 +289,12 @@ function formatDate(date) {
           <span>${escapeHtml(receiptDate)}</span>
         </div>
         <div class="info-row">
-          <span class="info-label">Customer:</span>
-          <span>${escapeHtml(data.passenger || data.customer || '-')}</span>
+          <span class="info-label">Cashier:</span>
+          <span>${escapeHtml(data.cashier || '-')}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Shift:</span>
+          <span>${escapeHtml(data.shift || 'No Shift Open')}</span>
         </div>
       </div>
       
@@ -301,46 +302,39 @@ function formatDate(date) {
       
       <div class="amounts-section">
         <div class="amount-row">
-          <span>Adults x${escapeHtml(adults)}:</span>
+          <span>Adults (${escapeHtml(adults)}):</span>
           <span>${fmt(subtotal)}</span>
         </div>
         ${kids > 0 ? `
         <div class="amount-row">
-          <span>Kids x${escapeHtml(kids)}:</span>
+          <span>Kids (${escapeHtml(kids)}):</span>
           <span>${fmt(0)}</span>
         </div>
         ` : ''}
+        <div class="amount-row">
+          <span>Subtotal:</span>
+          <span>${fmt(subtotal)}</span>
+        </div>
         <div class="amount-row">
           <span>GST:</span>
           <span>${fmt(gst)}</span>
         </div>
         <div class="total-row">
-          <span>TOTAL:</span>
+          <span>GRAND TOTAL:</span>
           <span>${fmt(total)}</span>
         </div>
       </div>
       
       <div class="payment-section">
         <div class="info-row">
-          <span class="info-label">Payment:</span>
+          <span class="info-label">Payment Type:</span>
           <span>${escapeHtml(paymentType)}</span>
         </div>
-        ${isCash ? `
-        <div class="info-row">
-          <span>Paid:</span>
-          <span>${fmt(paid)}</span>
-        </div>
-        <div class="info-row">
-          <span>Change:</span>
-          <span>${fmt(balance)}</span>
-        </div>
-        ` : ''}
       </div>
       
       <div class="footer">
-        <div class="thank-you">Thank you for your business!</div>
-        <div class="validity">Valid for 3 hours</div>
-        <div>Koveli POS System</div>
+        <div class="validity">This package is valid for 3 hours</div>
+        <div class="thank-you">Thank you for your payment!</div>
       </div>
     `;
 
