@@ -10,7 +10,7 @@
     --accent: #d4af37;
     --border-color: #000;
     --text-color: #000;
-    --text-light: #555;
+    --text-light: #666;
   }
   
   * {
@@ -25,94 +25,110 @@
     font-family: 'Courier New', monospace;
     background:#fff; 
     color: var(--text-color);
-    line-height: 1;
-    font-size: 11px;
+    line-height: 1.2;
+    font-size: 12px;
   }
   
   .receipt { 
     width: 65mm;
     max-width: 65mm;
-    padding: 2mm;
+    padding: 3mm;
     margin: 0 auto;
-    font-size: 11px;
   }
   
   .company-header {
     text-align: center;
     margin-bottom: 8px;
     padding-bottom: 6px;
-    border-bottom: 1px dashed var(--border-color);
+    border-bottom: 1px solid var(--border-color);
   }
   
   .company-name {
-    font-size: 14px;
+    font-size: 16px;
     font-weight: bold;
     margin-bottom: 2px;
     color: var(--primary);
   }
   
   .company-details {
-    font-size: 9px;
-    line-height: 1.2;
+    font-size: 10px;
+    line-height: 1.3;
+    color: var(--text-light);
   }
   
-  .receipt-header {
+  .receipt-title {
     text-align: center;
-    margin-bottom: 8px;
-    padding-bottom: 6px;
-    border-bottom: 1px dashed var(--border-color);
-  }
-  
-  .receipt-header h3 {
-    font-size: 12px;
     font-weight: bold;
-    margin-bottom: 3px;
+    font-size: 13px;
+    margin: 8px 0;
+    padding: 4px 0;
+    border-top: 1px solid var(--border-color);
+    border-bottom: 1px solid var(--border-color);
   }
   
-  .receipt-line {
+  .receipt-info {
+    margin: 8px 0;
+  }
+  
+  .info-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 4px;
+  }
+  
+  .info-label {
+    font-weight: bold;
+  }
+  
+  .divider {
+    border-bottom: 1px dashed var(--border-color);
+    margin: 8px 0;
+  }
+  
+  .amounts-section {
+    margin: 10px 0;
+  }
+  
+  .amount-row {
     display: flex;
     justify-content: space-between;
     margin-bottom: 3px;
-    padding-bottom: 3px;
-    border-bottom: 1px dashed var(--border-color);
   }
   
-  .receipt-line:last-child {
-    border-bottom: none;
-  }
-  
-  .receipt-total {
+  .total-row {
+    display: flex;
+    justify-content: space-between;
     font-weight: bold;
+    font-size: 13px;
+    margin-top: 6px;
+    padding-top: 6px;
+    border-top: 2px solid var(--border-color);
+  }
+  
+  .payment-section {
+    margin: 10px 0;
+    padding-top: 8px;
+    border-top: 1px dashed var(--border-color);
+  }
+  
+  .footer {
+    text-align: center;
+    margin-top: 12px;
+    padding-top: 8px;
     border-top: 1px solid var(--border-color);
-    padding-top: 5px;
-    margin-top: 5px;
-  }
-  
-  .package-validity {
-    text-align: center;
-    margin-top: 8px;
-    font-size: 9px;
-    font-style: italic;
-    border-top: 1px dashed var(--border-color);
-    padding-top: 6px;
-  }
-  
-  .receipt-footer {
-    text-align: center;
-    margin-top: 8px;
-    font-weight: bold;
     font-size: 10px;
-    color: var(--primary);
-    border-top: 1px dashed var(--border-color);
-    padding-top: 6px;
+    color: var(--text-light);
   }
-
-  @media (max-width:520px) {
-    .receipt { 
-      width: 65mm; 
-      max-width: 65mm; 
-      padding: 2mm; 
-    }
+  
+  .thank-you {
+    font-weight: bold;
+    margin-bottom: 4px;
+    color: var(--primary);
+  }
+  
+  .validity {
+    font-style: italic;
+    margin: 4px 0;
   }
 
   @media print {
@@ -123,17 +139,15 @@
     }
     .receipt { 
       width: 65mm !important; 
-      padding: 2mm !important; 
+      padding: 3mm !important; 
       border: none !important; 
       box-shadow: none !important; 
-      font-size: 11px !important;
     }
     @page { 
       size: 70mm auto; 
       margin: 0 !important; 
     }
     
-    /* Hide everything but the receipt when printing */
     body * {
       visibility: hidden;
     }
@@ -147,16 +161,13 @@
     }
   }
 
-  .loading {
+  .loading, .error {
     text-align: center;
     padding: 20px;
     font-size: 12px;
   }
   
   .error {
-    text-align: center;
-    padding: 20px;
-    font-size: 12px;
     color: red;
   }
 </style>
@@ -199,15 +210,14 @@ async function fetchByReceiptNo(no) {
 }
 
 function formatDate(date) {
-  if (!date) return new Date().toLocaleString();
+  if (!date) return new Date().toLocaleDateString();
   
   if (date.toDate) {
-    // Firebase timestamp
-    return date.toDate().toLocaleString();
+    return date.toDate().toLocaleDateString();
   } else if (date instanceof Date) {
-    return date.toLocaleString();
+    return date.toLocaleDateString();
   } else {
-    return new Date(date).toLocaleString();
+    return new Date(date).toLocaleDateString();
   }
 }
 
@@ -244,16 +254,12 @@ function formatDate(date) {
       return `${currency}${n.toFixed(2)}`;
     }
 
-    // Calculate values for the new format
+    // Calculate values
     const subtotal = (data.subtotal != null) ? Number(data.subtotal) : (data.total != null ? Number(data.total) : 0);
     const gst = (data.gst != null) ? Number(data.gst) : 0;
     const total = (data.total != null) ? Number(data.total) : (subtotal + gst);
     const adults = data.adults || 0;
     const kids = data.kids || 0;
-    
-    // Calculate adult and kids amounts
-    const adultRate = adults > 0 ? (subtotal / adults) : 0;
-    const kidRate = kids > 0 ? 0 : 0; // Adjust based on your pricing logic
     
     // Payment info
     const paymentType = (data.paymentType || '').toString();
@@ -261,15 +267,11 @@ function formatDate(date) {
     const paid = (data.paid != null) ? Number(data.paid) : total;
     const balance = (data.balance != null) ? Number(data.balance) : Math.max(0, paid - total);
     
-    // Date formatting
+    // Date
     const receiptDate = formatDate(data.timestamp || data.date || new Date());
-    
-    // Rate type (default to A if not specified)
-    const rateType = data.rateType || 'A';
 
-    // Render in the new format
+    // Clean receipt design
     receiptDiv.innerHTML = `
-      <!-- Company Header -->
       <div class="company-header">
         <div class="company-name">${escapeHtml(compName)}</div>
         <div class="company-details">
@@ -278,96 +280,67 @@ function formatDate(date) {
         </div>
       </div>
       
-      <div class="receipt-header">
-        <h3>WALK-IN PAYMENT</h3>
-        <p>Receipt No: <span>${escapeHtml(data.receiptNo || '-')}</span></p>
-        <p>Date: ${escapeHtml(receiptDate)}</p>
+      <div class="receipt-title">PAYMENT RECEIPT</div>
+      
+      <div class="receipt-info">
+        <div class="info-row">
+          <span class="info-label">Receipt No:</span>
+          <span>${escapeHtml(data.receiptNo || '-')}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Date:</span>
+          <span>${escapeHtml(receiptDate)}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Customer:</span>
+          <span>${escapeHtml(data.passenger || data.customer || '-')}</span>
+        </div>
       </div>
       
-      <div class="receipt-line">
-        <span>Cashier:</span>
-        <span>${escapeHtml(data.cashier || '-')}</span>
+      <div class="divider"></div>
+      
+      <div class="amounts-section">
+        <div class="amount-row">
+          <span>Adults x${escapeHtml(adults)}:</span>
+          <span>${fmt(subtotal)}</span>
+        </div>
+        ${kids > 0 ? `
+        <div class="amount-row">
+          <span>Kids x${escapeHtml(kids)}:</span>
+          <span>${fmt(0)}</span>
+        </div>
+        ` : ''}
+        <div class="amount-row">
+          <span>GST:</span>
+          <span>${fmt(gst)}</span>
+        </div>
+        <div class="total-row">
+          <span>TOTAL:</span>
+          <span>${fmt(total)}</span>
+        </div>
       </div>
       
-      <div class="receipt-line">
-        <span>Shift:</span>
-        <span>${escapeHtml(data.shift || '-')}</span>
+      <div class="payment-section">
+        <div class="info-row">
+          <span class="info-label">Payment:</span>
+          <span>${escapeHtml(paymentType)}</span>
+        </div>
+        ${isCash ? `
+        <div class="info-row">
+          <span>Paid:</span>
+          <span>${fmt(paid)}</span>
+        </div>
+        <div class="info-row">
+          <span>Change:</span>
+          <span>${fmt(balance)}</span>
+        </div>
+        ` : ''}
       </div>
       
-      <div class="receipt-line">
-        <span>Rate Type:</span>
-        <span>${escapeHtml(rateType)}</span>
-      </div>
-      
-      <div class="receipt-line">
-        <span>Name:</span>
-        <span>${escapeHtml(data.passenger || data.customer || '-')}</span>
-      </div>
-      
-      <div class="receipt-line">
-        <span>Flight No:</span>
-        <span>${escapeHtml(data.flight || '-')}</span>
-      </div>
-      
-      <div class="receipt-line">
-        <span>Seat No:</span>
-        <span>${escapeHtml(data.seat || '-')}</span>
-      </div>
-      
-      <div class="receipt-line">
-        <span>Airline:</span>
-        <span>${escapeHtml(data.airline || '-')}</span>
-      </div>
-      
-      <div class="receipt-line">
-        <span>Adults (${escapeHtml(adults)}):</span>
-        <span>${fmt(adultRate * adults)}</span>
-      </div>
-      
-      <div class="receipt-line">
-        <span>Kids (${escapeHtml(kids)}):</span>
-        <span>${fmt(kidRate * kids)}</span>
-      </div>
-      
-      <div class="receipt-line">
-        <span>Subtotal:</span>
-        <span>${fmt(subtotal)}</span>
-      </div>
-      
-      <div class="receipt-line">
-        <span>GST:</span>
-        <span>${fmt(gst)}</span>
-      </div>
-      
-      <div class="receipt-line receipt-total">
-        <span>Grand Total:</span>
-        <span>${fmt(total)}</span>
-      </div>
-      
-      <div class="receipt-line">
-        <span>Payment Type:</span>
-        <span>${escapeHtml(paymentType)}</span>
-      </div>
-      
-      ${isCash ? `
-      <div class="receipt-line">
-        <span>Paid:</span>
-        <span>${fmt(paid)}</span>
-      </div>
-      
-      <div class="receipt-line">
-        <span>Balance:</span>
-        <span>${fmt(balance)}</span>
-      </div>
-      ` : ''}
-      
-      <!-- Package Validity Footer -->
-      <div class="package-validity">
-        This package is valid for 3 hours
-      </div>
-      
-      <div class="receipt-footer">
-        <p>Thank you for your payment!</p>
+      <div class="footer">
+        <div class="thank-you">Thank you for your business!</div>
+        <div class="validity">Valid for 3 hours</div>
+        <div>Koveli POS System</div>
       </div>
     `;
 
