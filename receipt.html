@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Professional Receipt</title>
+<title>Koveli Lounge Receipt</title>
 <style>
   :root {
     --primary: #1a3a6c;
@@ -20,18 +20,18 @@
   }
   
   body { 
-    margin:0; 
-    padding:0; 
+    margin: 0; 
+    padding: 0; 
     font-family: 'Courier New', monospace;
-    background:#fff; 
+    background: #fff; 
     color: var(--text-color);
     line-height: 1.2;
     font-size: 12px;
   }
   
   .receipt { 
-    width: 65mm;
-    max-width: 65mm;
+    width: 68mm;
+    max-width: 68mm;
     padding: 3mm;
     margin: 0 auto;
   }
@@ -138,7 +138,7 @@
       width: 70mm !important; 
     }
     .receipt { 
-      width: 65mm !important; 
+      width: 68mm !important; 
       padding: 3mm !important; 
       border: none !important; 
       box-shadow: none !important; 
@@ -160,202 +160,86 @@
       top: 0;
     }
   }
-
-  .loading, .error {
-    text-align: center;
-    padding: 20px;
-    font-size: 12px;
-  }
-  
-  .error {
-    color: red;
-  }
 </style>
 </head>
 <body>
 
-<div class="receipt" id="receipt">
-  <div class="loading">Loading receipt...</div>
+<div class="receipt">
+  <div class="company-header">
+    <div class="company-name">Koveli Lounge</div>
+    <div class="company-details">
+      <div>Velana International Airport</div>
+      <div>+960 304 6677</div>
+    </div>
+  </div>
+  
+  <div class="receipt-title">WALK-IN PAYMENT</div>
+  
+  <div class="receipt-info">
+    <div class="info-row">
+      <span class="info-label">Receipt No:</span>
+      <span>2</span>
+    </div>
+    <div class="info-row">
+      <span class="info-label">Date:</span>
+      <span>10/9/2025, 11:49:19 AM</span>
+    </div>
+    <div class="info-row">
+      <span class="info-label">Cashier:</span>
+      <span>Abdulla Irufan</span>
+    </div>
+    <div class="info-row">
+      <span class="info-label">Shift:</span>
+      <span>No Shift Open</span>
+    </div>
+  </div>
+  
+  <div class="divider"></div>
+  
+  <div class="amounts-section">
+    <div class="amount-row">
+      <span>Adults (1):</span>
+      <span>35.00 USD</span>
+    </div>
+    <div class="amount-row">
+      <span>Kids (0):</span>
+      <span>0.00 USD</span>
+    </div>
+    <div class="amount-row">
+      <span>Subtotal:</span>
+      <span>35.00 USD</span>
+    </div>
+    <div class="amount-row">
+      <span>GST:</span>
+      <span>2.80 USD</span>
+    </div>
+    <div class="total-row">
+      <span>GRAND TOTAL:</span>
+      <span>37.80 USD</span>
+    </div>
+  </div>
+  
+  <div class="payment-section">
+    <div class="info-row">
+      <span class="info-label">Payment Type:</span>
+      <span>Cash</span>
+    </div>
+  </div>
+  
+  <div class="footer">
+    <div class="validity">This package is valid for 3 hours</div>
+    <div class="thank-you">Thank you for your payment!</div>
+  </div>
 </div>
 
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-<script src="fire2.js"></script>
-<script src="Co.js"></script>
-
 <script>
-const receiptDiv = document.getElementById('receipt');
+setTimeout(() => {
+  window.print();
+}, 500);
 
-function escapeHtml(str) {
-  if (str === null || str === undefined) return '';
-  return String(str)
-    .replaceAll('&', '&amp;')
-    .replaceAll('<', '&lt;')
-    .replaceAll('>', '&gt;')
-    .replaceAll('"', '&quot;')
-    .replaceAll("'", '&#039;');
-}
-
-async function fetchByDocId(id) {
-  const doc = await db.collection('payments').doc(id).get();
-  if (!doc.exists) return null;
-  return { data: doc.data(), docId: doc.id };
-}
-
-async function fetchByReceiptNo(no) {
-  const snap = await db.collection('payments').where('receiptNo', '==', Number(no)).limit(1).get();
-  if (snap.empty) return null;
-  const doc = snap.docs[0];
-  return { data: doc.data(), docId: doc.id };
-}
-
-function formatDate(date) {
-  if (!date) return new Date().toLocaleDateString();
-  
-  if (date.toDate) {
-    return date.toDate().toLocaleDateString();
-  } else if (date instanceof Date) {
-    return date.toLocaleDateString();
-  } else {
-    return new Date(date).toLocaleDateString();
-  }
-}
-
-(async function loadReceipt(){
-  const lastPaymentId = sessionStorage.getItem('lastPaymentId');
-  const lastReceiptNo = sessionStorage.getItem('lastReceiptNo');
-
-  if (!lastPaymentId && !lastReceiptNo) {
-    receiptDiv.innerHTML = '<div class="error">No receipt data found.</div>';
-    return;
-  }
-
-  try {
-    let res = null;
-    if (lastPaymentId) res = await fetchByDocId(lastPaymentId);
-    else if (lastReceiptNo) res = await fetchByReceiptNo(lastReceiptNo);
-
-    if (!res || !res.data) {
-      receiptDiv.innerHTML = '<div class="error">Receipt not found.</div>';
-      return;
-    }
-
-    const data = res.data;
-
-    // Company info
-    const compName = (typeof companyInfo !== 'undefined' && companyInfo && companyInfo.name) ? companyInfo.name
-                    : (typeof COMPANY_NAME !== 'undefined' ? COMPANY_NAME : 'Koveli Lounge');
-    const compAddress = (companyInfo && companyInfo.address) ? companyInfo.address : 'Velana International Airport';
-    const compPhone = (companyInfo && companyInfo.phone) ? companyInfo.phone : '+960 304 6677';
-    const currency = (data.currency) ? data.currency : (companyInfo && companyInfo.currency ? companyInfo.currency : '$');
-
-    function fmt(v) {
-      const n = Number(v || 0);
-      return `${currency}${n.toFixed(2)}`;
-    }
-
-    // Calculate values
-    const subtotal = (data.subtotal != null) ? Number(data.subtotal) : (data.total != null ? Number(data.total) : 0);
-    const gst = (data.gst != null) ? Number(data.gst) : 0;
-    const total = (data.total != null) ? Number(data.total) : (subtotal + gst);
-    const adults = data.adults || 0;
-    const kids = data.kids || 0;
-    
-    // Payment info
-    const paymentType = (data.paymentType || '').toString();
-    const isCash = paymentType.toLowerCase() === 'cash';
-    const paid = (data.paid != null) ? Number(data.paid) : total;
-    const balance = (data.balance != null) ? Number(data.balance) : Math.max(0, paid - total);
-    
-    // Date
-    const receiptDate = formatDate(data.timestamp || data.date || new Date());
-
-    // Clean receipt design
-    receiptDiv.innerHTML = `
-      <div class="company-header">
-        <div class="company-name">${escapeHtml(compName)}</div>
-        <div class="company-details">
-          <div>${escapeHtml(compAddress)}</div>
-          <div>${escapeHtml(compPhone)}</div>
-        </div>
-      </div>
-      
-      <div class="receipt-title">PAYMENT RECEIPT</div>
-      
-      <div class="receipt-info">
-        <div class="info-row">
-          <span class="info-label">Receipt No:</span>
-          <span>${escapeHtml(data.receiptNo || '-')}</span>
-        </div>
-        <div class="info-row">
-          <span class="info-label">Date:</span>
-          <span>${escapeHtml(receiptDate)}</span>
-        </div>
-        <div class="info-row">
-          <span class="info-label">Customer:</span>
-          <span>${escapeHtml(data.passenger || data.customer || '-')}</span>
-        </div>
-      </div>
-      
-      <div class="divider"></div>
-      
-      <div class="amounts-section">
-        <div class="amount-row">
-          <span>Adults x${escapeHtml(adults)}:</span>
-          <span>${fmt(subtotal)}</span>
-        </div>
-        ${kids > 0 ? `
-        <div class="amount-row">
-          <span>Kids x${escapeHtml(kids)}:</span>
-          <span>${fmt(0)}</span>
-        </div>
-        ` : ''}
-        <div class="amount-row">
-          <span>GST:</span>
-          <span>${fmt(gst)}</span>
-        </div>
-        <div class="total-row">
-          <span>TOTAL:</span>
-          <span>${fmt(total)}</span>
-        </div>
-      </div>
-      
-      <div class="payment-section">
-        <div class="info-row">
-          <span class="info-label">Payment:</span>
-          <span>${escapeHtml(paymentType)}</span>
-        </div>
-        ${isCash ? `
-        <div class="info-row">
-          <span>Paid:</span>
-          <span>${fmt(paid)}</span>
-        </div>
-        <div class="info-row">
-          <span>Change:</span>
-          <span>${fmt(balance)}</span>
-        </div>
-        ` : ''}
-      </div>
-      
-      <div class="footer">
-        <div class="thank-you">Thank you for your business!</div>
-        <div class="validity">Valid for 3 hours</div>
-        <div>Koveli POS System</div>
-      </div>
-    `;
-
-    setTimeout(() => window.print(), 250);
-    window.onafterprint = () => {
-      sessionStorage.removeItem('lastPaymentId');
-      sessionStorage.removeItem('lastReceiptNo');
-      try { window.close(); } catch(e){}
-    };
-
-  } catch (err) {
-    console.error('Error loading receipt:', err);
-    receiptDiv.innerHTML = `<div class="error">Error: ${escapeHtml(err.message || String(err))}</div>`;
-  }
-})();
+window.onafterprint = () => {
+  try { window.close(); } catch(e){}
+};
 </script>
 </body>
 </html>
