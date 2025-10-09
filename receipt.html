@@ -6,93 +6,91 @@
 <title>Professional Receipt</title>
 <style>
   :root {
-    --primary-color: #2c3e50;
-    --accent-color: #3498db;
-    --border-color: #e0e0e0;
-    --light-bg: #f8f9fa;
-    --success-color: #27ae60;
-    --void-color: #e74c3c;
-    --text-color: #333;
-    --text-light: #666;
-    --shadow: 0 2px 10px rgba(0,0,0,0.05);
+    --primary-color: #000;
+    --accent-color: #000;
+    --border-color: #000;
+    --light-bg: #f0f0f0;
+    --success-color: #000;
+    --void-color: #000;
+    --text-color: #000;
+    --text-light: #555;
+    --shadow: 0 0 0 rgba(0,0,0,0);
   }
   
   * {
     box-sizing: border-box;
+    margin: 0;
+    padding: 0;
   }
   
   body { 
     margin:0; 
     padding:0; 
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-family: 'Courier New', monospace;
     background:#fff; 
     color: var(--text-color);
-    line-height: 1.4;
+    line-height: 1;
+    font-size: 11px;
   }
   
   .receipt { 
-    width:70mm; 
-    max-width:70mm; 
-    padding:10px; 
-    margin:0 auto; 
-    font-size:12px;
-    box-shadow: var(--shadow);
-    border-radius: 4px;
+    width: 68mm;
+    max-width: 68mm;
+    padding: 2mm;
+    margin: 0 auto;
+    font-size: 11px;
   }
   
   .receipt-header { 
     text-align:center; 
-    margin-bottom:10px; 
-    padding-bottom:10px; 
-    border-bottom: 1px solid var(--border-color);
+    margin-bottom: 5px; 
+    padding-bottom: 4px; 
+    border-bottom: 1px dashed var(--border-color);
   }
   
   .company-name { 
-    font-weight:600; 
-    font-size:15px; 
-    margin-bottom:4px; 
+    font-weight: bold; 
+    font-size: 13px; 
+    margin-bottom: 2px; 
     color: var(--primary-color);
-    letter-spacing: 0.5px;
   }
   
   .company-meta { 
-    font-size:10px; 
-    margin:2px 0; 
+    font-size: 9px; 
+    margin: 1px 0; 
     color: var(--text-light);
   }
   
   .receipt-no {
     font-size: 11px;
-    font-weight: 600;
+    font-weight: bold;
     text-align: center;
-    margin: 6px 0;
+    margin: 4px 0;
     color: var(--primary-color);
     background: var(--light-bg);
-    padding: 4px;
-    border-radius: 3px;
+    padding: 2px;
   }
   
   .section-title {
     font-size: 10px;
     text-transform: uppercase;
-    font-weight: 600;
-    color: var(--text-light);
-    margin-bottom: 6px;
-    letter-spacing: 0.5px;
+    font-weight: bold;
+    color: var(--text-color);
+    margin-bottom: 3px;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 1px;
   }
   
   .details-section, .items-section { 
-    margin:8px 0; 
-    padding: 6px;
-    background: var(--light-bg);
-    border-radius: 4px;
+    margin: 5px 0; 
+    padding: 3px 0;
   }
   
   .detail-row, .item-row { 
-    display:flex; 
-    justify-content:space-between; 
-    margin-bottom:4px; 
-    padding-bottom: 4px;
+    display: flex; 
+    justify-content: space-between; 
+    margin-bottom: 2px; 
+    padding-bottom: 2px;
     border-bottom: 1px dashed var(--border-color);
   }
   
@@ -102,116 +100,147 @@
     padding-bottom: 0;
   }
   
-  .detail-label, .item-name { 
-    flex:1; 
-    font-weight: 500;
+  .detail-label { 
+    width: 35%;
+    font-weight: normal;
   }
   
-  .detail-value, .item-qty, .item-price { 
-    text-align:right; 
+  .detail-value { 
+    width: 65%;
+    text-align: right;
+    word-break: break-word;
+  }
+  
+  .item-name { 
+    width: 60%;
   }
   
   .item-qty { 
-    width:22px; 
-    text-align:center; 
-    margin:0 6px; 
+    width: 15%; 
+    text-align: center; 
   }
   
   .item-price { 
-    width:50px; 
+    width: 25%; 
+    text-align: right;
   }
   
   .totals-section { 
-    margin-top:10px; 
-    border-top:1px solid var(--border-color); 
-    padding-top:10px; 
+    margin-top: 6px; 
+    border-top: 1px solid var(--border-color); 
+    padding-top: 6px; 
   }
   
   .total-row { 
-    display:flex; 
-    justify-content:space-between; 
-    margin-bottom:5px; 
+    display: flex; 
+    justify-content: space-between; 
+    margin-bottom: 3px; 
   }
   
   .grand-total { 
-    font-weight:bold; 
-    font-size:12px; 
-    border-top:1px solid var(--border-color); 
-    padding-top:5px; 
-    margin-top:5px; 
+    font-weight: bold; 
+    font-size: 11px; 
+    border-top: 1px solid var(--border-color); 
+    padding-top: 3px; 
+    margin-top: 3px; 
     color: var(--primary-color);
   }
   
   .payment-info { 
-    margin-top:10px; 
-    border-top:1px solid var(--border-color); 
-    padding-top:10px; 
-    font-size:10px; 
+    margin-top: 6px; 
+    border-top: 1px solid var(--border-color); 
+    padding-top: 6px; 
+    font-size: 10px; 
   }
   
   .status-section { 
-    margin-top:10px; 
-    text-align:center; 
-    padding:5px 0; 
-    font-weight:bold; 
-    font-size:11px; 
-    border-radius: 4px;
-    background: var(--success-color);
-    color: white;
+    margin-top: 6px; 
+    text-align: center; 
+    padding: 3px 0; 
+    font-weight: bold; 
+    font-size: 10px; 
+    border: 1px solid var(--border-color);
   }
   
   .status-section.voided {
     background: var(--void-color);
+    color: white;
   }
   
   .void-reason { 
-    font-size:9px; 
-    text-align:center; 
-    margin-top:5px; 
-    background:#f8f8f8; 
-    padding:5px; 
-    border-radius: 4px;
-    border-left: 3px solid var(--void-color);
+    font-size: 9px; 
+    text-align: center; 
+    margin-top: 3px; 
+    background: #f8f8f8; 
+    padding: 3px; 
+    border: 1px dashed var(--border-color);
   }
   
   .receipt-footer { 
-    margin-top:10px; 
-    text-align:center; 
-    font-size:9px; 
-    border-top:1px solid var(--border-color); 
-    padding-top:10px; 
+    margin-top: 6px; 
+    text-align: center; 
+    font-size: 8px; 
+    border-top: 1px solid var(--border-color); 
+    padding-top: 6px; 
     color: var(--text-light);
   }
   
   .thank-you { 
-    font-style:italic; 
-    margin-bottom:4px; 
+    font-style: italic; 
+    margin-bottom: 2px; 
   }
 
   @media (max-width:520px) {
     .receipt { 
-      width:320px; 
-      max-width:100%; 
-      padding:12px; 
+      width: 68mm; 
+      max-width: 68mm; 
+      padding: 2mm; 
     }
   }
 
   @media print {
     body, html { 
-      margin:0; 
-      padding:0; 
-      width:70mm !important; 
+      margin: 0; 
+      padding: 0; 
+      width: 70mm !important; 
     }
     .receipt { 
-      width:70mm !important; 
-      padding:0 !important; 
-      border:none !important; 
-      box-shadow:none !important; 
+      width: 68mm !important; 
+      padding: 2mm !important; 
+      border: none !important; 
+      box-shadow: none !important; 
+      font-size: 11px !important;
     }
     @page { 
-      size:70mm auto; 
-      margin:0 !important; 
+      size: 70mm auto; 
+      margin: 0 !important; 
     }
+    
+    /* Hide everything but the receipt when printing */
+    body * {
+      visibility: hidden;
+    }
+    .receipt, .receipt * {
+      visibility: visible;
+    }
+    .receipt {
+      position: absolute;
+      left: 0;
+      top: 0;
+    }
+  }
+
+  .loading {
+    text-align: center;
+    padding: 20px;
+    font-size: 14px;
+  }
+  
+  .error {
+    text-align: center;
+    padding: 20px;
+    font-size: 14px;
+    color: red;
   }
 </style>
 </head>
