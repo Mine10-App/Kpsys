@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Flight Code Report Generator</title>
+    <title>Advanced Flight Barcode Report</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * {
@@ -14,7 +14,7 @@
         }
         
         body {
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
             color: #f1f1f1;
             min-height: 100vh;
             padding: 20px;
@@ -28,47 +28,53 @@
         header {
             text-align: center;
             margin-bottom: 30px;
-            padding: 20px;
-            background: rgba(0, 0, 0, 0.3);
-            border-radius: 12px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            padding: 25px;
+            background: rgba(30, 41, 59, 0.7);
+            border-radius: 16px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
         
         h1 {
-            font-size: 2.5rem;
-            margin-bottom: 10px;
-            background: linear-gradient(90deg, #4cc9f0, #4361ee);
+            font-size: 2.8rem;
+            margin-bottom: 15px;
+            background: linear-gradient(90deg, #60a5fa, #8b5cf6);
             -webkit-background-clip: text;
             background-clip: text;
             color: transparent;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
         }
         
         .subtitle {
-            font-size: 1.1rem;
-            color: #a5b4fc;
-            max-width: 800px;
-            margin: 0 auto 15px;
+            font-size: 1.2rem;
+            color: #cbd5e1;
+            max-width: 900px;
+            margin: 0 auto 20px;
+            line-height: 1.6;
         }
         
         .firebase-status {
-            display: flex;
+            display: inline-flex;
             align-items: center;
-            justify-content: center;
             gap: 10px;
-            margin-top: 10px;
-            font-size: 0.9rem;
+            padding: 10px 20px;
+            background: rgba(15, 23, 42, 0.8);
+            border-radius: 50px;
+            margin-top: 15px;
+            font-size: 0.95rem;
         }
         
         .status-indicator {
-            width: 10px;
-            height: 10px;
+            width: 12px;
+            height: 12px;
             border-radius: 50%;
-            background-color: #ccc;
+            background-color: #64748b;
         }
         
         .status-indicator.connected {
             background-color: #10b981;
             animation: pulse 2s infinite;
+            box-shadow: 0 0 10px rgba(16, 185, 129, 0.5);
         }
         
         .app-container {
@@ -79,27 +85,29 @@
         
         @media (min-width: 1200px) {
             .app-container {
-                grid-template-columns: 350px 1fr;
+                grid-template-columns: 400px 1fr;
             }
         }
         
+        /* Left Panel - Filters */
         .filters-panel {
             background: rgba(30, 41, 59, 0.8);
-            border-radius: 12px;
+            border-radius: 16px;
             padding: 25px;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
             height: fit-content;
         }
         
-        .filters-panel h2, .report-panel h2 {
+        .panel-title {
             font-size: 1.5rem;
-            margin-bottom: 20px;
+            margin-bottom: 25px;
             color: #60a5fa;
             display: flex;
             align-items: center;
-            gap: 10px;
-            padding-bottom: 10px;
-            border-bottom: 1px solid #334155;
+            gap: 12px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid rgba(96, 165, 250, 0.3);
         }
         
         .filter-group {
@@ -108,10 +116,13 @@
         
         .filter-group label {
             display: block;
-            margin-bottom: 8px;
+            margin-bottom: 10px;
             font-weight: 600;
-            color: #cbd5e1;
-            font-size: 1rem;
+            color: #e2e8f0;
+            font-size: 1.05rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
         
         .input-with-icon {
@@ -120,27 +131,29 @@
         
         .input-icon {
             position: absolute;
-            left: 12px;
+            left: 15px;
             top: 50%;
             transform: translateY(-50%);
-            color: #64748b;
+            color: #94a3b8;
+            font-size: 1.1rem;
         }
         
-        select, input {
+        select, input, textarea {
             width: 100%;
-            padding: 12px 12px 12px 40px;
+            padding: 14px 14px 14px 50px;
             background: rgba(15, 23, 42, 0.9);
             border: 2px solid #334155;
-            border-radius: 8px;
+            border-radius: 10px;
             color: #f1f1f1;
             font-size: 1rem;
             transition: all 0.3s ease;
         }
         
-        select:focus, input:focus {
+        select:focus, input:focus, textarea:focus {
             outline: none;
             border-color: #60a5fa;
-            box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.2);
+            box-shadow: 0 0 0 4px rgba(96, 165, 250, 0.2);
+            background: rgba(15, 23, 42, 1);
         }
         
         .date-range {
@@ -157,28 +170,28 @@
         }
         
         .btn {
-            padding: 15px;
+            padding: 16px 24px;
             border: none;
-            border-radius: 8px;
+            border-radius: 10px;
             font-size: 1.1rem;
             font-weight: 600;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 10px;
+            gap: 12px;
             transition: all 0.3s ease;
         }
         
         .btn-primary {
-            background: linear-gradient(90deg, #3b82f6, #1d4ed8);
+            background: linear-gradient(90deg, #3b82f6, #2563eb);
             color: white;
         }
         
         .btn-primary:hover:not(:disabled) {
-            background: linear-gradient(90deg, #1d4ed8, #1e40af);
+            background: linear-gradient(90deg, #2563eb, #1d4ed8);
             transform: translateY(-3px);
-            box-shadow: 0 5px 15px rgba(59, 130, 246, 0.4);
+            box-shadow: 0 8px 20px rgba(59, 130, 246, 0.4);
         }
         
         .btn-secondary {
@@ -189,7 +202,7 @@
         .btn-secondary:hover:not(:disabled) {
             background: linear-gradient(90deg, #059669, #047857);
             transform: translateY(-3px);
-            box-shadow: 0 5px 15px rgba(16, 185, 129, 0.4);
+            box-shadow: 0 8px 20px rgba(16, 185, 129, 0.4);
         }
         
         .btn-danger {
@@ -200,163 +213,64 @@
         .btn-danger:hover:not(:disabled) {
             background: linear-gradient(90deg, #dc2626, #b91c1c);
             transform: translateY(-3px);
-            box-shadow: 0 5px 15px rgba(239, 68, 68, 0.4);
+            box-shadow: 0 8px 20px rgba(239, 68, 68, 0.4);
         }
         
         .btn:disabled {
             opacity: 0.6;
             cursor: not-allowed;
             transform: none !important;
+            box-shadow: none !important;
         }
         
+        /* Right Panel - Report */
         .report-panel {
             background: rgba(30, 41, 59, 0.8);
-            border-radius: 12px;
+            border-radius: 16px;
             padding: 25px;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
             min-height: 600px;
         }
         
-        .report-controls {
+        .report-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 20px;
+            margin-bottom: 25px;
             flex-wrap: wrap;
-            gap: 15px;
+            gap: 20px;
         }
         
         .report-title {
-            font-size: 1.3rem;
+            font-size: 1.6rem;
             color: #f1f1f1;
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 12px;
         }
         
-        .stats-summary {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
-            margin-bottom: 25px;
-        }
-        
-        .stat-card {
-            background: rgba(15, 23, 42, 0.9);
-            border-radius: 8px;
-            padding: 20px;
-            text-align: center;
-            border-top: 4px solid #3b82f6;
-        }
-        
-        .stat-card.flights {
-            border-top-color: #10b981;
-        }
-        
-        .stat-card.dates {
-            border-top-color: #8b5cf6;
-        }
-        
-        .stat-card.entries {
-            border-top-color: #f59e0b;
-        }
-        
-        .stat-value {
-            font-size: 2.2rem;
-            font-weight: 700;
-            margin: 10px 0;
-        }
-        
-        .stat-label {
-            font-size: 0.9rem;
-            color: #94a3b8;
-        }
-        
-        .report-tabs {
+        .export-options {
             display: flex;
-            border-bottom: 1px solid #334155;
-            margin-bottom: 20px;
+            gap: 12px;
+            flex-wrap: wrap;
         }
         
-        .tab {
-            padding: 12px 24px;
-            cursor: pointer;
-            font-weight: 600;
-            color: #94a3b8;
-            border-bottom: 3px solid transparent;
-            transition: all 0.3s ease;
-        }
-        
-        .tab.active {
-            color: #60a5fa;
-            border-bottom-color: #60a5fa;
-            background: rgba(96, 165, 250, 0.1);
-        }
-        
-        .tab-content {
-            display: none;
-        }
-        
-        .tab-content.active {
-            display: block;
-            animation: fadeIn 0.5s ease;
-        }
-        
-        .table-container {
-            overflow-x: auto;
-            max-height: 500px;
-            overflow-y: auto;
-            background: rgba(15, 23, 42, 0.7);
+        .btn-small {
+            padding: 10px 18px;
+            font-size: 0.95rem;
             border-radius: 8px;
         }
         
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            min-width: 800px;
-        }
-        
-        thead {
-            position: sticky;
-            top: 0;
-            background: #1e293b;
-            z-index: 10;
-        }
-        
-        th {
-            padding: 15px;
-            text-align: left;
-            font-weight: 600;
-            color: #cbd5e1;
-            border-bottom: 2px solid #334155;
-        }
-        
-        td {
-            padding: 12px 15px;
-            border-bottom: 1px solid #334155;
-            color: #e2e8f0;
-        }
-        
-        tbody tr:hover {
-            background: rgba(96, 165, 250, 0.1);
-        }
-        
-        .flight-number {
-            background: rgba(16, 185, 129, 0.2);
-            color: #10b981;
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-weight: 600;
-            font-family: 'Courier New', monospace;
-        }
-        
+        /* Status Message */
         .status-message {
-            padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 20px;
+            padding: 18px;
+            border-radius: 10px;
+            margin-bottom: 25px;
             display: none;
-            background: rgba(30, 41, 59, 0.9);
+            background: rgba(30, 41, 59, 0.95);
             border-left: 5px solid #3b82f6;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
         }
         
         .status-message.show {
@@ -378,56 +292,357 @@
         
         .status-title {
             font-weight: 600;
-            margin-bottom: 5px;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.1rem;
+        }
+        
+        /* Statistics Cards */
+        .stats-summary {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .stat-card {
+            background: rgba(15, 23, 42, 0.9);
+            border-radius: 12px;
+            padding: 22px;
+            text-align: center;
+            border-top: 5px solid #3b82f6;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+            transition: transform 0.3s ease;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .stat-card.flights {
+            border-top-color: #10b981;
+        }
+        
+        .stat-card.passengers {
+            border-top-color: #8b5cf6;
+        }
+        
+        .stat-card.fqtv {
+            border-top-color: #f59e0b;
+        }
+        
+        .stat-card i {
+            font-size: 2rem;
+            margin-bottom: 15px;
+            opacity: 0.9;
+        }
+        
+        .stat-value {
+            font-size: 2.4rem;
+            font-weight: 800;
+            margin: 12px 0;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+        
+        .stat-label {
+            font-size: 0.95rem;
+            color: #94a3b8;
+            font-weight: 500;
+        }
+        
+        /* Tabs */
+        .report-tabs {
+            display: flex;
+            border-bottom: 2px solid #334155;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+        }
+        
+        .tab {
+            padding: 14px 28px;
+            cursor: pointer;
+            font-weight: 600;
+            color: #94a3b8;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+        
+        .tab:hover {
+            color: #cbd5e1;
+            background: rgba(96, 165, 250, 0.1);
+        }
+        
+        .tab.active {
+            color: #60a5fa;
+            border-bottom-color: #60a5fa;
+            background: rgba(96, 165, 250, 0.1);
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        /* Flight Details Card */
+        .flight-details-card {
+            background: rgba(15, 23, 42, 0.9);
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 25px;
+            border: 1px solid rgba(96, 165, 250, 0.3);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+        }
+        
+        .flight-details-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid rgba(96, 165, 250, 0.3);
+        }
+        
+        .flight-main-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .flight-number-display {
+            font-size: 2.2rem;
+            font-weight: 700;
+            color: #60a5fa;
+            background: rgba(96, 165, 250, 0.1);
+            padding: 8px 20px;
+            border-radius: 8px;
+            border: 2px solid rgba(96, 165, 250, 0.3);
+        }
+        
+        .flight-date {
+            font-size: 1.2rem;
+            color: #cbd5e1;
+            font-weight: 500;
+        }
+        
+        .details-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+        
+        .detail-item {
+            background: rgba(30, 41, 59, 0.7);
+            padding: 18px;
+            border-radius: 10px;
+            border-left: 4px solid #60a5fa;
+        }
+        
+        .detail-item.pnr {
+            border-left-color: #10b981;
+        }
+        
+        .detail-item.seat {
+            border-left-color: #8b5cf6;
+        }
+        
+        .detail-item.class {
+            border-left-color: #f59e0b;
+        }
+        
+        .detail-item.fqtv {
+            border-left-color: #ef4444;
+        }
+        
+        .detail-label {
+            font-size: 0.9rem;
+            color: #94a3b8;
+            margin-bottom: 8px;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .detail-value {
+            font-size: 1.2rem;
+            color: #f1f1f1;
+            font-weight: 600;
+            word-break: break-word;
+        }
+        
+        .detail-value.empty {
+            color: #64748b;
+            font-style: italic;
+        }
+        
+        /* Raw Code Display */
+        .raw-code-display {
+            background: rgba(15, 23, 42, 0.95);
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 25px;
+            border: 1px solid #334155;
+        }
+        
+        .raw-code-label {
+            font-size: 1rem;
+            color: #94a3b8;
+            margin-bottom: 12px;
             display: flex;
             align-items: center;
             gap: 10px;
         }
         
+        .raw-code-content {
+            font-family: 'Courier New', monospace;
+            font-size: 0.95rem;
+            color: #cbd5e1;
+            white-space: pre-wrap;
+            word-break: break-all;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #334155;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        
+        /* Table Container */
+        .table-container {
+            overflow-x: auto;
+            max-height: 500px;
+            overflow-y: auto;
+            background: rgba(15, 23, 42, 0.8);
+            border-radius: 12px;
+            border: 1px solid #334155;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 1000px;
+        }
+        
+        thead {
+            position: sticky;
+            top: 0;
+            background: #1e293b;
+            z-index: 10;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+        
+        th {
+            padding: 16px;
+            text-align: left;
+            font-weight: 600;
+            color: #e2e8f0;
+            border-bottom: 2px solid #475569;
+            font-size: 1rem;
+        }
+        
+        td {
+            padding: 14px 16px;
+            border-bottom: 1px solid #334155;
+            color: #e2e8f0;
+            font-size: 0.95rem;
+        }
+        
+        tbody tr:hover {
+            background: rgba(96, 165, 250, 0.1);
+        }
+        
+        .flight-badge {
+            background: rgba(96, 165, 250, 0.2);
+            color: #60a5fa;
+            padding: 5px 12px;
+            border-radius: 6px;
+            font-weight: 600;
+            font-family: 'Courier New', monospace;
+            display: inline-block;
+        }
+        
+        .seat-badge {
+            background: rgba(139, 92, 246, 0.2);
+            color: #8b5cf6;
+            padding: 5px 12px;
+            border-radius: 6px;
+            font-weight: 600;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .class-badge {
+            background: rgba(245, 158, 11, 0.2);
+            color: #f59e0b;
+            padding: 5px 12px;
+            border-radius: 6px;
+            font-weight: 600;
+        }
+        
+        .fqtv-badge {
+            background: rgba(239, 68, 68, 0.2);
+            color: #ef4444;
+            padding: 5px 12px;
+            border-radius: 6px;
+            font-weight: 600;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .date-badge {
+            background: rgba(16, 185, 129, 0.2);
+            color: #10b981;
+            padding: 5px 12px;
+            border-radius: 6px;
+            font-size: 0.9rem;
+        }
+        
+        /* Loading and Empty States */
         .loading {
             text-align: center;
-            padding: 40px;
+            padding: 60px 20px;
             color: #94a3b8;
         }
         
         .loading i {
-            font-size: 2rem;
-            margin-bottom: 15px;
+            font-size: 3rem;
+            margin-bottom: 20px;
             color: #60a5fa;
             animation: spin 1.5s linear infinite;
         }
         
         .empty-state {
             text-align: center;
-            padding: 60px 20px;
+            padding: 80px 20px;
             color: #94a3b8;
         }
         
         .empty-state i {
-            font-size: 3rem;
-            margin-bottom: 20px;
+            font-size: 4rem;
+            margin-bottom: 25px;
             color: #64748b;
+            opacity: 0.7;
         }
         
-        .flight-chart {
-            height: 300px;
-            margin-top: 30px;
-            background: rgba(15, 23, 42, 0.7);
-            border-radius: 8px;
-            padding: 20px;
+        .empty-state h3 {
+            font-size: 1.8rem;
+            margin-bottom: 15px;
+            color: #cbd5e1;
         }
         
-        .export-options {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
+        .empty-state p {
+            font-size: 1.1rem;
+            max-width: 500px;
+            margin: 0 auto;
+            line-height: 1.6;
         }
         
-        .btn-small {
-            padding: 8px 15px;
-            font-size: 0.9rem;
-        }
-        
+        /* Animations */
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(-10px); }
             to { opacity: 1; transform: translateY(0); }
@@ -444,44 +659,54 @@
             to { transform: rotate(360deg); }
         }
         
+        /* Footer */
         footer {
             text-align: center;
             margin-top: 40px;
-            padding-top: 20px;
+            padding-top: 25px;
             border-top: 1px solid #334155;
             color: #94a3b8;
-            font-size: 0.9rem;
+            font-size: 0.95rem;
         }
         
-        .date-badge {
-            background: rgba(139, 92, 246, 0.2);
-            color: #8b5cf6;
-            padding: 3px 8px;
-            border-radius: 4px;
-            font-size: 0.85rem;
-        }
-        
-        .code-preview {
-            font-family: 'Courier New', monospace;
-            font-size: 0.85rem;
-            color: #cbd5e1;
-            max-width: 300px;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-        }
-        
-        .code-preview:hover {
-            white-space: normal;
-            overflow: visible;
+        /* Responsive Adjustments */
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            
+            h1 {
+                font-size: 2.2rem;
+            }
+            
+            .flight-number-display {
+                font-size: 1.8rem;
+            }
+            
+            .details-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .stats-summary {
+                grid-template-columns: 1fr;
+            }
+            
+            .report-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .export-options {
+                width: 100%;
+            }
         }
     </style>
 </head>
 <body>
     <div class="container">
         <header>
-            <h1><i class="fas fa-chart-bar"></i> Flight Code Report Generator</h1>
-            <p class="subtitle">Generate reports from Firebase savedCodes collection. Extract flight numbers and filter by date range.</p>
+            <h1><i class="fas fa-plane-departure"></i> Flight Barcode Report System</h1>
+            <p class="subtitle">Extract and analyze detailed flight information from barcode data stored in Firebase. Parses passenger names, PNR, flight numbers, seat assignments, classes, and FQTV information.</p>
             <div class="firebase-status">
                 <div id="firebaseStatusIndicator" class="status-indicator"></div>
                 <span id="firebaseStatusText">Connecting to Firebase...</span>
@@ -489,8 +714,9 @@
         </header>
         
         <div class="app-container">
+            <!-- Left Panel - Filters -->
             <div class="filters-panel">
-                <h2><i class="fas fa-filter"></i> Report Filters</h2>
+                <h2 class="panel-title"><i class="fas fa-filter"></i> Report Filters</h2>
                 
                 <div class="filter-group">
                     <label><i class="far fa-calendar-alt"></i> Date Range</label>
@@ -507,10 +733,26 @@
                 </div>
                 
                 <div class="filter-group">
-                    <label><i class="fas fa-plane"></i> Flight Number Filter</label>
+                    <label><i class="fas fa-plane"></i> Flight Number</label>
                     <div class="input-with-icon">
                         <i class="input-icon fas fa-search"></i>
-                        <input type="text" id="flightFilter" placeholder="e.g., 'de 2321' or leave empty for all">
+                        <input type="text" id="flightFilter" placeholder="e.g., 'DE 2321' or leave empty for all">
+                    </div>
+                </div>
+                
+                <div class="filter-group">
+                    <label><i class="fas fa-user"></i> Passenger Name</label>
+                    <div class="input-with-icon">
+                        <i class="input-icon fas fa-user-circle"></i>
+                        <input type="text" id="nameFilter" placeholder="Search by passenger name">
+                    </div>
+                </div>
+                
+                <div class="filter-group">
+                    <label><i class="fas fa-ticket-alt"></i> PNR (Booking Reference)</label>
+                    <div class="input-with-icon">
+                        <i class="input-icon fas fa-hashtag"></i>
+                        <input type="text" id="pnrFilter" placeholder="Search by PNR">
                     </div>
                 </div>
                 
@@ -519,24 +761,10 @@
                     <div class="input-with-icon">
                         <i class="input-icon fas fa-sort-amount-down"></i>
                         <select id="sortBy">
-                            <option value="date">Date (Newest First)</option>
+                            <option value="date_desc">Date (Newest First)</option>
                             <option value="date_asc">Date (Oldest First)</option>
                             <option value="flight">Flight Number</option>
-                        </select>
-                    </div>
-                </div>
-                
-                <div class="filter-group">
-                    <label><i class="fas fa-list-ol"></i> Max Results</label>
-                    <div class="input-with-icon">
-                        <i class="input-icon fas fa-hashtag"></i>
-                        <select id="maxResults">
-                            <option value="50">50 results</option>
-                            <option value="100">100 results</option>
-                            <option value="250">250 results</option>
-                            <option value="500">500 results</option>
-                            <option value="1000">1000 results</option>
-                            <option value="0">All results</option>
+                            <option value="name">Passenger Name</option>
                         </select>
                     </div>
                 </div>
@@ -554,19 +782,21 @@
                 </div>
             </div>
             
+            <!-- Right Panel - Report -->
             <div class="report-panel">
-                <div class="report-controls">
+                <div class="report-header">
                     <div class="report-title">
                         <i class="fas fa-file-alt"></i>
-                        <span id="reportTitle">Flight Code Report</span>
+                        <span id="reportTitle">Flight Barcode Analysis Report</span>
                     </div>
                     <div class="export-options">
                         <button id="printReportBtn" class="btn btn-primary btn-small">
-                            <i class="fas fa-print"></i> Print
+                            <i class="fas fa-print"></i> Print Report
                         </button>
                     </div>
                 </div>
                 
+                <!-- Status Message -->
                 <div id="statusMessage" class="status-message">
                     <div class="status-title">
                         <i class="fas fa-info-circle"></i>
@@ -575,72 +805,103 @@
                     <div id="statusDetails"></div>
                 </div>
                 
-                <div class="stats-summary" id="statsSummary">
-                    <div class="stat-card entries">
-                        <i class="fas fa-database fa-2x"></i>
+                <!-- Statistics Summary -->
+                <div class="stats-summary" id="statsSummary" style="display: none;">
+                    <div class="stat-card">
+                        <i class="fas fa-database"></i>
                         <div class="stat-value" id="totalEntries">0</div>
-                        <div class="stat-label">Total Entries</div>
+                        <div class="stat-label">Total Barcodes</div>
                     </div>
                     <div class="stat-card flights">
-                        <i class="fas fa-plane fa-2x"></i>
+                        <i class="fas fa-plane"></i>
                         <div class="stat-value" id="uniqueFlights">0</div>
                         <div class="stat-label">Unique Flights</div>
                     </div>
-                    <div class="stat-card dates">
-                        <i class="fas fa-calendar-alt fa-2x"></i>
-                        <div class="stat-value" id="dateRange">0</div>
-                        <div class="stat-label">Days Covered</div>
+                    <div class="stat-card passengers">
+                        <i class="fas fa-users"></i>
+                        <div class="stat-value" id="uniquePassengers">0</div>
+                        <div class="stat-label">Passengers</div>
+                    </div>
+                    <div class="stat-card fqtv">
+                        <i class="fas fa-star"></i>
+                        <div class="stat-value" id="fqtvCount">0</div>
+                        <div class="stat-label">FQTV Members</div>
                     </div>
                 </div>
                 
-                <div class="report-tabs">
-                    <div class="tab active" data-tab="table">Data Table</div>
-                    <div class="tab" data-tab="byDate">By Date</div>
-                    <div class="tab" data-tab="byFlight">By Flight</div>
-                    <div class="tab" data-tab="rawData">Raw Data</div>
+                <!-- Flight Details (Single Selection) -->
+                <div id="flightDetailsCard" class="flight-details-card" style="display: none;">
+                    <div class="flight-details-header">
+                        <div class="flight-main-info">
+                            <div class="flight-number-display" id="selectedFlightNumber">FL 1234</div>
+                            <div class="flight-date" id="selectedFlightDate">2025-12-19</div>
+                        </div>
+                        <div class="flight-actions">
+                            <button id="clearSelectionBtn" class="btn btn-danger btn-small">
+                                <i class="fas fa-times"></i> Clear Selection
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="details-grid" id="flightDetailsGrid">
+                        <!-- Details will be populated here -->
+                    </div>
+                    
+                    <div class="raw-code-display">
+                        <div class="raw-code-label">
+                            <i class="fas fa-barcode"></i> Original Barcode
+                        </div>
+                        <div class="raw-code-content" id="selectedRawCode">
+                            Loading...
+                        </div>
+                    </div>
                 </div>
                 
+                <!-- Tabs -->
+                <div class="report-tabs">
+                    <div class="tab active" data-tab="summary">Summary View</div>
+                    <div class="tab" data-tab="detailed">Detailed List</div>
+                    <div class="tab" data-tab="byFlight">By Flight</div>
+                    <div class="tab" data-tab="raw">Raw Data</div>
+                </div>
+                
+                <!-- Loading Indicator -->
                 <div id="loadingIndicator" class="loading" style="display: none;">
                     <i class="fas fa-spinner fa-spin"></i>
-                    <p>Loading data from Firebase...</p>
+                    <p>Loading and parsing barcode data from Firebase...</p>
                 </div>
                 
-                <div id="tableTab" class="tab-content active">
+                <!-- Summary Tab -->
+                <div id="summaryTab" class="tab-content active">
+                    <div id="summaryContent">
+                        <!-- Will be populated with parsed data -->
+                    </div>
+                </div>
+                
+                <!-- Detailed List Tab -->
+                <div id="detailedTab" class="tab-content">
                     <div class="table-container">
-                        <table id="reportTable">
+                        <table id="detailedTable">
                             <thead>
                                 <tr>
                                     <th>Date</th>
-                                    <th>Flight Number</th>
-                                    <th>Code Preview</th>
-                                    <th>Created</th>
+                                    <th>Flight</th>
+                                    <th>Passenger</th>
+                                    <th>PNR</th>
+                                    <th>Seat</th>
+                                    <th>Class</th>
+                                    <th>FQTV</th>
+                                    <th>Actions</th>
                                 </tr>
                             </thead>
-                            <tbody id="reportTableBody">
-                                <!-- Data will be inserted here -->
+                            <tbody id="detailedTableBody">
+                                <!-- Will be populated -->
                             </tbody>
                         </table>
                     </div>
                 </div>
                 
-                <div id="byDateTab" class="tab-content">
-                    <div class="table-container">
-                        <table id="dateSummaryTable">
-                            <thead>
-                                <tr>
-                                    <th>Date</th>
-                                    <th>Entries Count</th>
-                                    <th>Flight Numbers</th>
-                                    <th>Sample Code</th>
-                                </tr>
-                            </thead>
-                            <tbody id="dateSummaryBody">
-                                <!-- Date summary will be inserted here -->
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-                
+                <!-- By Flight Tab -->
                 <div id="byFlightTab" class="tab-content">
                     <div class="table-container">
                         <table id="flightSummaryTable">
@@ -648,18 +909,21 @@
                                 <tr>
                                     <th>Flight Number</th>
                                     <th>Count</th>
-                                    <th>Dates</th>
-                                    <th>Sample Code</th>
+                                    <th>Passengers</th>
+                                    <th>Classes</th>
+                                    <th>FQTV Airlines</th>
+                                    <th>Date Range</th>
                                 </tr>
                             </thead>
                             <tbody id="flightSummaryBody">
-                                <!-- Flight summary will be inserted here -->
+                                <!-- Will be populated -->
                             </tbody>
                         </table>
                     </div>
                 </div>
                 
-                <div id="rawDataTab" class="tab-content">
+                <!-- Raw Data Tab -->
+                <div id="rawTab" class="tab-content">
                     <div class="table-container">
                         <table id="rawDataTable">
                             <thead>
@@ -667,28 +931,29 @@
                                     <th>ID</th>
                                     <th>Date</th>
                                     <th>Created</th>
-                                    <th>Flight Number</th>
-                                    <th>Full Code</th>
+                                    <th>Full Barcode</th>
                                 </tr>
                             </thead>
                             <tbody id="rawDataBody">
-                                <!-- Raw data will be inserted here -->
+                                <!-- Will be populated -->
                             </tbody>
                         </table>
                     </div>
                 </div>
                 
+                <!-- Empty State -->
                 <div id="emptyState" class="empty-state">
                     <i class="fas fa-chart-bar"></i>
                     <h3>No Report Generated Yet</h3>
-                    <p>Configure your filters and click "Generate Report" to see data from Firebase.</p>
+                    <p>Configure your filters and click "Generate Report" to analyze barcode data from Firebase.</p>
+                    <p>The system will parse: Passenger Name, PNR, Flight Number, Seat, Class, and FQTV information.</p>
                 </div>
             </div>
         </div>
         
         <footer>
-            <p>Report generated from Firebase collection: <strong>savedCodes</strong> | Fields: code, date, created, timestamp</p>
-            <p>Flight Code Report Generator &copy; 2023</p>
+            <p>Advanced Flight Barcode Analysis System | Parsing algorithm based on IATA BCBP standard</p>
+            <p>Extracts: Passenger Name • PNR • Flight Number • Seat • Class • FQTV Information</p>
         </footer>
     </div>
 
@@ -720,36 +985,63 @@
         const startDate = document.getElementById('startDate');
         const endDate = document.getElementById('endDate');
         const flightFilter = document.getElementById('flightFilter');
+        const nameFilter = document.getElementById('nameFilter');
+        const pnrFilter = document.getElementById('pnrFilter');
         const sortBy = document.getElementById('sortBy');
-        const maxResults = document.getElementById('maxResults');
         const generateReportBtn = document.getElementById('generateReportBtn');
         const exportDataBtn = document.getElementById('exportDataBtn');
         const resetFiltersBtn = document.getElementById('resetFiltersBtn');
         const printReportBtn = document.getElementById('printReportBtn');
+        const clearSelectionBtn = document.getElementById('clearSelectionBtn');
         const statusMessage = document.getElementById('statusMessage');
         const statusText = document.getElementById('statusText');
         const statusDetails = document.getElementById('statusDetails');
         const firebaseStatusIndicator = document.getElementById('firebaseStatusIndicator');
         const firebaseStatusText = document.getElementById('firebaseStatusText');
         const reportTitle = document.getElementById('reportTitle');
-        const totalEntries = document.getElementById('totalEntries');
-        const uniqueFlights = document.getElementById('uniqueFlights');
-        const dateRange = document.getElementById('dateRange');
-        const reportTableBody = document.getElementById('reportTableBody');
-        const dateSummaryBody = document.getElementById('dateSummaryBody');
-        const flightSummaryBody = document.getElementById('flightSummaryBody');
-        const rawDataBody = document.getElementById('rawDataBody');
+        const statsSummary = document.getElementById('statsSummary');
+        const flightDetailsCard = document.getElementById('flightDetailsCard');
+        const selectedFlightNumber = document.getElementById('selectedFlightNumber');
+        const selectedFlightDate = document.getElementById('selectedFlightDate');
+        const flightDetailsGrid = document.getElementById('flightDetailsGrid');
+        const selectedRawCode = document.getElementById('selectedRawCode');
         const loadingIndicator = document.getElementById('loadingIndicator');
         const emptyState = document.getElementById('emptyState');
-        const statsSummary = document.getElementById('statsSummary');
+        const summaryContent = document.getElementById('summaryContent');
+        const detailedTableBody = document.getElementById('detailedTableBody');
+        const flightSummaryBody = document.getElementById('flightSummaryBody');
+        const rawDataBody = document.getElementById('rawDataBody');
+        
+        // Statistics elements
+        const totalEntries = document.getElementById('totalEntries');
+        const uniqueFlights = document.getElementById('uniqueFlights');
+        const uniquePassengers = document.getElementById('uniquePassengers');
+        const fqtvCount = document.getElementById('fqtvCount');
         
         // Firebase collection name
         const COLLECTION_NAME = 'savedCodes';
         
         // Application state
         let isFirebaseConnected = false;
-        let allData = [];
+        let allParsedData = [];
         let filteredData = [];
+        let selectedFlight = null;
+        
+        // FQTV Tier Mappings
+        const fqtvTierMappings = {
+            same: {
+                'n0': 'NONE',
+                'n1': 'SILVER',
+                'n2': 'GOLD',
+                'n3': 'PLATINUM'
+            },
+            different: {
+                'n0': 'NONE',
+                'n1': '*G',
+                'n2': '**S',
+                'n3': '***G'
+            }
+        };
         
         // Set default date range (last 30 days)
         const today = new Date();
@@ -769,6 +1061,7 @@
             exportDataBtn.addEventListener('click', exportToCSV);
             resetFiltersBtn.addEventListener('click', resetFilters);
             printReportBtn.addEventListener('click', printReport);
+            clearSelectionBtn.addEventListener('click', clearSelection);
             
             // Tab switching
             document.querySelectorAll('.tab').forEach(tab => {
@@ -784,14 +1077,13 @@
             firebaseStatusIndicator.classList.remove('connected');
             firebaseStatusText.textContent = 'Testing Firebase connection...';
             
-            // Try to read from Firestore to test connection
             db.collection(COLLECTION_NAME).limit(1).get()
                 .then(() => {
                     isFirebaseConnected = true;
                     firebaseStatusIndicator.classList.add('connected');
                     firebaseStatusText.textContent = 'Connected to Firebase';
                     generateReportBtn.disabled = false;
-                    showStatus('success', 'Firebase Connected', 'Successfully connected to Firebase Firestore.', 3000);
+                    showStatus('success', 'Firebase Connected', 'Ready to analyze barcode data.', 3000);
                 })
                 .catch((error) => {
                     isFirebaseConnected = false;
@@ -801,29 +1093,238 @@
                 });
         }
         
-        // Extract flight number from code
-        function extractFlightNumber(code) {
-            if (!code) return 'N/A';
+        // Parse barcode using the provided algorithm
+        function parseBarcode(code) {
+            const codeUpper = code.trim().toUpperCase();
+            if (!codeUpper) return null;
             
-            // Try to find flight number pattern like "de 2321"
-            // This regex looks for 2-3 letters, space, then 1-4 digits
-            const flightPattern = /([a-zA-Z]{2,3})\s*(\d{1,4})/;
-            const match = code.match(flightPattern);
+            const parts = codeUpper.split(/\s+/);
             
-            if (match) {
-                // Format as "DE 2321" (uppercase, space)
-                return `${match[1].toUpperCase()} ${match[2]}`;
+            console.log("DEBUG: Parsing barcode tokens:", parts);
+
+            // Extract name and PNR
+            const idxMLE = codeUpper.indexOf('MLE');
+            let name = '';
+            let pnr = '';
+            
+            if (idxMLE !== -1) {
+                let fullNamePart = codeUpper.substring(0, idxMLE).trim();
+                if (fullNamePart.length > 8) {
+                    name = fullNamePart.substring(2, fullNamePart.length - 7).trim();
+                    pnr = fullNamePart.substring(fullNamePart.length - 7).trim();
+                }
+            }
+
+            // Extract flight number
+            let flightNo = '';
+            let flightTokenIndex = -1;
+            
+            for (let i = 0; i < parts.length; i++) {
+                if (parts[i].includes('MLE')) {
+                    flightTokenIndex = i;
+                    const mleToken = parts[i];
+                    flightNo = mleToken.slice(-2) + (parts[i + 1] || '').slice(0, 4);
+                    break;
+                }
+            }
+
+            // Extract seat and class
+            let seatNo = '';
+            let seatClass = '';
+            
+            if (flightTokenIndex !== -1 && parts[flightTokenIndex + 2]) {
+                let seatToken = parts[flightTokenIndex + 2];
+                if (seatToken.length > 9) {
+                    // Extract class from the seat token
+                    if (seatToken.length >= 4) {
+                        seatClass = seatToken.charAt(3);
+                    }
+                    
+                    // Extract seat number
+                    if (seatToken.length >= 8) {
+                        const rowPart = seatToken.substring(4, 7);
+                        const seatLetter = seatToken.charAt(7);
+                        const rowNumber = parseInt(rowPart, 10).toString();
+                        seatNo = rowNumber + seatLetter;
+                    }
+                }
+            }
+
+            // Extract FQTV information
+            let fqtv = null;
+            let fqtvTierCode = '';
+            let hasNoFqtv = false;
+            
+            // Look for FQTV patterns from the end
+            for (let i = parts.length - 1; i >= 0; i--) {
+                const currentToken = parts[i].toUpperCase();
+                
+                // Check for tier codes
+                if (currentToken === 'N0' || currentToken === 'N1' || currentToken === 'N2' || currentToken === 'N3') {
+                    fqtvTierCode = currentToken.toLowerCase();
+                    
+                    if (currentToken === 'N0') {
+                        hasNoFqtv = true;
+                        fqtv = '';
+                        break;
+                    }
+                    
+                    // Look for FQTV number before tier code
+                    if (i >= 1) {
+                        const potentialNumber = parts[i - 1];
+                        
+                        if (/^\d+$/.test(potentialNumber)) {
+                            // Look for airline code before number
+                            if (i >= 2) {
+                                const potentialAirline = parts[i - 2].toUpperCase();
+                                
+                                // Pattern: Airline Number N1 (e.g., OS 222014609070977 N1)
+                                if (potentialAirline.length === 2 && /^[A-Z]{2}$/.test(potentialAirline)) {
+                                    fqtv = potentialAirline + ' ' + potentialNumber;
+                                    break;
+                                }
+                                
+                                // Pattern: Airline Airline Number N1
+                                if (i >= 3) {
+                                    const secondPotentialAirline = parts[i - 3].toUpperCase();
+                                    if (secondPotentialAirline === potentialAirline) {
+                                        fqtv = potentialAirline + ' ' + potentialNumber;
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
             }
             
-            // Alternative pattern: look for any 2-3 letters followed by 1-4 digits
-            const altPattern = /([a-zA-Z]{2,3})(\d{1,4})/;
-            const altMatch = code.match(altPattern);
-            
-            if (altMatch) {
-                return `${altMatch[1].toUpperCase()} ${altMatch[2]}`;
+            // If no tier code found, look for specific patterns
+            if (!hasNoFqtv && !fqtv) {
+                // Look for patterns with airline code + another airline code + number
+                for (let i = 0; i < parts.length - 2; i++) {
+                    const token1 = parts[i].toUpperCase();
+                    const token2 = parts[i + 1].toUpperCase();
+                    const token3 = parts[i + 2];
+                    
+                    // Pattern: OS LH 222014609070977
+                    if (token1.length === 2 && token2.length === 2 && /^\d+$/.test(token3)) {
+                        const airlineCodes = ['OS', 'LH', 'BA', 'QR', 'EY', 'EK', 'MH', 'AI', 'AZ', 'VS', 'PG', 'FZ', 'TK', 'SV', 'G9'];
+                        if (airlineCodes.includes(token1) && airlineCodes.includes(token2)) {
+                            fqtv = token2 + ' ' + token3;
+                            break;
+                        }
+                    }
+                }
             }
-            
-            return 'N/A';
+
+            // If still not found, look for airline + number patterns
+            if (!hasNoFqtv && !fqtv) {
+                for (let i = parts.length - 1; i >= 0; i--) {
+                    const token = parts[i].toUpperCase();
+                    
+                    if (token.length > 15 || /[*<>]/i.test(token)) {
+                        continue;
+                    }
+                    
+                    const airlineCodes = ['OS', 'LH', 'BA', 'QR', 'EY', 'EK', 'MH', 'AI', 'AZ', 'VS', 'PG', 'FZ', 'TK', 'SV', 'G9'];
+                    
+                    // Pattern 1: Token is an airline code
+                    if (airlineCodes.includes(token) && i < parts.length - 1) {
+                        const nextToken = parts[i + 1];
+                        if (/^\d+$/.test(nextToken)) {
+                            fqtv = token + ' ' + nextToken;
+                            break;
+                        }
+                    }
+                    
+                    // Pattern 2: Combined airline+number token
+                    for (const code of airlineCodes) {
+                        if (token.startsWith(code) && token.length > 2 && /^\d+$/.test(token.substring(2))) {
+                            fqtv = code + ' ' + token.substring(2);
+                            break;
+                        }
+                    }
+                    if (fqtv) break;
+                }
+            }
+
+            // Apply formatting to FQTV
+            if (!hasNoFqtv && fqtv) {
+                fqtv = fqtv.trim();
+                
+                // Apply dash formatting
+                if (fqtv && (/^(OS|LH|BA|MH|QR|EY|EK|TK|SV|G9|FZ|AZ|VS|PG|AI)\s/.test(fqtv))) {
+                    fqtv = fqtv.replace(/^(OS|LH|BA|MH|QR|EY|EK|TK|SV|G9|FZ|AZ|VS|PG|AI)\s+/, '$1-');
+                }
+                
+                // Apply tier level if found
+                if (fqtv && fqtvTierCode) {
+                    const flightAirlineCode = flightNo.slice(0, 2).toUpperCase();
+                    let fqtvAirlineCode = '';
+                    
+                    const fqtvUpper = fqtv.toUpperCase();
+                    const dashMatch = fqtvUpper.match(/^([A-Z0-9]{2})[- ]/);
+                    if (dashMatch) {
+                        fqtvAirlineCode = dashMatch[1];
+                    } else {
+                        fqtvAirlineCode = fqtvUpper.substring(0, 2);
+                    }
+                    
+                    let tierName;
+                    if (fqtvAirlineCode && flightAirlineCode && 
+                        fqtvAirlineCode.toUpperCase() === flightAirlineCode.toUpperCase()) {
+                        tierName = fqtvTierMappings.same[fqtvTierCode] || '';
+                    } else {
+                        tierName = fqtvTierMappings.different[fqtvTierCode] || '';
+                    }
+                    
+                    if (tierName) {
+                        fqtv = `${fqtv.replace(/[Nn][123]\s*$/, '').trim()}/${tierName}`;
+                    }
+                }
+            }
+
+            const lastTwo = codeUpper.slice(-2);
+            // Handle Y1/Y2 suffix for BA/MH
+            if (!hasNoFqtv && (flightNo.startsWith('BA') || flightNo.startsWith('MH')) && fqtv) {
+                if (lastTwo === 'Y1') {
+                    if (!fqtv.includes('/')) {
+                        fqtv += '/G';
+                    } else if (!fqtv.includes('/G')) {
+                        fqtv = fqtv.replace(/\/[^\/]+$/, '/G');
+                    }
+                } else if (lastTwo === 'Y2') {
+                    if (!fqtv.includes('/')) {
+                        fqtv += '/S';
+                    } else if (!fqtv.includes('/S')) {
+                        fqtv = fqtv.replace(/\/[^\/]+$/, '/S');
+                    }
+                }
+            } else if (flightNo.startsWith('OS')) {
+                // Special handling for Austrian Airlines
+                const lastIndex = parts.length - 1;
+                const fourthLast = parts[lastIndex - 3] || '';
+                const thirdLast = parts[lastIndex - 2] || '';
+                const fourthLastToken = fourthLast.trim();
+                const thirdLastToken = thirdLast.trim();
+                
+                if (fourthLastToken.length === 2 && thirdLastToken.length > 4) {
+                    if (!fqtv) {
+                        fqtv = (fourthLastToken + ' ' + thirdLastToken).trim();
+                    }
+                }
+            }
+
+            // Return parsed data object
+            return {
+                name: name,
+                pnr: pnr,
+                flightNo: flightNo,
+                seatNo: seatNo,
+                seatClass: seatClass,
+                fqtv: hasNoFqtv ? '' : (fqtv || ''),
+                rawCode: code
+            };
         }
         
         // Generate report
@@ -837,14 +1338,16 @@
             loadingIndicator.style.display = 'block';
             emptyState.style.display = 'none';
             statsSummary.style.display = 'none';
+            flightDetailsCard.style.display = 'none';
             document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
             
             // Get filter values
             const start = startDate.value;
             const end = endDate.value;
-            const flightFilterValue = flightFilter.value.trim().toLowerCase();
+            const flightFilterValue = flightFilter.value.trim().toUpperCase();
+            const nameFilterValue = nameFilter.value.trim().toUpperCase();
+            const pnrFilterValue = pnrFilter.value.trim().toUpperCase();
             const sortByValue = sortBy.value;
-            const maxResultsValue = parseInt(maxResults.value);
             
             // Validate date range
             if (start && end && start > end) {
@@ -865,50 +1368,60 @@
                 query = query.where('date', '<=', end);
             }
             
-            // Apply sorting
-            if (sortByValue === 'date' || sortByValue === 'date_asc') {
-                query = query.orderBy('date', sortByValue === 'date' ? 'desc' : 'asc');
-            }
-            
             // Execute query
             query.get()
                 .then((querySnapshot) => {
-                    allData = [];
+                    allParsedData = [];
                     
                     querySnapshot.forEach((doc) => {
                         const data = doc.data();
-                        allData.push({
-                            id: doc.id,
-                            date: data.date || 'N/A',
-                            created: data.created || 'N/A',
-                            timestamp: data.timestamp,
-                            code: data.code || '',
-                            flightNumber: extractFlightNumber(data.code)
-                        });
+                        const parsed = parseBarcode(data.code || '');
+                        
+                        if (parsed) {
+                            allParsedData.push({
+                                id: doc.id,
+                                date: data.date || 'N/A',
+                                created: data.created || 'N/A',
+                                timestamp: data.timestamp,
+                                ...parsed
+                            });
+                        }
                     });
                     
-                    // Apply flight filter
-                    filteredData = allData;
+                    // Apply filters
+                    filteredData = allParsedData;
+                    
+                    // Flight filter
                     if (flightFilterValue) {
-                        filteredData = allData.filter(item => 
-                            item.flightNumber.toLowerCase().includes(flightFilterValue) ||
-                            item.code.toLowerCase().includes(flightFilterValue)
+                        filteredData = filteredData.filter(item => 
+                            item.flightNo.includes(flightFilterValue) ||
+                            item.rawCode.toUpperCase().includes(flightFilterValue)
                         );
                     }
                     
-                    // Apply max results limit
-                    if (maxResultsValue > 0 && filteredData.length > maxResultsValue) {
-                        filteredData = filteredData.slice(0, maxResultsValue);
+                    // Name filter
+                    if (nameFilterValue) {
+                        filteredData = filteredData.filter(item => 
+                            item.name.toUpperCase().includes(nameFilterValue)
+                        );
                     }
                     
-                    // Sort data if needed
-                    if (sortByValue === 'flight') {
-                        filteredData.sort((a, b) => {
-                            if (a.flightNumber === 'N/A' && b.flightNumber === 'N/A') return 0;
-                            if (a.flightNumber === 'N/A') return 1;
-                            if (b.flightNumber === 'N/A') return -1;
-                            return a.flightNumber.localeCompare(b.flightNumber);
-                        });
+                    // PNR filter
+                    if (pnrFilterValue) {
+                        filteredData = filteredData.filter(item => 
+                            item.pnr.toUpperCase().includes(pnrFilterValue)
+                        );
+                    }
+                    
+                    // Apply sorting
+                    if (sortByValue === 'date_desc') {
+                        filteredData.sort((a, b) => b.date.localeCompare(a.date));
+                    } else if (sortByValue === 'date_asc') {
+                        filteredData.sort((a, b) => a.date.localeCompare(b.date));
+                    } else if (sortByValue === 'flight') {
+                        filteredData.sort((a, b) => a.flightNo.localeCompare(b.flightNo));
+                    } else if (sortByValue === 'name') {
+                        filteredData.sort((a, b) => a.name.localeCompare(b.name));
                     }
                     
                     // Update UI
@@ -919,7 +1432,7 @@
                     
                     // Show success message
                     showStatus('success', 'Report Generated', 
-                        `Found ${allData.length} total entries, ${filteredData.length} match your filters.`, 
+                        `Parsed ${allParsedData.length} barcodes, ${filteredData.length} match your filters.`, 
                         3000);
                 })
                 .catch((error) => {
@@ -934,10 +1447,11 @@
             if (filteredData.length === 0) {
                 emptyState.style.display = 'block';
                 statsSummary.style.display = 'none';
+                flightDetailsCard.style.display = 'none';
                 return;
             }
             
-            // Show stats and table
+            // Show stats
             emptyState.style.display = 'none';
             statsSummary.style.display = 'grid';
             
@@ -947,16 +1461,19 @@
             // Update report title
             const start = startDate.value || 'All';
             const end = endDate.value || 'All';
-            reportTitle.textContent = `Flight Code Report (${start} to ${end})`;
+            reportTitle.textContent = `Barcode Analysis (${start} to ${end}) - ${filteredData.length} records`;
             
-            // Update tables
-            updateDataTable();
-            updateDateSummary();
+            // Update tables and views
+            updateSummaryView();
+            updateDetailedTable();
             updateFlightSummary();
             updateRawDataTable();
             
-            // Ensure table tab is active
-            switchTab('table');
+            // Ensure summary tab is active
+            switchTab('summary');
+            
+            // Clear any previous selection
+            clearSelection();
         }
         
         // Update statistics
@@ -965,107 +1482,193 @@
             
             // Count unique flights
             const uniqueFlightsSet = new Set();
+            // Count unique passengers (by name)
+            const uniquePassengersSet = new Set();
+            // Count FQTV entries
+            let fqtvEntries = 0;
+            
             filteredData.forEach(item => {
-                if (item.flightNumber !== 'N/A') {
-                    uniqueFlightsSet.add(item.flightNumber);
+                if (item.flightNo && item.flightNo !== '') {
+                    uniqueFlightsSet.add(item.flightNo);
+                }
+                
+                if (item.name && item.name !== '') {
+                    uniquePassengersSet.add(item.name);
+                }
+                
+                if (item.fqtv && item.fqtv !== '') {
+                    fqtvEntries++;
                 }
             });
+            
             uniqueFlights.textContent = uniqueFlightsSet.size;
-            
-            // Calculate date range
-            const dates = filteredData.map(item => item.date).filter(date => date !== 'N/A');
-            const uniqueDates = new Set(dates);
-            dateRange.textContent = uniqueDates.size;
+            uniquePassengers.textContent = uniquePassengersSet.size;
+            fqtvCount.textContent = fqtvEntries;
         }
         
-        // Update main data table
-        function updateDataTable() {
-            reportTableBody.innerHTML = '';
+        // Update summary view
+        function updateSummaryView() {
+            summaryContent.innerHTML = '';
             
+            // Group by flight number for summary
+            const flightGroups = {};
             filteredData.forEach(item => {
-                const row = document.createElement('tr');
-                
-                // Format date
-                const dateFormatted = item.date !== 'N/A' ? 
-                    `<span class="date-badge">${item.date}</span>` : 'N/A';
-                
-                // Format created timestamp
-                let createdFormatted = 'N/A';
-                if (item.created !== 'N/A') {
-                    try {
-                        const createdDate = new Date(item.created);
-                        createdFormatted = createdDate.toLocaleString();
-                    } catch (e) {
-                        createdFormatted = item.created;
-                    }
-                }
-                
-                // Truncate code for preview
-                const codePreview = item.code.length > 50 ? 
-                    item.code.substring(0, 50) + '...' : item.code;
-                
-                row.innerHTML = `
-                    <td>${dateFormatted}</td>
-                    <td><span class="flight-number">${item.flightNumber}</span></td>
-                    <td><div class="code-preview" title="${escapeHtml(item.code)}">${escapeHtml(codePreview)}</div></td>
-                    <td>${createdFormatted}</td>
-                `;
-                
-                reportTableBody.appendChild(row);
-            });
-        }
-        
-        // Update date summary table
-        function updateDateSummary() {
-            dateSummaryBody.innerHTML = '';
-            
-            // Group by date
-            const dateGroups = {};
-            filteredData.forEach(item => {
-                const date = item.date;
-                if (!dateGroups[date]) {
-                    dateGroups[date] = {
+                const flight = item.flightNo || 'Unknown';
+                if (!flightGroups[flight]) {
+                    flightGroups[flight] = {
                         count: 0,
-                        flights: new Set(),
-                        sampleCode: item.code
+                        passengers: new Set(),
+                        dates: new Set(),
+                        fqtvCount: 0,
+                        sampleItem: item
                     };
                 }
-                dateGroups[date].count++;
-                if (item.flightNumber !== 'N/A') {
-                    dateGroups[date].flights.add(item.flightNumber);
-                }
+                flightGroups[flight].count++;
+                if (item.name) flightGroups[flight].passengers.add(item.name);
+                if (item.date) flightGroups[flight].dates.add(item.date);
+                if (item.fqtv) flightGroups[flight].fqtvCount++;
             });
             
-            // Convert to array and sort by date (newest first)
-            const dateArray = Object.entries(dateGroups).map(([date, data]) => ({
-                date,
+            // Convert to array and sort by count
+            const flightArray = Object.entries(flightGroups).map(([flight, data]) => ({
+                flight,
                 count: data.count,
-                flights: Array.from(data.flights),
-                sampleCode: data.sampleCode
+                passengerCount: data.passengers.size,
+                dates: Array.from(data.dates).sort().reverse(),
+                fqtvCount: data.fqtvCount,
+                sampleItem: data.sampleItem
             }));
             
-            dateArray.sort((a, b) => b.date.localeCompare(a.date));
+            flightArray.sort((a, b) => b.count - a.count);
             
-            // Populate table
-            dateArray.forEach(item => {
+            // Create summary cards
+            flightArray.forEach((flightData, index) => {
+                const card = document.createElement('div');
+                card.className = 'flight-details-card';
+                card.style.marginBottom = '20px';
+                card.style.cursor = 'pointer';
+                card.addEventListener('click', () => showFlightDetails(flightData.flight));
+                
+                // Format dates
+                const datesList = flightData.dates.slice(0, 3).map(d => `<span class="date-badge">${d}</span>`).join(' ');
+                const moreDates = flightData.dates.length > 3 ? ` +${flightData.dates.length - 3} more` : '';
+                
+                card.innerHTML = `
+                    <div class="flight-details-header">
+                        <div class="flight-main-info">
+                            <div class="flight-number-display">${flightData.flight || 'Unknown'}</div>
+                            <div class="flight-date">${flightData.count} passengers</div>
+                        </div>
+                        <div>
+                            <span style="color: #94a3b8; font-size: 0.9rem;">Click to view details</span>
+                        </div>
+                    </div>
+                    <div class="details-grid">
+                        <div class="detail-item">
+                            <div class="detail-label">Passengers</div>
+                            <div class="detail-value">${flightData.passengerCount} unique</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Dates</div>
+                            <div class="detail-value">${datesList}${moreDates}</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">FQTV Members</div>
+                            <div class="detail-value">${flightData.fqtvCount}</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Sample Passenger</div>
+                            <div class="detail-value">${flightData.sampleItem.name || 'Unknown'}</div>
+                        </div>
+                    </div>
+                `;
+                
+                summaryContent.appendChild(card);
+            });
+        }
+        
+        // Show detailed view for a specific flight
+        function showFlightDetails(flightNumber) {
+            selectedFlight = flightNumber;
+            
+            // Filter data for this flight
+            const flightData = filteredData.filter(item => item.flightNo === flightNumber);
+            if (flightData.length === 0) return;
+            
+            // Update flight details card
+            selectedFlightNumber.textContent = flightNumber;
+            selectedFlightDate.textContent = `${flightData.length} passengers`;
+            flightDetailsCard.style.display = 'block';
+            
+            // Scroll to details card
+            flightDetailsCard.scrollIntoView({ behavior: 'smooth' });
+            
+            // Update details grid
+            flightDetailsGrid.innerHTML = '';
+            
+            // Show all passengers for this flight
+            flightData.forEach((item, index) => {
+                const detailItem = document.createElement('div');
+                detailItem.className = 'detail-item';
+                
+                // Add specific class based on item type
+                if (index % 5 === 0) detailItem.classList.add('pnr');
+                else if (index % 5 === 1) detailItem.classList.add('seat');
+                else if (index % 5 === 2) detailItem.classList.add('class');
+                else if (index % 5 === 3) detailItem.classList.add('fqtv');
+                
+                detailItem.innerHTML = `
+                    <div class="detail-label">Passenger ${index + 1}</div>
+                    <div class="detail-value">
+                        <div><strong>Name:</strong> ${item.name || 'Unknown'}</div>
+                        <div><strong>PNR:</strong> ${item.pnr || 'N/A'}</div>
+                        <div><strong>Seat:</strong> ${item.seatNo ? `<span class="seat-badge">${item.seatNo}</span>` : 'N/A'}</div>
+                        <div><strong>Class:</strong> ${item.seatClass ? `<span class="class-badge">${item.seatClass}</span>` : 'N/A'}</div>
+                        <div><strong>FQTV:</strong> ${item.fqtv ? `<span class="fqtv-badge">${item.fqtv}</span>` : 'N/A'}</div>
+                        <div><strong>Date:</strong> <span class="date-badge">${item.date}</span></div>
+                    </div>
+                `;
+                
+                flightDetailsGrid.appendChild(detailItem);
+            });
+            
+            // Show raw code from first item
+            if (flightData[0]) {
+                selectedRawCode.textContent = flightData[0].rawCode;
+            }
+        }
+        
+        // Clear flight selection
+        function clearSelection() {
+            selectedFlight = null;
+            flightDetailsCard.style.display = 'none';
+        }
+        
+        // Update detailed table
+        function updateDetailedTable() {
+            detailedTableBody.innerHTML = '';
+            
+            filteredData.forEach((item, index) => {
                 const row = document.createElement('tr');
-                
-                // Format flights list
-                const flightsList = item.flights.length > 0 ? 
-                    item.flights.join(', ') : 'No flights detected';
-                
-                // Truncate code for preview
-                const codePreview = item.sampleCode.length > 40 ? 
-                    item.sampleCode.substring(0, 40) + '...' : item.sampleCode;
+                row.style.cursor = 'pointer';
+                row.addEventListener('click', () => showFlightDetails(item.flightNo));
                 
                 row.innerHTML = `
                     <td><span class="date-badge">${item.date}</span></td>
-                    <td><strong>${item.count}</strong> entries</td>
-                    <td>${flightsList}</td>
-                    <td><div class="code-preview" title="${escapeHtml(item.sampleCode)}">${escapeHtml(codePreview)}</div></td>
+                    <td><span class="flight-badge">${item.flightNo || 'N/A'}</span></td>
+                    <td>${item.name || 'Unknown'}</td>
+                    <td>${item.pnr || 'N/A'}</td>
+                    <td>${item.seatNo ? `<span class="seat-badge">${item.seatNo}</span>` : 'N/A'}</td>
+                    <td>${item.seatClass ? `<span class="class-badge">${item.seatClass}</span>` : 'N/A'}</td>
+                    <td>${item.fqtv ? `<span class="fqtv-badge">${item.fqtv}</span>` : 'N/A'}</td>
+                    <td>
+                        <button class="btn btn-primary btn-small" onclick="event.stopPropagation(); showFlightDetails('${item.flightNo}')">
+                            <i class="fas fa-eye"></i> View
+                        </button>
+                    </td>
                 `;
                 
-                dateSummaryBody.appendChild(row);
+                detailedTableBody.appendChild(row);
             });
         }
         
@@ -1073,57 +1676,61 @@
         function updateFlightSummary() {
             flightSummaryBody.innerHTML = '';
             
-            // Group by flight number
+            // Group by flight
             const flightGroups = {};
             filteredData.forEach(item => {
-                const flight = item.flightNumber;
+                const flight = item.flightNo || 'Unknown';
                 if (!flightGroups[flight]) {
                     flightGroups[flight] = {
                         count: 0,
-                        dates: new Set(),
-                        sampleCode: item.code
+                        passengers: new Set(),
+                        classes: new Set(),
+                        fqtvAirlines: new Set(),
+                        dates: new Set()
                     };
                 }
                 flightGroups[flight].count++;
-                if (item.date !== 'N/A') {
-                    flightGroups[flight].dates.add(item.date);
+                if (item.name) flightGroups[flight].passengers.add(item.name);
+                if (item.seatClass) flightGroups[flight].classes.add(item.seatClass);
+                if (item.fqtv) {
+                    const airlineMatch = item.fqtv.match(/^([A-Z]{2})/);
+                    if (airlineMatch) flightGroups[flight].fqtvAirlines.add(airlineMatch[1]);
                 }
+                if (item.date) flightGroups[flight].dates.add(item.date);
             });
             
-            // Convert to array and sort by count (descending)
+            // Convert to array and sort
             const flightArray = Object.entries(flightGroups).map(([flight, data]) => ({
                 flight,
                 count: data.count,
-                dates: Array.from(data.dates).sort().reverse(),
-                sampleCode: data.sampleCode
+                passengers: Array.from(data.passengers),
+                classes: Array.from(data.classes),
+                fqtvAirlines: Array.from(data.fqtvAirlines),
+                dates: Array.from(data.dates).sort()
             }));
             
-            flightArray.sort((a, b) => {
-                // Sort "N/A" to the bottom
-                if (a.flight === 'N/A') return 1;
-                if (b.flight === 'N/A') return -1;
-                return b.count - a.count;
-            });
+            flightArray.sort((a, b) => b.count - a.count);
             
             // Populate table
             flightArray.forEach(item => {
                 const row = document.createElement('tr');
+                row.style.cursor = 'pointer';
+                row.addEventListener('click', () => showFlightDetails(item.flight));
                 
-                // Format dates list (show only first 3)
-                let datesList = item.dates.slice(0, 3).map(d => `<span class="date-badge">${d}</span>`).join(' ');
-                if (item.dates.length > 3) {
-                    datesList += ` <span title="${item.dates.join(', ')}">+${item.dates.length - 3} more</span>`;
-                }
-                
-                // Truncate code for preview
-                const codePreview = item.sampleCode.length > 40 ? 
-                    item.sampleCode.substring(0, 40) + '...' : item.sampleCode;
+                // Format data for display
+                const passengerCount = item.passengers.length;
+                const classList = item.classes.length > 0 ? item.classes.join(', ') : 'N/A';
+                const fqtvList = item.fqtvAirlines.length > 0 ? item.fqtvAirlines.join(', ') : 'None';
+                const dateRange = item.dates.length > 0 ? 
+                    `${item.dates[0]} to ${item.dates[item.dates.length - 1]}` : 'N/A';
                 
                 row.innerHTML = `
-                    <td><span class="flight-number">${item.flight}</span></td>
-                    <td><strong>${item.count}</strong> entries</td>
-                    <td>${datesList || 'No dates'}</td>
-                    <td><div class="code-preview" title="${escapeHtml(item.sampleCode)}">${escapeHtml(codePreview)}</div></td>
+                    <td><span class="flight-badge">${item.flight}</span></td>
+                    <td><strong>${item.count}</strong> passengers</td>
+                    <td>${passengerCount} unique</td>
+                    <td>${classList}</td>
+                    <td>${fqtvList}</td>
+                    <td>${dateRange}</td>
                 `;
                 
                 flightSummaryBody.appendChild(row);
@@ -1150,10 +1757,9 @@
                 
                 row.innerHTML = `
                     <td><small>${item.id.substring(0, 8)}...</small></td>
-                    <td>${item.date}</td>
+                    <td><span class="date-badge">${item.date}</span></td>
                     <td>${createdFormatted}</td>
-                    <td><span class="flight-number">${item.flightNumber}</span></td>
-                    <td><div class="code-preview" title="${escapeHtml(item.code)}">${escapeHtml(item.code)}</div></td>
+                    <td><div class="raw-code-content" style="max-height: 60px; font-size: 0.8rem;">${escapeHtml(item.rawCode)}</div></td>
                 `;
                 
                 rawDataBody.appendChild(row);
@@ -1181,15 +1787,20 @@
             }
             
             // Create CSV content
-            let csvContent = "ID,Date,Created,Flight Number,Code\n";
+            let csvContent = "ID,Date,Created,Passenger Name,PNR,Flight Number,Seat,Class,FQTV,Raw Barcode\n";
             
             filteredData.forEach(item => {
                 const row = [
                     `"${item.id}"`,
                     `"${item.date}"`,
                     `"${item.created}"`,
-                    `"${item.flightNumber}"`,
-                    `"${item.code.replace(/"/g, '""')}"`
+                    `"${item.name || ''}"`,
+                    `"${item.pnr || ''}"`,
+                    `"${item.flightNo || ''}"`,
+                    `"${item.seatNo || ''}"`,
+                    `"${item.seatClass || ''}"`,
+                    `"${item.fqtv || ''}"`,
+                    `"${item.rawCode.replace(/"/g, '""')}"`
                 ];
                 csvContent += row.join(',') + '\n';
             });
@@ -1203,14 +1814,14 @@
             // Generate filename
             const start = startDate.value || 'all';
             const end = endDate.value || 'all';
-            link.download = `flight_codes_${start}_to_${end}.csv`;
+            link.download = `flight_barcode_data_${start}_to_${end}.csv`;
             
             // Trigger download
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
             
-            showStatus('success', 'CSV Exported', `Exported ${filteredData.length} records to CSV file.`);
+            showStatus('success', 'CSV Exported', `Exported ${filteredData.length} parsed records to CSV file.`);
         }
         
         // Print report
@@ -1230,8 +1841,9 @@
             
             // Reset other filters
             flightFilter.value = '';
-            sortBy.value = 'date';
-            maxResults.value = '50';
+            nameFilter.value = '';
+            pnrFilter.value = '';
+            sortBy.value = 'date_desc';
             
             showStatus('info', 'Filters Reset', 'All filters have been reset to default values.');
         }
